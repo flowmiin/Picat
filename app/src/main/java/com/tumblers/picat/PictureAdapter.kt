@@ -39,6 +39,6 @@ class PictureAdapter(): RecyclerView.Adapter<PictureAdapter.PictureViewHolder>()
     }
 
     class PictureViewHolder(view: View): RecyclerView.ViewHolder(view) {
-        val uploadPicture: ImageView = view.findViewById(R.id.uploadPicture)
+        val uploadPicture: ImageView = view.findViewById(R.id.upload_picture)
     }
 }
