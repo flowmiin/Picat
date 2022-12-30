@@ -1,7 +1,7 @@
 package com.tumblers.picat
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -9,6 +9,8 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.tumblers.picat.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -28,10 +30,19 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
+        val bottomSheetView = LayoutInflater.from(applicationContext).inflate(R.layout.bottomsheet_content, findViewById(R.id.bottomsheet_layout) as ConstraintLayout?)
+
         binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            // bottomSheetDialog 뷰 생성
+            bottomSheetDialog.setContentView(bottomSheetView)
+            // bottomSheetDialog 호출
+            bottomSheetDialog.show()
         }
+
+//        bottomSheetView.findViewById<View>(R.id.upload_button).setOnClickListener {
+//            bottomSheetDialog.dismiss()
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -22,4 +22,14 @@
     <style name="Theme.Picat.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Picat.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+<!--    바텀 시트 테마 -->
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="background">@android:color/white</item>
+    </style>
+
 </resources>
