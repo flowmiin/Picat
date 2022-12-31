@@ -1,6 +1,8 @@
 package com.tumblers.picat
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -8,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +33,13 @@ class SharePictureActivity: AppCompatActivity(){
         super.onCreate(savedInstanceState)
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // mainActivity로부터 앨범이름 가져오기
+        val mainActivityIntent = intent
+        binding.roomNameText.text = mainActivityIntent.getStringExtra("albumName")
+//        val tmpToast = Toast.makeText(this, mainActivityIntent.getStringExtra("albumName"), Toast.LENGTH_SHORT)
+//        tmpToast.show()
+
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageList, this)
@@ -73,14 +83,14 @@ class SharePictureActivity: AppCompatActivity(){
 
         //바텀시트 초기화
         val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
+        bottomSheetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         val bottomSheetView = LayoutInflater.from(applicationContext)
-            .inflate(R.layout.bottomsheet_content, findViewById(R.id.bottomsheet_layout) as ConstraintLayout?)
+            .inflate(R.layout.bottomsheet_content, findViewById<ConstraintLayout>(R.id.bottomsheet_layout))
 
         // fab버튼 클릭 시 바텀시트 활성화
         binding.openBottomsheetFab.setOnClickListener { view ->
-            // bottomSheetDialog 뷰 생성
+            // bottomSheetDialog 뷰 생성, 호출
             bottomSheetDialog.setContentView(bottomSheetView)
-            // bottomSheetDialog 호출
             bottomSheetDialog.show()
         }
 
