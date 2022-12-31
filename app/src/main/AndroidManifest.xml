@@ -14,22 +14,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Picat"
         tools:targetApi="31">
+<!--    LoginActivity    -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+<!--    MainActivity    -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Picat.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity android:name=".SharePictureActivity"></activity>
+<!--    SharePictureActivity    -->
+        <activity android:name=".SharePictureActivity" />
+
     </application>
 
 </manifest>

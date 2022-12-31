@@ -7,7 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
@@ -47,7 +46,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="중복된 사진"
-                    android:textSize="20dp" />
+                    android:textSize="20dp"
+                    app:layout_constraintStart_toStartOf="parent"/>
 
                 <Button
                     android:id="@+id/expand_same_button"
@@ -89,7 +89,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="흐린 사진"
-                        android:textSize="20dp" />
+                        android:textSize="20dp"
+                        app:layout_constraintStart_toStartOf="parent"/>
 
                     <Button
                         android:id="@+id/expand_blur_button"
@@ -137,17 +138,16 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <Button
-        android:id="@+id/upload_button"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/open_bottomsheet_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="100dp"
-        android:layout_marginRight="100dp"
-        android:text="업로드"
+        android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:src="@drawable/plus_fab"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
