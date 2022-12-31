@@ -6,20 +6,18 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
+import android.widget.Button
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.tumblers.picat.databinding.SharePictureBinding
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.tumblers.picat.databinding.ActivitySharePictureBinding
 
 class SharePictureActivity: AppCompatActivity(){
-    lateinit var binding: SharePictureBinding
+    lateinit var binding: ActivitySharePictureBinding
 
     lateinit var pictureAdapter: PictureAdapter
 
@@ -27,7 +25,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = SharePictureBinding.inflate(layoutInflater)
+        binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         //Adapter 초기화
@@ -39,8 +37,20 @@ class SharePictureActivity: AppCompatActivity(){
         // GridView 형식으로 만들기
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
 
-        // 업로드 버튼 이벤트
-        binding.uploadButton.setOnClickListener {
+        //바텀시트 초기화
+        val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
+        val bottomSheetView = LayoutInflater.from(applicationContext).inflate(R.layout.bottomsheet_content, findViewById(R.id.bottomsheet_layout) as ConstraintLayout?)
+
+        // fab버튼 클릭 시 바텀시트 활성화
+        binding.openBottomsheetFab.setOnClickListener { view ->
+            // bottomSheetDialog 뷰 생성
+            bottomSheetDialog.setContentView(bottomSheetView)
+            // bottomSheetDialog 호출
+            bottomSheetDialog.show()
+        }
+
+        //바텀시트 내 업로드 버튼
+        bottomSheetView.findViewById<Button>(R.id.bottomsheet_upload_button).setOnClickListener {
             // 갤러리 호출
             val intent = Intent(Intent.ACTION_PICK)
             intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -50,6 +60,7 @@ class SharePictureActivity: AppCompatActivity(){
             intent.action = Intent.ACTION_GET_CONTENT
             activityResult.launch(intent)
         }
+
     }
 
     // 결과 가져오기
