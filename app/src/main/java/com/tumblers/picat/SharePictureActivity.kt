@@ -1,6 +1,5 @@
 package com.tumblers.picat
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -39,7 +38,8 @@ class SharePictureActivity: AppCompatActivity(){
 
         //바텀시트 초기화
         val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
-        val bottomSheetView = LayoutInflater.from(applicationContext).inflate(R.layout.bottomsheet_content, findViewById(R.id.bottomsheet_layout) as ConstraintLayout?)
+        val bottomSheetView = LayoutInflater.from(applicationContext)
+            .inflate(R.layout.bottomsheet_content, findViewById(R.id.bottomsheet_layout) as ConstraintLayout?)
 
         // fab버튼 클릭 시 바텀시트 활성화
         binding.openBottomsheetFab.setOnClickListener { view ->
