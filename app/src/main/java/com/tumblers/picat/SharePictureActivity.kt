@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.ImageButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -50,7 +51,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         //바텀시트 내 업로드 버튼
-        bottomSheetView.findViewById<Button>(R.id.bottomsheet_upload_button).setOnClickListener {
+        bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
             // 갤러리 호출
             val intent = Intent(Intent.ACTION_PICK)
             intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -59,6 +60,8 @@ class SharePictureActivity: AppCompatActivity(){
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
             intent.action = Intent.ACTION_GET_CONTENT
             activityResult.launch(intent)
+
+            bottomSheetDialog.hide()
         }
 
     }
