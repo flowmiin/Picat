@@ -22,6 +22,8 @@ class SharePictureActivity: AppCompatActivity(){
     lateinit var binding: SharePictureBinding
 
     lateinit var pictureAdapter: PictureAdapter
+    lateinit var samePictureAdapter: SamePictureAdapter
+    lateinit var blurPictureAdapter: BlurPictureAdapter
 
     var imageList: ArrayList<Uri> = ArrayList()
 
@@ -32,12 +34,41 @@ class SharePictureActivity: AppCompatActivity(){
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageList, this)
+        samePictureAdapter = SamePictureAdapter(imageList, this)
+        blurPictureAdapter = BlurPictureAdapter(imageList, this)
 
         //recyclerview 설정
         binding.pictureRecyclerview.layoutManager = LinearLayoutManager(this)
         binding.pictureRecyclerview.adapter = pictureAdapter
         // GridView 형식으로 만들기
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
+
+        // same recyclerview 설정
+        binding.sameRecyclerview.layoutManager = LinearLayoutManager(this)
+        binding.sameRecyclerview.adapter = samePictureAdapter
+        binding.sameRecyclerview.layoutManager = GridLayoutManager(this, 3)
+        binding.expandSameButton.setOnClickListener {
+            if(binding.sameRecyclerview.visibility == View.VISIBLE) {
+                binding.sameRecyclerview.visibility = View.GONE
+            }
+            else {
+                binding.sameRecyclerview.visibility = View.VISIBLE
+            }
+        }
+
+
+        // blur recyclerview 설정
+        binding.blurRecyclerview.layoutManager = LinearLayoutManager(this)
+        binding.blurRecyclerview.adapter = blurPictureAdapter
+        binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
+        binding.expandBlurButton.setOnClickListener {
+            if(binding.blurRecyclerview.visibility == View.VISIBLE) {
+                binding.blurRecyclerview.visibility = View.GONE
+            }
+            else {
+                binding.blurRecyclerview.visibility = View.VISIBLE
+            }
+        }
 
         // 업로드 버튼 이벤트
         binding.uploadButton.setOnClickListener {
@@ -76,6 +107,9 @@ class SharePictureActivity: AppCompatActivity(){
             }
             // 적용
             pictureAdapter.notifyDataSetChanged()
+            samePictureAdapter.notifyDataSetChanged()
+            blurPictureAdapter.notifyDataSetChanged()
+
         }
     }
 }
