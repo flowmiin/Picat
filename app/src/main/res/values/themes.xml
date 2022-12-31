@@ -23,13 +23,18 @@
 
     <style name="Theme.Picat.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-<!--    바텀 시트 테마 -->
+<!--   바텀 시트 테마   -->
     <style name="BottomSheetDialogTheme" parent="Theme.Design.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
     </style>
 
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="background">@android:color/white</item>
+    </style>
+
+<!--  앨범 생성 alert 테마 -->
+    <style name="CreateAlbumDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>
 
 </resources>
