@@ -42,7 +42,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         // mainActivity로부터 앨범이름 가져오기
         val mainActivityIntent = intent
-        binding.roomNameText.text = mainActivityIntent.getStringExtra("albumName")
+        binding.roomName.text = mainActivityIntent.getStringExtra("albumName")
 //        val tmpToast = Toast.makeText(this, mainActivityIntent.getStringExtra("albumName"), Toast.LENGTH_SHORT)
 //        tmpToast.show()
 
