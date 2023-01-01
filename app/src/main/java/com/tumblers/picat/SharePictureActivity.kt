@@ -7,16 +7,20 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 
@@ -26,6 +30,7 @@ class SharePictureActivity: AppCompatActivity(){
     lateinit var pictureAdapter: PictureAdapter
     lateinit var samePictureAdapter: SamePictureAdapter
     lateinit var blurPictureAdapter: BlurPictureAdapter
+    lateinit var profilePictureAdapter: ProfilePictureAdapter
 
     var imageList: ArrayList<Uri> = ArrayList()
 
@@ -34,6 +39,7 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         // mainActivity로부터 앨범이름 가져오기
         val mainActivityIntent = intent
         binding.roomNameText.text = mainActivityIntent.getStringExtra("albumName")
@@ -41,12 +47,21 @@ class SharePictureActivity: AppCompatActivity(){
 //        tmpToast.show()
 
 
+        val actionbar: ActionBar? = supportActionBar
+        actionbar?.title = "공유방"
+
+
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageList, this)
         samePictureAdapter = SamePictureAdapter(imageList, this)
         blurPictureAdapter = BlurPictureAdapter(imageList, this)
+        profilePictureAdapter = ProfilePictureAdapter(imageList, this)
 
-        //recyclerview 설정
+        // profile recyclerview 설정
+        binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        binding.profileRecyclerview.adapter = profilePictureAdapter
+
+        // upload picture recyclerview 설정
         binding.pictureRecyclerview.layoutManager = LinearLayoutManager(this)
         binding.pictureRecyclerview.adapter = pictureAdapter
         // GridView 형식으로 만들기
@@ -97,9 +112,9 @@ class SharePictureActivity: AppCompatActivity(){
         //바텀시트 내 업로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
             // 갤러리 호출
-            val intent = Intent(Intent.ACTION_PICK)
+            val intent = Intent()
             intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            //intent.type = "image/*"
+            intent.type = "image/*"
             // 다중 선택 기능
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
             intent.action = Intent.ACTION_GET_CONTENT
@@ -136,8 +151,21 @@ class SharePictureActivity: AppCompatActivity(){
             pictureAdapter.notifyDataSetChanged()
             samePictureAdapter.notifyDataSetChanged()
             blurPictureAdapter.notifyDataSetChanged()
+            profilePictureAdapter.notifyDataSetChanged()
 
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.out_button -> { finish() }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
 
