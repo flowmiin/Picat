@@ -1,58 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/create_ablum_alert_layout"
+    android:id="@+id/basic_alert_layout"
     android:background="@drawable/alert_background"
     android:orientation="vertical"
     android:padding="20dp">
 
     <TextView
-        android:id="@+id/create_ablum_alert_title"
+        android:id="@+id/alert_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/create_album_alert_title"
+        android:text="기본 알림 제목"
         android:textColor="@color/black"
         android:textSize="16dp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/album_name_editText"
-        app:layout_constraintEnd_toEndOf="@+id/album_name_editText"
-        app:layout_constraintStart_toStartOf="@+id/album_name_editText"
-        android:layout_marginBottom="20dp"/>
+        app:layout_constraintBottom_toTopOf="@+id/alert_subtitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="20dp"
+        />
 
-    <EditText
-        android:id="@+id/album_name_editText"
-        android:layout_width="240dp"
+    <TextView
+        android:id="@+id/alert_subtitle"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
+        android:text="기본 알림 부제목"
+        android:textColor="@color/black"
+        android:textSize="16dp"
         android:gravity="center"
-        android:text=""
-        android:hint="새 앨범"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/cancel_create_album"
+        android:id="@+id/cancel_alert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/transparent"
         android:text="취소"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/album_name_editText"
-        app:layout_constraintTop_toBottomOf="@+id/album_name_editText"
+        app:layout_constraintStart_toStartOf="@+id/alert_subtitle"
+        app:layout_constraintTop_toBottomOf="@+id/alert_subtitle"
         android:layout_margin="10dp"/>
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/confirm_create_album"
+        android:id="@+id/confirm_alert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/transparent"
         android:text="확인"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/album_name_editText"
-        app:layout_constraintTop_toBottomOf="@+id/album_name_editText"
+        app:layout_constraintEnd_toEndOf="@+id/alert_subtitle"
+        app:layout_constraintTop_toBottomOf="@+id/alert_subtitle"
         android:layout_margin="10dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

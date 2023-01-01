@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val builder = AlertDialog.Builder(this, R.style.CreateAlbumDialogTheme)
+        val builder = AlertDialog.Builder(this, R.style.BasicDialogTheme)
         val createAlbumAlertView = LayoutInflater.from(this)
             .inflate(R.layout.create_album_alert_content, findViewById<ConstraintLayout>(R.id.create_ablum_alert_layout))
 
@@ -36,13 +36,13 @@ class MainActivity : AppCompatActivity() {
             alertDialog?.show()
         }
 
+        // 앨범 생성 취소
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.cancel_create_album).setOnClickListener {
-            // 앨범 생성 취소
             alertDialog?.dismiss()
         }
 
+        // 앨범 생성 확인
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.confirm_create_album).setOnClickListener {
-            // 앨범 생성 확인
             alertDialog?.dismiss()
             val intent = Intent(this, SharePictureActivity::class.java)
             var newAlbumName = createAlbumAlertView.findViewById<EditText>(R.id.album_name_editText).text.toString()

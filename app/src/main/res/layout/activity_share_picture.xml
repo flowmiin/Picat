@@ -5,7 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:id="@+id/activity_share_picture_layout">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_view"
@@ -15,6 +16,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/profile_tab"
@@ -34,10 +36,24 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <HorizontalScrollView
+                    android:id="@+id/room_name_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="텀블러즈 송년회"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"
+                    app:layout_constraintVertical_bias="0.2"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <HorizontalScrollView
+                    android:id="@+id/profile_horizontal_scrollview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    app:layout_constraintTop_toBottomOf="@id/room_name"
+                    app:layout_constraintTop_toBottomOf="@id/room_name_text"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent">
 
@@ -54,10 +70,9 @@
                             app:layout_constraintLeft_toLeftOf="parent">
                         </androidx.recyclerview.widget.RecyclerView>
 
-                        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
+                        <ImageButton
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
                             android:src="@drawable/plus_fab"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toRightOf="@id/profile_recyclerview"
@@ -95,18 +110,17 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-
             <!-- 중복된 사진 탭  -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/same_sort_tab"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:layout_marginTop="50dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="?attr/actionBarSize"
-                app:layout_constraintTop_toBottomOf="@+id/profile_tab">
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/automatic_upload_tab">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -189,7 +203,7 @@
 
                     <TextView
                         android:id="@+id/upload_text"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="나머지 사진"
                         android:textSize="20dp"
@@ -220,8 +234,8 @@
         android:layout_marginBottom="30dp"
         android:src="@drawable/plus_fab"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="visible"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -10,13 +10,13 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,11 +42,10 @@ class SharePictureActivity: AppCompatActivity(){
 
         // mainActivity로부터 앨범이름 가져오기
         val mainActivityIntent = intent
-        binding.roomName.text = mainActivityIntent.getStringExtra("albumName")
-//        val tmpToast = Toast.makeText(this, mainActivityIntent.getStringExtra("albumName"), Toast.LENGTH_SHORT)
-//        tmpToast.show()
+        val roomName = mainActivityIntent.getStringExtra("albumName")
+        binding.roomName.text = roomName
 
-
+        // 액션바 제목 설정
         val actionbar: ActionBar? = supportActionBar
         actionbar?.title = "공유방"
 
@@ -74,7 +73,7 @@ class SharePictureActivity: AppCompatActivity(){
         binding.sameRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.expandSameButton.setOnClickListener {
             if(binding.sameRecyclerview.visibility == View.VISIBLE) {
-                binding.sameRecyclerview.visibility = View.GONE
+                binding.sameRecyclerview.visibility = View.INVISIBLE
             }
             else {
                 binding.sameRecyclerview.visibility = View.VISIBLE
@@ -88,7 +87,7 @@ class SharePictureActivity: AppCompatActivity(){
         binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.expandBlurButton.setOnClickListener {
             if(binding.blurRecyclerview.visibility == View.VISIBLE) {
-                binding.blurRecyclerview.visibility = View.GONE
+                binding.blurRecyclerview.visibility = View.INVISIBLE
             }
             else {
                 binding.blurRecyclerview.visibility = View.VISIBLE
@@ -119,8 +118,49 @@ class SharePictureActivity: AppCompatActivity(){
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
             intent.action = Intent.ACTION_GET_CONTENT
             activityResult.launch(intent)
-
             bottomSheetDialog.hide()
+        }
+
+        // 다운로드 버튼 눌렀을 때 띄울 alert 생성
+        val builder = AlertDialog.Builder(this, R.style.BasicDialogTheme)
+        val createAlbumAlertView = LayoutInflater.from(this)
+            .inflate(R.layout.basic_alert_content, findViewById<ConstraintLayout>(R.id.basic_alert_layout))
+        createAlbumAlertView.findViewById<TextView>(R.id.alert_title).text = "'$roomName' ${getString(R.string.download_album_alert_title)}"
+        createAlbumAlertView.findViewById<TextView>(R.id.alert_subtitle).text = getString(R.string.download_album_alert_subtitle)
+
+        builder.setView(createAlbumAlertView)
+        var alertDialog : AlertDialog? = null
+
+        //바텀시트 내 다운로드 버튼
+        bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_download_button).setOnClickListener {
+            bottomSheetDialog.hide()
+            alertDialog = builder.create()
+            alertDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            alertDialog?.show()
+        }
+
+        // 다운로드 취소
+        createAlbumAlertView.findViewById<AppCompatButton>(R.id.cancel_alert).setOnClickListener {
+            alertDialog?.dismiss()
+        }
+
+        // 다운로드 확인
+        createAlbumAlertView.findViewById<AppCompatButton>(R.id.confirm_alert).setOnClickListener {
+            alertDialog?.dismiss()
+            // TODO: 다운로드 실행
+            // 다운로드 완료 후 안내 페이지로 이동
+//            val intent = Intent(this, SharePictureActivity::class.java)
+//            var newAlbumName = createAlbumAlertView.findViewById<EditText>(R.id.album_name_editText).text.toString()
+//            // 비어있으면 기본값 주기
+//            if (newAlbumName.isEmpty()){
+//                newAlbumName = "새 앨범"
+//            }
+//
+//            intent.putExtra("albumName", newAlbumName)
+//            startActivity(intent)
+            val transaction = supportFragmentManager.beginTransaction()
+                .add(R.id.activity_share_picture_layout, DownloadCompleteFragment())
+            transaction.commit()
         }
 
     }
@@ -163,7 +203,11 @@ class SharePictureActivity: AppCompatActivity(){
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
-            R.id.out_button -> { finish() }
+            R.id.out_button -> {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
