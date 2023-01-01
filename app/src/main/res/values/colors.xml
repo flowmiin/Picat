@@ -10,4 +10,10 @@
     <color name="picat_blue">#85A9FA</color>
     <color name="picat_light_blue">#CFDEFF</color>
     <color name="picat_dark_blue">#4563A5</color>
+    <color name="transparent">#00FFFFFF</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#66000000</color>
 </resources>
