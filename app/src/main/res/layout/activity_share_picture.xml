@@ -110,9 +110,9 @@
 
                 <TextView
                     android:id="@+id/send_text"
-                    android:layout_width="100dp"
-                    android:layout_height="45dp"
-                    android:text="Hello I'm sumin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hello"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintRight_toLeftOf="@id/edit_text" />
 

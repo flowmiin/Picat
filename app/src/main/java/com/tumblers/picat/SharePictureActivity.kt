@@ -26,6 +26,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import org.json.JSONArray
 import org.json.JSONObject
 
 class SharePictureActivity: AppCompatActivity(){
@@ -64,7 +65,7 @@ class SharePictureActivity: AppCompatActivity(){
                     mSocket.emit("message", binding.editText.text.toString())
                     Log.d("send socket", binding.editText.text.toString())
                 }
-                mSocket.on("get message", onMessage)
+                mSocket.on("message", onMessage)
             } else {
                 mSocket.close()
             }
@@ -233,13 +234,15 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     var onMessage = Emitter.Listener { args ->
-        val obj = JSONObject(args[0].toString())
+        println("온메세지 진입")
+        //val obj = JSONObject(args[0].toString())
+        //println("온메세지 $obj")
         val a = binding.sendText.text.toString()
         Thread(object : Runnable {
             override fun run() {
                 runOnUiThread(Runnable {
                     kotlin.run {
-                        binding.sendText.text = a + "\n" + obj.get("name") + ": " + obj.get("message")
+                        binding.sendText.text = args[0].toString()
                     }
                 })
             }
