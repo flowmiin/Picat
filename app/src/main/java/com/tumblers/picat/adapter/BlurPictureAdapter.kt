@@ -1,4 +1,4 @@
-package com.tumblers.picat
+package com.tumblers.picat.adapter
 
 import android.content.Context
 import android.net.Uri
@@ -8,8 +8,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.tumblers.picat.R
 
-class PictureAdapter(): RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
+class BlurPictureAdapter(): RecyclerView.Adapter<BlurPictureAdapter.BlurPictureViewHolder>() {
     lateinit var imageList: ArrayList<Uri>
     lateinit var context: Context
 
@@ -19,15 +20,15 @@ class PictureAdapter(): RecyclerView.Adapter<PictureAdapter.PictureViewHolder>()
     }
 
     // 화면 설정
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BlurPictureViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
 
-        val view: View = inflater.inflate(R.layout.item_picture, parent, false)
+        val view: View = inflater.inflate(R.layout.blur_item_picture, parent, false)
 
-        return PictureViewHolder(view)
+        return BlurPictureViewHolder(view)
     }
     // 데이터 설정
-    override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BlurPictureViewHolder, position: Int) {
         Glide.with(context)
             .load(imageList[position])
             .into(holder.uploadPicture)
@@ -38,7 +39,7 @@ class PictureAdapter(): RecyclerView.Adapter<PictureAdapter.PictureViewHolder>()
         return imageList.size
     }
 
-    class PictureViewHolder(view: View): RecyclerView.ViewHolder(view) {
-        val uploadPicture: ImageView = view.findViewById(R.id.upload_picture)
+    class BlurPictureViewHolder(view: View): RecyclerView.ViewHolder(view) {
+        val uploadPicture: ImageView = view.findViewById(R.id.blur_picture)
     }
 }

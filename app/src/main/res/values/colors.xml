@@ -16,4 +16,9 @@
     <color name="light_blue_A200">#FF40C4FF</color>
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
+
+<!--  ted 라이브러리  -->
+    <color name="ted_image_picker_selected_foreground">#57000000</color>
+    <color name="ted_image_picker_primary">#1976d2</color>
+    <color name="ted_image_picker_zoom_background">#defafafa</color>
 </resources>
