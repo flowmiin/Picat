@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -23,6 +24,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
+import io.socket.client.Socket
+import io.socket.emitter.Emitter
+import org.json.JSONObject
 
 class SharePictureActivity: AppCompatActivity(){
     lateinit var binding: ActivitySharePictureBinding
@@ -31,6 +35,8 @@ class SharePictureActivity: AppCompatActivity(){
     lateinit var samePictureAdapter: SamePictureAdapter
     lateinit var blurPictureAdapter: BlurPictureAdapter
     lateinit var profilePictureAdapter: ProfilePictureAdapter
+
+    lateinit var mSocket: Socket
 
     var imageList: ArrayList<Uri> = ArrayList()
 
@@ -49,6 +55,20 @@ class SharePictureActivity: AppCompatActivity(){
         val actionbar: ActionBar? = supportActionBar
         actionbar?.title = "공유방"
 
+        // socket 통신 연결
+        binding.switchButton.setOnCheckedChangeListener { p0, isChecked ->
+            if (isChecked) {
+                mSocket = SocketApplication.get()
+                mSocket.connect()
+                binding.sendButton.setOnClickListener {
+                    mSocket.emit("message", binding.editText.text.toString())
+                    Log.d("send socket", binding.editText.text.toString())
+                }
+                mSocket.on("get message", onMessage)
+            } else {
+                mSocket.close()
+            }
+        }
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageList, this)
@@ -73,7 +93,7 @@ class SharePictureActivity: AppCompatActivity(){
         binding.sameRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.expandSameButton.setOnClickListener {
             if(binding.sameRecyclerview.visibility == View.VISIBLE) {
-                binding.sameRecyclerview.visibility = View.INVISIBLE
+                binding.sameRecyclerview.visibility = View.GONE
             }
             else {
                 binding.sameRecyclerview.visibility = View.VISIBLE
@@ -87,7 +107,7 @@ class SharePictureActivity: AppCompatActivity(){
         binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.expandBlurButton.setOnClickListener {
             if(binding.blurRecyclerview.visibility == View.VISIBLE) {
-                binding.blurRecyclerview.visibility = View.INVISIBLE
+                binding.blurRecyclerview.visibility = View.GONE
             }
             else {
                 binding.blurRecyclerview.visibility = View.VISIBLE
@@ -111,12 +131,12 @@ class SharePictureActivity: AppCompatActivity(){
         //바텀시트 내 업로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
             // 갤러리 호출
-            val intent = Intent()
-            intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            val intent = Intent(Intent.ACTION_PICK)
+            //intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             intent.type = "image/*"
             // 다중 선택 기능
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            intent.action = Intent.ACTION_GET_CONTENT
+            //intent.action = Intent.ACTION_GET_CONTENT
             activityResult.launch(intent)
             bottomSheetDialog.hide()
         }
@@ -210,6 +230,20 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    var onMessage = Emitter.Listener { args ->
+        val obj = JSONObject(args[0].toString())
+        val a = binding.sendText.text.toString()
+        Thread(object : Runnable {
+            override fun run() {
+                runOnUiThread(Runnable {
+                    kotlin.run {
+                        binding.sendText.text = a + "\n" + obj.get("name") + ": " + obj.get("message")
+                    }
+                })
+            }
+        }).start()
     }
 }
 
