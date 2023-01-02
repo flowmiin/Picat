@@ -1,4 +1,4 @@
-package com.tumblers.picat
+package com.tumblers.picat.fragment
 
 import android.content.Context
 import android.content.Intent
@@ -9,6 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.appcompat.app.ActionBar
+import com.tumblers.picat.MainActivity
+import com.tumblers.picat.SharePictureActivity
+import com.tumblers.picat.databinding.ActivityMainBinding
+import com.tumblers.picat.databinding.FragmentDownloadCompleteBinding
+import com.tumblers.picat.databinding.FragmentDownloadCompleteBinding.inflate
 
 
 private const val ARG_PARAM1 = "param1"
@@ -34,15 +39,14 @@ class DownloadCompleteFragment : Fragment() {
         actionbar?.hide()
         activity.binding.openBottomsheetFab.visibility = View.INVISIBLE
 
-        // 여기서부터 다시!
-        // 프래그먼트에 있는 x버튼을 눌렀을 때의 인터랙션을 하고싶었음
-        var fragView = inflater.inflate(R.layout.fragment_download_complete, container, false)
-        fragView.findViewById<ImageButton>(R.id.exit_button).setOnClickListener {
+        var fragmentBinding = FragmentDownloadCompleteBinding.inflate(inflater, container, false)
+        fragmentBinding.exitButton.setOnClickListener {
             val intent = Intent(getActivity(), MainActivity::class.java)
             startActivity(intent)
             activity.finish()
         }
-        return fragView
+
+        return fragmentBinding.root
     }
 
 
