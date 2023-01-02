@@ -23,7 +23,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.tumblers.picat.adapter.BlurPictureAdapter
+import com.tumblers.picat.adapter.PictureAdapter
+import com.tumblers.picat.adapter.ProfilePictureAdapter
+import com.tumblers.picat.adapter.SamePictureAdapter
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
+import com.tumblers.picat.fragment.DownloadCompleteFragment
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import org.json.JSONArray
@@ -36,6 +41,9 @@ class SharePictureActivity: AppCompatActivity(){
     lateinit var samePictureAdapter: SamePictureAdapter
     lateinit var blurPictureAdapter: BlurPictureAdapter
     lateinit var profilePictureAdapter: ProfilePictureAdapter
+    val selectionList: MutableList<String> = mutableListOf<String>()
+    var startSelecting = false
+
 
     lateinit var mSocket: Socket
 
@@ -43,6 +51,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -55,6 +64,7 @@ class SharePictureActivity: AppCompatActivity(){
         // 액션바 제목 설정
         val actionbar: ActionBar? = supportActionBar
         actionbar?.title = "공유방"
+
 
         // socket 통신 연결
         binding.switchButton.setOnCheckedChangeListener { p0, isChecked ->
@@ -72,48 +82,18 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         //Adapter 초기화
-        pictureAdapter = PictureAdapter(imageList, this)
+        pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
         samePictureAdapter = SamePictureAdapter(imageList, this)
         blurPictureAdapter = BlurPictureAdapter(imageList, this)
         profilePictureAdapter = ProfilePictureAdapter(imageList, this)
 
         // profile recyclerview 설정
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
-        binding.profileRecyclerview.adapter = profilePictureAdapter
-
-        // upload picture recyclerview 설정
-        binding.pictureRecyclerview.layoutManager = LinearLayoutManager(this)
-        binding.pictureRecyclerview.adapter = pictureAdapter
-        // GridView 형식으로 만들기
-        binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
-
-
-        // same recyclerview 설정
-        binding.sameRecyclerview.layoutManager = LinearLayoutManager(this)
-        binding.sameRecyclerview.adapter = samePictureAdapter
         binding.sameRecyclerview.layoutManager = GridLayoutManager(this, 3)
-        binding.expandSameButton.setOnClickListener {
-            if(binding.sameRecyclerview.visibility == View.VISIBLE) {
-                binding.sameRecyclerview.visibility = View.GONE
-            }
-            else {
-                binding.sameRecyclerview.visibility = View.VISIBLE
-            }
-        }
-
-
-        // blur recyclerview 설정
-        binding.blurRecyclerview.layoutManager = LinearLayoutManager(this)
-        binding.blurRecyclerview.adapter = blurPictureAdapter
         binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
-        binding.expandBlurButton.setOnClickListener {
-            if(binding.blurRecyclerview.visibility == View.VISIBLE) {
-                binding.blurRecyclerview.visibility = View.GONE
-            }
-            else {
-                binding.blurRecyclerview.visibility = View.VISIBLE
-            }
-        }
+        binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
+        setRecyclerView()
+
 
 
         //바텀시트 초기화
@@ -160,25 +140,29 @@ class SharePictureActivity: AppCompatActivity(){
             alertDialog?.show()
         }
 
+        //바텀시트 내 사진선택 버튼
+        bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_select_button).setOnClickListener {
+            bottomSheetDialog.hide()
+            // true 이면 false로, flase이면 true로 변경
+            startSelecting = !startSelecting
+            // 변경된 startSelecting 값에 따라 리사이클러뷰 어댑터 다시 설정
+            pictureAdapter = PictureAdapter(imageList, this, startSelecting, pictureAdapter.selectionList)
+//            pictureAdapter.onItemSelectionChangedListener = {
+//                Toast.makeText(applicationContext, "선택된 ID : $it", Toast.LENGTH_SHORT).show()
+//            }
+            binding.pictureRecyclerview.adapter = pictureAdapter
+
+        }
+
         // 다운로드 취소
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.cancel_alert).setOnClickListener {
-            alertDialog?.dismiss()
+            alertDialog?.hide()
         }
 
         // 다운로드 확인
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.confirm_alert).setOnClickListener {
             alertDialog?.dismiss()
             // TODO: 다운로드 실행
-            // 다운로드 완료 후 안내 페이지로 이동
-//            val intent = Intent(this, SharePictureActivity::class.java)
-//            var newAlbumName = createAlbumAlertView.findViewById<EditText>(R.id.album_name_editText).text.toString()
-//            // 비어있으면 기본값 주기
-//            if (newAlbumName.isEmpty()){
-//                newAlbumName = "새 앨범"
-//            }
-//
-//            intent.putExtra("albumName", newAlbumName)
-//            startActivity(intent)
             val transaction = supportFragmentManager.beginTransaction()
                 .add(R.id.activity_share_picture_layout, DownloadCompleteFragment())
             transaction.commit()
@@ -208,13 +192,61 @@ class SharePictureActivity: AppCompatActivity(){
                 val imageUri = it.data!!.data
                 imageList.add(imageUri!!)
             }
-            // 적용
-            pictureAdapter.notifyDataSetChanged()
-            samePictureAdapter.notifyDataSetChanged()
-            blurPictureAdapter.notifyDataSetChanged()
-            profilePictureAdapter.notifyDataSetChanged()
+
+//            refreshRecyclerView()
+            setRecyclerView()
+
+
 
         }
+    }
+
+    private fun setRecyclerView(){
+
+        // profile recyclerview 설정
+        profilePictureAdapter = ProfilePictureAdapter(imageList, this)
+        binding.profileRecyclerview.adapter = profilePictureAdapter
+
+        // 나머지 picture recyclerview 설정
+        pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
+//        pictureAdapter.onItemSelectionChangedListener = {
+//            Toast.makeText(applicationContext, "선택된 ID : $it", Toast.LENGTH_SHORT).show()
+//        }
+        binding.pictureRecyclerview.adapter = pictureAdapter
+
+
+        // same recyclerview 설정
+        samePictureAdapter = SamePictureAdapter(imageList, this)
+        binding.sameRecyclerview.adapter = samePictureAdapter
+        binding.expandSameButton.setOnClickListener {
+            if(binding.sameRecyclerview.visibility == View.VISIBLE) {
+                binding.sameRecyclerview.visibility = View.GONE
+            }
+            else {
+                binding.sameRecyclerview.visibility = View.VISIBLE
+            }
+        }
+
+
+        // blur recyclerview 설정
+        blurPictureAdapter = BlurPictureAdapter(imageList, this)
+        binding.blurRecyclerview.adapter = blurPictureAdapter
+        binding.expandBlurButton.setOnClickListener {
+            if(binding.blurRecyclerview.visibility == View.VISIBLE) {
+                binding.blurRecyclerview.visibility = View.GONE
+            }
+            else {
+                binding.blurRecyclerview.visibility = View.VISIBLE
+            }
+        }
+
+    }
+
+    fun refreshRecyclerView(){
+        pictureAdapter.notifyDataSetChanged()
+        samePictureAdapter.notifyDataSetChanged()
+        blurPictureAdapter.notifyDataSetChanged()
+        profilePictureAdapter.notifyDataSetChanged()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
