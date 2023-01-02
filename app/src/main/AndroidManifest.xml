@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--  socket.io  -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +15,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Picat"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:usesCleartextTraffic="true" > <!-- socket.io !-->
 <!--    LoginActivity    -->
         <activity
             android:name=".LoginActivity"
