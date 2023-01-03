@@ -1,6 +1,9 @@
 package com.tumblers.picat
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -19,6 +22,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,7 +33,7 @@ import com.tumblers.picat.adapter.ProfilePictureAdapter
 import com.tumblers.picat.adapter.SamePictureAdapter
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.APIInterface
-import com.tumblers.picat.dataclass.ResponseDC
+import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -85,25 +89,6 @@ class SharePictureActivity: AppCompatActivity(){
         }
         mSocket.on("message", onMessage)
 
-        // 사진 자동 업로드
-//        binding.switchButton.setOnCheckedChangeListener { p0, isChecked ->
-//            if (isChecked) {
-//
-//            } else {
-//
-//            }
-//        }
-//        // 서버 주소 지정
-//        val url = "http://13.124.148.41:3000/"
-//        val retrofit = Retrofit.Builder()
-//            .baseUrl(url)
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build()
-//        var server = retrofit.create(APIInterface::class.java)
-//        var file = File("${getExternalFilesDir(Environment.DIRECTORY_PICTURES)}/tempImg.png")
-//        var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
-//        var body = MultipartBody.Part.createFormData("file", file.name, requestFile)
-
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
@@ -118,32 +103,48 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
         setRecyclerView()
 
-
-
+        
         //바텀시트 초기화
         val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
         bottomSheetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         val bottomSheetView = LayoutInflater.from(applicationContext)
             .inflate(R.layout.bottomsheet_content, findViewById<ConstraintLayout>(R.id.bottomsheet_layout))
+        bottomSheetDialog.setContentView(bottomSheetView)
 
         // fab버튼 클릭 시 바텀시트 활성화
-        binding.openBottomsheetFab.setOnClickListener { view ->
+        binding.openBottomsheetFab.setOnClickListener {
             // bottomSheetDialog 뷰 생성, 호출
-            bottomSheetDialog.setContentView(bottomSheetView)
             bottomSheetDialog.show()
+        }
+
+        // permission 허용 요청
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                println("granted")
+            }
+            else {
+                println("denied")
+            }
         }
 
         //바텀시트 내 업로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
-            // 갤러리 호출
-            val intent = Intent(Intent.ACTION_PICK)
-            //intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            intent.type = "image/*"
-            // 다중 선택 기능
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            //intent.action = Intent.ACTION_GET_CONTENT
-            activityResult.launch(intent)
-            bottomSheetDialog.hide()
+            // permission 허용 확인
+            val status = ContextCompat.checkSelfPermission(this, "android.permission.READ_EXTERNAL_STORAGE")
+            if (status == PackageManager.PERMISSION_GRANTED) {
+                // 갤러리 호출
+                val intent = Intent(Intent.ACTION_PICK)
+                intent.type = "image/*"
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                activityResult.launch(intent)
+                bottomSheetDialog.hide()
+            }
+            else {
+                // permission 허용 요청 실행
+                requestPermissionLauncher.launch("android.permission.READ_EXTERNAL_STORAGE")
+            }
         }
 
         // 다운로드 버튼 눌렀을 때 띄울 alert 생성
@@ -171,9 +172,6 @@ class SharePictureActivity: AppCompatActivity(){
             startSelecting = !startSelecting
             // 변경된 startSelecting 값에 따라 리사이클러뷰 어댑터 다시 설정
             pictureAdapter = PictureAdapter(imageList, this, startSelecting, pictureAdapter.selectionList)
-//            pictureAdapter.onItemSelectionChangedListener = {
-//                Toast.makeText(applicationContext, "선택된 ID : $it", Toast.LENGTH_SHORT).show()
-//            }
             binding.pictureRecyclerview.adapter = pictureAdapter
 
         }
@@ -191,7 +189,6 @@ class SharePictureActivity: AppCompatActivity(){
                 .add(R.id.activity_share_picture_layout, DownloadCompleteFragment())
             transaction.commit()
         }
-
     }
 
     // 결과 가져오기
@@ -209,11 +206,9 @@ class SharePictureActivity: AppCompatActivity(){
                     val imageUri = it.data!!.clipData!!.getItemAt(index).uri
                     // 이미지 추가
                     imageList.add(imageUri)
-
-                    var file = File(imageUri.path)
-                    var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
-                    var body = MultipartBody.Part.createFormData("file", file.name, requestFile)
-
+                    var file = File(absolutelyPath(imageUri, this))
+                    var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
+                    var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                     apiRequest(body)
 
                 }
@@ -222,41 +217,52 @@ class SharePictureActivity: AppCompatActivity(){
             else {
                 val imageUri = it.data!!.data
                 imageList.add(imageUri!!)
-                var file = File(imageUri.path)
-                var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+                var file = File(absolutelyPath(imageUri, this))
+                var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                 var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-                println("이미지 Uri : ${imageUri}")
                 apiRequest(body)
             }
 
-//            refreshRecyclerView()
             setRecyclerView()
-
-
 
         }
     }
 
+    fun absolutelyPath(path: Uri?, context : Context): String {
+        var proj: Array<String> = arrayOf(MediaStore.Images.Media.DATA)
+        var c: Cursor? = context.contentResolver.query(path!!, proj, null, null, null)
+        var index = c?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        c?.moveToFirst()
+
+        var result = c?.getString(index!!)
+
+        return result!!
+    }
+
+
     private fun apiRequest(body: MultipartBody.Part) {
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("http://192.249.30.129:5000/")
+            .baseUrl("http://43.200.93.112:5000/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         // APIInterface 객체 생성
         var server: APIInterface = retrofit.create(APIInterface::class.java)
-        server.postImg(body).enqueue(object : Callback<ResponseDC> {
-            override fun onResponse(call: Call<ResponseDC>, response: Response<ResponseDC>) {
-                println("이미지 업로드 성공")
+        server.postImg(body, "").enqueue(object : Callback<ImageData> {
+
+            override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
+                println("이미지 업로드 ${response.isSuccessful}")
+                if (response.isSuccessful){
+//                    imageList.add()
+                    println(response.body())
+                }
             }
 
-            override fun onFailure(call: Call<ResponseDC>, t: Throwable) {
+            override fun onFailure(call: Call<ImageData>, t: Throwable) {
                 println("이미지 업로드 실패")
-//                finish()
             }
         })
-
     }
 
     private fun setRecyclerView(){
@@ -324,19 +330,13 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     var onMessage = Emitter.Listener { args ->
-        println("온메세지 진입")
-        //val obj = JSONObject(args[0].toString())
-        //println("온메세지 $obj")
-        val a = binding.sendText.text.toString()
-        Thread(object : Runnable {
-            override fun run() {
-                runOnUiThread(Runnable {
-                    kotlin.run {
-                        binding.sendText.text = args[0].toString()
-                    }
-                })
-            }
-        }).start()
+        Thread {
+            runOnUiThread(Runnable {
+                kotlin.run {
+                    binding.sendText.text = args[0].toString()
+                }
+            })
+        }.start()
     }
 }
 
