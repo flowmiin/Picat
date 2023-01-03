@@ -9,7 +9,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -65,7 +65,6 @@ class SharePictureActivity: AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -81,29 +80,30 @@ class SharePictureActivity: AppCompatActivity(){
 
 
         // socket 통신 연결
-        mSocket = SocketApplication.get()
-        mSocket.connect()
-        binding.sendButton.setOnClickListener {
-            mSocket.emit("message", binding.editText.text.toString())
-            Log.d("send socket", binding.editText.text.toString())
-        }
-        mSocket.on("message", onMessage)
+//        mSocket = SocketApplication.get()
+//        mSocket.connect()
+//        binding.sendButton.setOnClickListener {
+//            mSocket.emit("message", binding.editText.text.toString())
+//            Log.d("send socket", binding.editText.text.toString())
+//        }
+//        mSocket.on("message", onMessage)
 
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
         samePictureAdapter = SamePictureAdapter(imageList, this)
         blurPictureAdapter = BlurPictureAdapter(imageList, this)
-        profilePictureAdapter = ProfilePictureAdapter(imageList, this)
+        //profilePictureAdapter = ProfilePictureAdapter(imageList, this)
 
         // profile recyclerview 설정
-        binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        //binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         binding.sameRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
+
         setRecyclerView()
 
-        
+
         //바텀시트 초기화
         val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
         bottomSheetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -113,7 +113,6 @@ class SharePictureActivity: AppCompatActivity(){
 
         // fab버튼 클릭 시 바텀시트 활성화
         binding.openBottomsheetFab.setOnClickListener {
-            // bottomSheetDialog 뷰 생성, 호출
             bottomSheetDialog.show()
         }
 
@@ -153,15 +152,13 @@ class SharePictureActivity: AppCompatActivity(){
             .inflate(R.layout.basic_alert_content, findViewById<ConstraintLayout>(R.id.basic_alert_layout))
         createAlbumAlertView.findViewById<TextView>(R.id.alert_title).text = "'$roomName' ${getString(R.string.download_album_alert_title)}"
         createAlbumAlertView.findViewById<TextView>(R.id.alert_subtitle).text = getString(R.string.download_album_alert_subtitle)
-
         builder.setView(createAlbumAlertView)
-        var alertDialog : AlertDialog? = null
+        var alertDialog : AlertDialog? = builder.create()
+        alertDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         //바텀시트 내 다운로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_download_button).setOnClickListener {
             bottomSheetDialog.hide()
-            alertDialog = builder.create()
-            alertDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             alertDialog?.show()
         }
 
@@ -171,8 +168,7 @@ class SharePictureActivity: AppCompatActivity(){
             // true 이면 false로, flase이면 true로 변경
             startSelecting = !startSelecting
             // 변경된 startSelecting 값에 따라 리사이클러뷰 어댑터 다시 설정
-            pictureAdapter = PictureAdapter(imageList, this, startSelecting, pictureAdapter.selectionList)
-            binding.pictureRecyclerview.adapter = pictureAdapter
+            setRecyclerView()
 
         }
 
@@ -198,15 +194,14 @@ class SharePictureActivity: AppCompatActivity(){
         if (it.resultCode == RESULT_OK) {
             // 다중 이미지 선택한 경우
             if(it.data!!.clipData != null) {
-                // 선택한 이미지 개수
                 val count = it.data!!.clipData!!.itemCount
 
                 for (index in 0 until count) {
-                    // 이미지 담기
                     val imageUri = it.data!!.clipData!!.getItemAt(index).uri
-                    // 이미지 추가
+
                     imageList.add(imageUri)
-                    var file = File(absolutelyPath(imageUri, this))
+
+                    var file = File(getAbsolutePath(imageUri, this))
                     var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                     var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                     apiRequest(body)
@@ -217,7 +212,7 @@ class SharePictureActivity: AppCompatActivity(){
             else {
                 val imageUri = it.data!!.data
                 imageList.add(imageUri!!)
-                var file = File(absolutelyPath(imageUri, this))
+                var file = File(getAbsolutePath(imageUri, this))
                 var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                 var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                 apiRequest(body)
@@ -228,7 +223,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
-    fun absolutelyPath(path: Uri?, context : Context): String {
+    fun getAbsolutePath(path: Uri?, context : Context): String {
         var proj: Array<String> = arrayOf(MediaStore.Images.Media.DATA)
         var c: Cursor? = context.contentResolver.query(path!!, proj, null, null, null)
         var index = c?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
@@ -268,16 +263,12 @@ class SharePictureActivity: AppCompatActivity(){
     private fun setRecyclerView(){
 
         // profile recyclerview 설정
-        profilePictureAdapter = ProfilePictureAdapter(imageList, this)
-        binding.profileRecyclerview.adapter = profilePictureAdapter
+        //profilePictureAdapter = ProfilePictureAdapter(imageList, this)
+        //binding.profileRecyclerview.adapter = profilePictureAdapter
 
         // 나머지 picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
-//        pictureAdapter.onItemSelectionChangedListener = {
-//            Toast.makeText(applicationContext, "선택된 ID : $it", Toast.LENGTH_SHORT).show()
-//        }
         binding.pictureRecyclerview.adapter = pictureAdapter
-
 
         // same recyclerview 설정
         samePictureAdapter = SamePictureAdapter(imageList, this)
@@ -318,6 +309,7 @@ class SharePictureActivity: AppCompatActivity(){
         return true
     }
 
+    // 나가기 버튼
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.out_button -> {
@@ -329,14 +321,19 @@ class SharePictureActivity: AppCompatActivity(){
         return super.onOptionsItemSelected(item)
     }
 
-    var onMessage = Emitter.Listener { args ->
-        Thread {
-            runOnUiThread(Runnable {
-                kotlin.run {
-                    binding.sendText.text = args[0].toString()
-                }
-            })
-        }.start()
+    fun px2dp(px: Int, context: Context): Float {
+        return px / ((context.resources.displayMetrics.densityDpi.toFloat()) / DisplayMetrics.DENSITY_DEFAULT)
     }
+
+//    소켓통신 테스트
+//    var onMessage = Emitter.Listener { args ->
+//        Thread {
+//            runOnUiThread(Runnable {
+//                kotlin.run {
+//                    binding.sendText.text = args[0].toString()
+//                }
+//            })
+//        }.start()
+//    }
 }
 

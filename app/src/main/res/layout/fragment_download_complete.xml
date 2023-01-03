@@ -13,7 +13,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="top|right"
-        android:src="@drawable/cancel_icn"
+        android:src="@drawable/cancel_icn_black"
         android:scaleType="fitCenter"
         android:background="@color/transparent"
         android:layout_margin="20dp"/>
