@@ -26,9 +26,7 @@ class MainActivity : AppCompatActivity() {
             .inflate(R.layout.create_album_alert_content, findViewById<ConstraintLayout>(R.id.create_ablum_alert_layout))
 
         builder.setView(createAlbumAlertView)
-        var alertDialog : AlertDialog? = null
-
-        alertDialog = builder.create()
+        var alertDialog : AlertDialog? = builder.create()
         alertDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         // 이 멤버들로 공유 시작
         binding.startShareFab.setOnClickListener{
