@@ -6,14 +6,12 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 
-data class Image(
-    val image: MultipartBody.Part
-)
 
 interface APIInterface {
     @Multipart
     @POST("image/")
     fun postImg(
-        @Part image: MultipartBody.Part
-    ): Call<Image>
+        @Part image: MultipartBody.Part,
+        @Part ("location") location: String
+    ): Call<ImageData>
 }
