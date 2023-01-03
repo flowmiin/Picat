@@ -21,7 +21,6 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,7 +31,7 @@ import com.tumblers.picat.adapter.ProfilePictureAdapter
 import com.tumblers.picat.adapter.SamePictureAdapter
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.APIInterface
-import com.tumblers.picat.dataclass.Image
+import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -112,7 +111,7 @@ class SharePictureActivity: AppCompatActivity(){
         bottomSheetDialog.setContentView(bottomSheetView)
 
         // fab버튼 클릭 시 바텀시트 활성화
-        binding.openBottomsheetFab.setOnClickListener { view ->
+        binding.openBottomsheetFab.setOnClickListener {
             // bottomSheetDialog 뷰 생성, 호출
             bottomSheetDialog.show()
         }
@@ -152,9 +151,6 @@ class SharePictureActivity: AppCompatActivity(){
             startSelecting = !startSelecting
             // 변경된 startSelecting 값에 따라 리사이클러뷰 어댑터 다시 설정
             pictureAdapter = PictureAdapter(imageList, this, startSelecting, pictureAdapter.selectionList)
-//            pictureAdapter.onItemSelectionChangedListener = {
-//                Toast.makeText(applicationContext, "선택된 ID : $it", Toast.LENGTH_SHORT).show()
-//            }
             binding.pictureRecyclerview.adapter = pictureAdapter
 
         }
@@ -200,6 +196,7 @@ class SharePictureActivity: AppCompatActivity(){
             // 단일 이미지 선택한 경우
             else {
                 val imageUri = it.data!!.data
+                imageList.add(imageUri!!)
                 var file = File(absolutelyPath(imageUri, this))
                 var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                 var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
@@ -234,13 +231,17 @@ class SharePictureActivity: AppCompatActivity(){
 
         // APIInterface 객체 생성
         var server: APIInterface = retrofit.create(APIInterface::class.java)
-        server.postImg(body).enqueue(object : Callback<Image> {
+        server.postImg(body, "").enqueue(object : Callback<ImageData> {
 
-            override fun onResponse(call: Call<Image>, response: Response<Image>) {
+            override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
+                if (response.isSuccessful){
+//                    imageList.add()
+                    println(response.body())
+                }
             }
 
-            override fun onFailure(call: Call<Image>, t: Throwable) {
+            override fun onFailure(call: Call<ImageData>, t: Throwable) {
                 println("이미지 업로드 실패")
 
             }
