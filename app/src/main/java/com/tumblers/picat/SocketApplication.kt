@@ -9,7 +9,10 @@ class SocketApplication {
         private lateinit var socket : Socket
         fun get(): Socket {
             try {
-                socket = IO.socket("http://13.124.148.41:3000/")
+                //의균 서버
+                //socket = IO.socket("http://13.124.148.41:3000/")
+                //지우 서버
+                socket = IO.socket("http://moonhwa-hs.shop:3000/")
             } catch (e: URISyntaxException) {
                 e.printStackTrace()
             }

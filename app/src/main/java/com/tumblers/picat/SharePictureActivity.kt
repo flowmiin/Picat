@@ -266,19 +266,13 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     var onMessage = Emitter.Listener { args ->
-        println("온메세지 진입")
-        //val obj = JSONObject(args[0].toString())
-        //println("온메세지 $obj")
-        val a = binding.sendText.text.toString()
-        Thread(object : Runnable {
-            override fun run() {
-                runOnUiThread(Runnable {
-                    kotlin.run {
-                        binding.sendText.text = args[0].toString()
-                    }
-                })
-            }
-        }).start()
+        Thread {
+            runOnUiThread(Runnable {
+                kotlin.run {
+                    binding.sendText.text = args[0].toString()
+                }
+            })
+        }.start()
     }
 }
 
