@@ -2,6 +2,7 @@ package com.tumblers.picat
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -21,6 +22,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -101,8 +103,7 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
         setRecyclerView()
 
-
-
+        
         //바텀시트 초기화
         val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
         bottomSheetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -116,14 +117,34 @@ class SharePictureActivity: AppCompatActivity(){
             bottomSheetDialog.show()
         }
 
+        // permission 허용 요청
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                println("granted")
+            }
+            else {
+                println("denied")
+            }
+        }
+
         //바텀시트 내 업로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
-            // 갤러리 호출
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            activityResult.launch(intent)
-            bottomSheetDialog.hide()
+            // permission 허용 확인
+            val status = ContextCompat.checkSelfPermission(this, "android.permission.READ_EXTERNAL_STORAGE")
+            if (status == PackageManager.PERMISSION_GRANTED) {
+                // 갤러리 호출
+                val intent = Intent(Intent.ACTION_PICK)
+                intent.type = "image/*"
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                activityResult.launch(intent)
+                bottomSheetDialog.hide()
+            }
+            else {
+                // permission 허용 요청 실행
+                requestPermissionLauncher.launch("android.permission.READ_EXTERNAL_STORAGE")
+            }
         }
 
         // 다운로드 버튼 눌렀을 때 띄울 alert 생성
@@ -168,7 +189,6 @@ class SharePictureActivity: AppCompatActivity(){
                 .add(R.id.activity_share_picture_layout, DownloadCompleteFragment())
             transaction.commit()
         }
-
     }
 
     // 결과 가져오기
@@ -204,8 +224,6 @@ class SharePictureActivity: AppCompatActivity(){
             }
 
             setRecyclerView()
-
-
 
         }
     }
@@ -243,12 +261,9 @@ class SharePictureActivity: AppCompatActivity(){
 
             override fun onFailure(call: Call<ImageData>, t: Throwable) {
                 println("이미지 업로드 실패")
-
             }
         })
-
     }
-
 
     private fun setRecyclerView(){
 
