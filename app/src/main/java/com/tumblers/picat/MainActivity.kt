@@ -28,17 +28,17 @@ class MainActivity : AppCompatActivity() {
         builder.setView(createAlbumAlertView)
         var alertDialog : AlertDialog? = null
 
+        alertDialog = builder.create()
+        alertDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         // 이 멤버들로 공유 시작
         binding.startShareFab.setOnClickListener{
             // alert 띄우기
-            alertDialog = builder.create()
-            alertDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             alertDialog?.show()
         }
 
         // 앨범 생성 취소
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.cancel_create_album).setOnClickListener {
-            alertDialog?.dismiss()
+            alertDialog?.hide()
         }
 
         // 앨범 생성 확인
