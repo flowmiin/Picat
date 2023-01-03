@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -80,13 +81,13 @@ class SharePictureActivity: AppCompatActivity(){
 
 
         // socket 통신 연결
-//        mSocket = SocketApplication.get()
-//        mSocket.connect()
+        mSocket = SocketApplication.get()
+        mSocket.connect()
 //        binding.sendButton.setOnClickListener {
 //            mSocket.emit("message", binding.editText.text.toString())
 //            Log.d("send socket", binding.editText.text.toString())
 //        }
-//        mSocket.on("message", onMessage)
+        mSocket.on("image", onMessage)
 
 
         //Adapter 초기화
@@ -135,7 +136,8 @@ class SharePictureActivity: AppCompatActivity(){
             if (status == PackageManager.PERMISSION_GRANTED) {
                 // 갤러리 호출
                 val intent = Intent(Intent.ACTION_PICK)
-                intent.type = "image/*"
+                intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+//                intent.type = "image/*"
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                 activityResult.launch(intent)
                 bottomSheetDialog.hide()
@@ -251,6 +253,7 @@ class SharePictureActivity: AppCompatActivity(){
                 if (response.isSuccessful){
 //                    imageList.add()
                     println(response.body())
+                    mSocket.emit("image", response.body()?.location)
                 }
             }
 
@@ -326,14 +329,15 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
 //    소켓통신 테스트
-//    var onMessage = Emitter.Listener { args ->
-//        Thread {
-//            runOnUiThread(Runnable {
-//                kotlin.run {
-//                    binding.sendText.text = args[0].toString()
-//                }
-//            })
-//        }.start()
-//    }
+    var onMessage = Emitter.Listener { args ->
+        Thread {
+            runOnUiThread(Runnable {
+                kotlin.run {
+                    imageList.add(args[0].toString().toUri())
+                    setRecyclerView()
+                }
+            })
+        }.start()
+    }
 }
 
