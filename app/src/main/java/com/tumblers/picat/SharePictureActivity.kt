@@ -28,11 +28,21 @@ import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
 import com.tumblers.picat.adapter.SamePictureAdapter
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
+import com.tumblers.picat.dataclass.APIInterface
+import com.tumblers.picat.dataclass.ResponseDC
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
-import org.json.JSONArray
-import org.json.JSONObject
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+
 
 class SharePictureActivity: AppCompatActivity(){
     lateinit var binding: ActivitySharePictureBinding
@@ -67,19 +77,33 @@ class SharePictureActivity: AppCompatActivity(){
 
 
         // socket 통신 연결
-        binding.switchButton.setOnCheckedChangeListener { p0, isChecked ->
-            if (isChecked) {
-                mSocket = SocketApplication.get()
-                mSocket.connect()
-                binding.sendButton.setOnClickListener {
-                    mSocket.emit("message", binding.editText.text.toString())
-                    Log.d("send socket", binding.editText.text.toString())
-                }
-                mSocket.on("message", onMessage)
-            } else {
-                mSocket.close()
-            }
+        mSocket = SocketApplication.get()
+        mSocket.connect()
+        binding.sendButton.setOnClickListener {
+            mSocket.emit("message", binding.editText.text.toString())
+            Log.d("send socket", binding.editText.text.toString())
         }
+        mSocket.on("message", onMessage)
+
+        // 사진 자동 업로드
+//        binding.switchButton.setOnCheckedChangeListener { p0, isChecked ->
+//            if (isChecked) {
+//
+//            } else {
+//
+//            }
+//        }
+//        // 서버 주소 지정
+//        val url = "http://13.124.148.41:3000/"
+//        val retrofit = Retrofit.Builder()
+//            .baseUrl(url)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//        var server = retrofit.create(APIInterface::class.java)
+//        var file = File("${getExternalFilesDir(Environment.DIRECTORY_PICTURES)}/tempImg.png")
+//        var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+//        var body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
@@ -185,12 +209,24 @@ class SharePictureActivity: AppCompatActivity(){
                     val imageUri = it.data!!.clipData!!.getItemAt(index).uri
                     // 이미지 추가
                     imageList.add(imageUri)
+
+                    var file = File(imageUri.path)
+                    var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+                    var body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+                    apiRequest(body)
+
                 }
             }
             // 단일 이미지 선택한 경우
             else {
                 val imageUri = it.data!!.data
                 imageList.add(imageUri!!)
+                var file = File(imageUri.path)
+                var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+                var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                println("이미지 Uri : ${imageUri}")
+                apiRequest(body)
             }
 
 //            refreshRecyclerView()
@@ -199,6 +235,28 @@ class SharePictureActivity: AppCompatActivity(){
 
 
         }
+    }
+
+    private fun apiRequest(body: MultipartBody.Part) {
+        // retrofit 객체 생성
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl("http://192.249.30.129:5000/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        // APIInterface 객체 생성
+        var server: APIInterface = retrofit.create(APIInterface::class.java)
+        server.postImg(body).enqueue(object : Callback<ResponseDC> {
+            override fun onResponse(call: Call<ResponseDC>, response: Response<ResponseDC>) {
+                println("이미지 업로드 성공")
+            }
+
+            override fun onFailure(call: Call<ResponseDC>, t: Throwable) {
+                println("이미지 업로드 실패")
+//                finish()
+            }
+        })
+
     }
 
     private fun setRecyclerView(){
