@@ -41,6 +41,7 @@ import io.socket.emitter.Emitter
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -114,7 +115,9 @@ class SharePictureActivity: AppCompatActivity(){
         // socket 통신 연결
         mSocket = SocketApplication.get()
         mSocket.connect()
+        mSocket.emit("join", "room1")
         mSocket.on("image", onMessage)
+        mSocket.on("join", onRoom)
 
 
         //Adapter 초기화
@@ -372,6 +375,21 @@ class SharePictureActivity: AppCompatActivity(){
             runOnUiThread(Runnable {
                 kotlin.run {
                     imageList.add(args[0].toString().toUri())
+                    setRecyclerView()
+                }
+            })
+        }.start()
+    }
+    var onRoom = Emitter.Listener { args->
+        Thread {
+            runOnUiThread(Runnable {
+                kotlin.run {
+                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+                    for (i in 0..img_count - 1) {
+                        val imgIObj = JSONObject(img_list[i].toString()).getString("url")
+                        imageList.add(imgIObj.toString().toUri())
+                    }
                     setRecyclerView()
                 }
             })
