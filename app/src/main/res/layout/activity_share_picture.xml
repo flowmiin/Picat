@@ -7,7 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/activity_share_picture_layout"
-    android:padding="@dimen/picat_layout_padding">
+    android:padding="@dimen/picat_layout_padding"
+    android:clipToPadding="false">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_view"
@@ -23,15 +24,13 @@
                 android:id="@+id/profile_tab"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/picat_layout_padding"
                 app:layout_constraintTop_toTopOf="parent">
 
-
                 <TextView
-                    android:id="@+id/room_name"
+                    android:id="@+id/room_name_textview"
+                    android:includeFontPadding="false"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
                     android:fontFamily="@font/notosans_bold"
                     android:text="공유방 제목"
                     android:textColor="@color/picat_font_color"
@@ -46,19 +45,22 @@
                     android:id="@+id/profile_horizontal_scrollview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/room_name">
+                    app:layout_constraintTop_toBottomOf="@id/room_name_textview">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:layout_marginBottom="20dp"
                         >
 
                         <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
                         <androidx.cardview.widget.CardView
-                            android:id="@+id/profile_item"
+                            android:id="@+id/profile_item_cardview"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
                             android:layout_centerVertical="true"
@@ -68,7 +70,7 @@
                             app:layout_constraintTop_toTopOf="parent">
 
                             <ImageView
-                                android:id="@+id/Preview_Photo_imgView"
+                                android:id="@+id/profile_item_imageview"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@color/picat_boundary_line_color"
@@ -77,17 +79,18 @@
                         </androidx.cardview.widget.CardView>
 
                         <ImageButton
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:background="@drawable/round_button_shape_blue"
-                                android:src="@drawable/plus_fab"
-                                android:scaleType="fitCenter"
-                                android:padding="5dp"
-                                android:layout_marginLeft="10dp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintLeft_toRightOf="@id/profile_item"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintRight_toRightOf="parent"/>
+                            android:id="@+id/profile_item_plus_button"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="@drawable/round_button_shape_blue"
+                            android:src="@drawable/plus_fab"
+                            android:scaleType="fitCenter"
+                            android:padding="5dp"
+                            android:layout_marginLeft="10dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintLeft_toRightOf="@id/profile_item_cardview"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"/>
 
 <!--                        <androidx.recyclerview.widget.RecyclerView-->
 <!--                            android:id="@+id/profile_recyclerview"-->
@@ -122,13 +125,14 @@
                 app:layout_constraintTop_toBottomOf="@id/profile_tab">
 
                 <TextView
-                    android:id="@+id/automatic_upload_text"
+                    android:id="@+id/automatic_upload_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="자동 업로드"
                     android:textSize="@dimen/picat_text_size_small"
                     android:textColor="@color/picat_font_color"
                     android:fontFamily="@font/notosans_regular"
+                    android:includeFontPadding="false"
                     android:layout_marginRight="6dp"
                     app:layout_constraintRight_toLeftOf="@id/switch_button"
                     app:layout_constraintTop_toTopOf="parent"
@@ -142,44 +146,154 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
-<!--                <TextView-->
-<!--                    android:id="@+id/send_text"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Hello"-->
-<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                    app:layout_constraintRight_toLeftOf="@id/edit_text" />-->
-
-<!--                <EditText-->
-<!--                    android:id="@+id/edit_text"-->
-<!--                    android:layout_width="100dp"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                    app:layout_constraintRight_toRightOf="parent"-->
-<!--                    app:layout_constraintLeft_toLeftOf="parent"-->
-<!--                    app:layout_constraintTop_toBottomOf="@id/switch_button" />-->
-<!--                <Button-->
-<!--                    android:id="@+id/send_button"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="전송"-->
-<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                    app:layout_constraintRight_toRightOf="parent"-->
-<!--                    app:layout_constraintLeft_toRightOf="@id/edit_text" />-->
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/face_sort_tab"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/automatic_upload_tab">
+
+                <TextView
+                    android:id="@+id/face_sort_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="인물별 보기"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/picat_font_color"
+                    android:textSize="@dimen/picat_text_size_small"
+                    android:fontFamily="@font/notosans_bold"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <HorizontalScrollView
+                    android:id="@+id/face_sort_horizontal_scrollview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/face_sort_textview"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    >
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        >
+
+                        <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/face_item_cardview"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_centerVertical="true"
+                            app:cardCornerRadius="300dp"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:layout_margin="20dp">
+
+                            <ImageView
+                                android:id="@+id/face_item_imageview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/picat_boundary_line_color"
+                                app:srcCompat="@drawable/ic_launcher_foreground"
+                                />
+
+                        </androidx.cardview.widget.CardView>
+
+                        <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/face_item_cardview2"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_centerVertical="true"
+                            app:cardCornerRadius="300dp"
+                            app:layout_constraintLeft_toRightOf="@+id/face_item_cardview"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintRight_toLeftOf="@id/face_item_cardview3"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:layout_margin="20dp">
+
+                            <ImageView
+                                android:id="@+id/face_item_imageview2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/picat_boundary_line_color"
+                                app:srcCompat="@drawable/ic_launcher_foreground"/>
+
+                        </androidx.cardview.widget.CardView>
+
+                        <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/face_item_cardview3"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_centerVertical="true"
+                            app:cardCornerRadius="300dp"
+                            app:layout_constraintLeft_toRightOf="@+id/face_item_cardview2"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent">
+
+                            <ImageView
+                                android:id="@+id/face_item_imageview3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/picat_boundary_line_color"
+                                app:srcCompat="@drawable/ic_launcher_foreground"/>
+
+                        </androidx.cardview.widget.CardView>
+
+                        <!--                        <androidx.recyclerview.widget.RecyclerView-->
+                        <!--                            android:id="@+id/profile_recyclerview"-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:layout_height="wrap_content"-->
+                        <!--                            app:layout_constraintBottom_toBottomOf="parent"-->
+                        <!--                            app:layout_constraintLeft_toLeftOf="parent">-->
+                        <!--                        </androidx.recyclerview.widget.RecyclerView>-->
+
+                        <!--                        <ImageButton-->
+                        <!--                            android:layout_width="20dp"-->
+                        <!--                            android:layout_height="20dp"-->
+                        <!--                            android:background="@drawable/round_button_shape_blue"-->
+                        <!--                            android:src="@drawable/plus_fab"-->
+                        <!--                            android:scaleType="fitCenter"-->
+                        <!--                            android:padding="5dp"-->
+                        <!--                            android:layout_marginLeft="10dp"-->
+                        <!--                            app:layout_constraintBottom_toBottomOf="parent"-->
+                        <!--                            app:layout_constraintLeft_toRightOf="@id/profile_recyclerview"-->
+                        <!--                            app:layout_constraintTop_toTopOf="parent"-->
+                        <!--                            app:layout_constraintRight_toRightOf="parent"/>-->
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </HorizontalScrollView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ImageView
+                android:id="@+id/face_sort_tab_boundary"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/picat_boundary_line"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/face_sort_tab" />
 
             <!-- 중복된 사진 탭  -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/same_sort_tab"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="50dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:minHeight="?attr/actionBarSize"
                 android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@+id/automatic_upload_tab">
+                app:layout_constraintTop_toBottomOf="@+id/face_sort_tab_boundary"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -188,6 +302,7 @@
                     android:textSize="@dimen/picat_text_size_small"
                     android:fontFamily="@font/notosans_bold"
                     android:textColor="@color/picat_font_color"
+                    android:includeFontPadding="false"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
@@ -216,58 +331,73 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/same_sort_tab" />
 
+            <ImageView
+                android:id="@+id/same_sort_tab_boundary"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/picat_boundary_line"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/same_recyclerview" />
 
-                <!-- 흐린 사진 탭  -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/blur_sort_tab"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:layout_marginTop="20dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="?attr/actionBarSize"
-                    app:layout_constraintTop_toBottomOf="@+id/same_recyclerview" >
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="흐린 사진"
-                        android:textSize="@dimen/picat_text_size_small"
-                        android:fontFamily="@font/notosans_bold"
-                        android:textColor="@color/picat_font_color"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
+            <!-- 흐린 사진 탭  -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/blur_sort_tab"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                app:layout_constraintTop_toBottomOf="@+id/same_sort_tab_boundary" >
 
-                    <ImageButton
-                        android:id="@+id/expand_blur_button"
-                        android:layout_width="24dp"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/unfold_icn"
-                        android:scaleType="fitCenter"
-                        android:padding="1dp"
-                        android:backgroundTint="@color/transparent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/blur_recyclerview"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:visibility="gone"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/blur_sort_tab" />
+                    android:text="흐린 사진"
+                    android:textSize="@dimen/picat_text_size_small"
+                    android:includeFontPadding="false"
+                    android:fontFamily="@font/notosans_bold"
+                    android:textColor="@color/picat_font_color"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <ImageButton
+                    android:id="@+id/expand_blur_button"
+                    android:layout_width="24dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/unfold_icn"
+                    android:scaleType="fitCenter"
+                    android:padding="1dp"
+                    android:backgroundTint="@color/transparent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/blur_recyclerview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/blur_sort_tab" />
+
+            <ImageView
+                android:id="@+id/blur_sort_tab_boundary"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/picat_boundary_line"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/blur_recyclerview" />
+
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
                     app:layout_constraintTop_toBottomOf="@id/blur_recyclerview">
 
                     <TextView
@@ -275,7 +405,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="나머지 사진"
+                        android:layout_marginTop="20dp"
                         android:textSize="@dimen/picat_text_size_small"
+                        android:includeFontPadding="false"
                         android:fontFamily="@font/notosans_bold"
                         android:textColor="@color/picat_font_color"
                         app:layout_constraintTop_toTopOf="parent"
@@ -286,6 +418,7 @@
                         android:id="@+id/picture_recyclerview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/upload_text" />
@@ -302,7 +435,6 @@
         android:layout_height="wrap_content"
         android:src="@drawable/plus_fab"
         android:backgroundTint="@color/picat_blue"
-        android:layout_margin="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:visibility="visible"/>
