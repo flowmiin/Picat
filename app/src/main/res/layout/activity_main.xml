@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:padding="@dimen/picat_layout_padding"
-    android:background="@drawable/choose_friend_dummy">
+    android:background="@drawable/choose_friend_dummy_small">
 
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
