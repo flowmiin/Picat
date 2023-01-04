@@ -169,6 +169,13 @@ class SharePictureActivity: AppCompatActivity(){
             bottomSheetDialog.hide()
             // true 이면 false로, flase이면 true로 변경
             startSelecting = !startSelecting
+            if(startSelecting){
+                // 안내 토스트 띄우기
+                Toast.makeText(this, "마음에 드는 사진을 선택해주세요", Toast.LENGTH_SHORT).show()
+            }else{
+                // 안내 토스트 띄우기
+                Toast.makeText(this, "선택 완료!", Toast.LENGTH_SHORT).show()
+            }
             // 변경된 startSelecting 값에 따라 리사이클러뷰 어댑터 다시 설정
             setRecyclerView()
 
@@ -201,7 +208,7 @@ class SharePictureActivity: AppCompatActivity(){
                 for (index in 0 until count) {
                     val imageUri = it.data!!.clipData!!.getItemAt(index).uri
 
-                    imageList.add(imageUri)
+//                    imageList.add(imageUri)
 
                     var file = File(getAbsolutePath(imageUri, this))
                     var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
@@ -213,14 +220,14 @@ class SharePictureActivity: AppCompatActivity(){
             // 단일 이미지 선택한 경우
             else {
                 val imageUri = it.data!!.data
-                imageList.add(imageUri!!)
+//                imageList.add(imageUri!!)
                 var file = File(getAbsolutePath(imageUri, this))
                 var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                 var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                 apiRequest(body)
             }
 
-            setRecyclerView()
+//            setRecyclerView()
 
         }
     }
