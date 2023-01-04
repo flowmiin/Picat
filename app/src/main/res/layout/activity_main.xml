@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:padding="@dimen/picat_layout_padding">
+    android:padding="@dimen/picat_layout_padding"
+    android:background="@drawable/choose_friend_dummy">
+
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/start_share_fab"

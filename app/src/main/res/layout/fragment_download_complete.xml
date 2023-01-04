@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".DownloadCompleteFragment"
     android:id="@+id/download_complete_fragment_layout"
-    android:background="@drawable/simple_white_background">
+    android:background="@drawable/simple_white_background"
+    android:layout_gravity="center">
 
     <ImageButton
         android:id="@+id/exit_button"
@@ -15,8 +15,7 @@
         android:layout_gravity="top|right"
         android:src="@drawable/cancel_icn_black"
         android:scaleType="fitCenter"
-        android:background="@color/transparent"
-        android:layout_margin="20dp"/>
+        android:background="@color/transparent"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -27,28 +26,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="사진 고르기를 완료했어요"
-            android:textColor="@color/black"
-            android:textSize="18dp"
-            android:textStyle="bold"
+            android:textColor="@color/picat_font_color"
+            android:textSize="@dimen/picat_text_size_medium"
+            android:fontFamily="@font/notosans_bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.2" />
+            app:layout_constraintVertical_bias="0.2"
+            android:textAlignment="center"/>
 
         <TextView
             android:id="@+id/download_complete_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="갤러리에 새로운 앨범이 추가되었어요"
-            android:textSize="16dp"
-            android:textColor="@color/black"
+            android:textSize="@dimen/picat_text_size_small"
+            android:textColor="@color/picat_font_color"
+            android:fontFamily="@font/notosans_regular"
             app:layout_constraintTop_toBottomOf="@+id/download_complete_title"
             app:layout_constraintBottom_toTopOf="@id/wraper_frame_layout"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:layout_margin="10dp"
-            android:layout_marginBottom="40dp"/>
+            android:layout_marginBottom="40dp"
+            android:textAlignment="center"/>
 
 
         <FrameLayout
@@ -78,10 +79,12 @@
                     android:id="@+id/download_album_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="2dp"
                     android:text="2022/12 "
-                    android:textColor="@color/black"
-                    android:textSize="16dp"
+                    android:textColor="@color/picat_font_color"
+                    android:textSize="@dimen/picat_text_size_small"
+                    android:fontFamily="@font/notosans_regular"
+                    android:includeFontPadding="false"
+                    android:layout_marginBottom="2dp"
                     app:layout_constraintBottom_toTopOf="@+id/download_album_title"
                     app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -89,10 +92,12 @@
                     android:id="@+id/download_album_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="2dp"
                     android:text="| 15장"
-                    android:textColor="@color/black"
-                    android:textSize="16dp"
+                    android:textColor="@color/picat_font_color"
+                    android:textSize="@dimen/picat_text_size_small"
+                    android:fontFamily="@font/notosans_regular"
+                    android:includeFontPadding="false"
+                    android:layout_marginBottom="2dp"
                     app:layout_constraintBottom_toTopOf="@+id/download_album_title"
                     app:layout_constraintLeft_toRightOf="@+id/download_album_date" />
 
@@ -100,10 +105,11 @@
                     android:id="@+id/download_album_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
                     android:text="텀블러즈 송년회"
-                    android:textColor="@color/black"
-                    android:textSize="16dp"
-                    android:textStyle="bold"
+                    android:textColor="@color/picat_font_color"
+                    android:textSize="@dimen/picat_text_size_small"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent" />
 

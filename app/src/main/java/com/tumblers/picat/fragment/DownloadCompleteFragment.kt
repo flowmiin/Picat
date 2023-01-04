@@ -16,16 +16,14 @@ import com.tumblers.picat.databinding.FragmentDownloadCompleteBinding
 import com.tumblers.picat.databinding.FragmentDownloadCompleteBinding.inflate
 
 
-private const val ARG_PARAM1 = "param1"
-
 
 class DownloadCompleteFragment : Fragment() {
-    private var param1: String? = null
+    private var albumName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
+            albumName = it.getString("albumName")
         }
     }
 
@@ -33,13 +31,14 @@ class DownloadCompleteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val activity = inflater.context as SharePictureActivity
         val actionbar: ActionBar? = activity.supportActionBar
         actionbar?.hide()
         activity.binding.openBottomsheetFab.visibility = View.INVISIBLE
 
-        var fragmentBinding = FragmentDownloadCompleteBinding.inflate(inflater, container, false)
+
+        var fragmentBinding = inflate(inflater, container, false)
+        fragmentBinding.downloadAlbumTitle.text = albumName
         fragmentBinding.exitButton.setOnClickListener {
             val intent = Intent(getActivity(), MainActivity::class.java)
             startActivity(intent)
@@ -49,15 +48,4 @@ class DownloadCompleteFragment : Fragment() {
         return fragmentBinding.root
     }
 
-
-    companion object {
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            DownloadCompleteFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                }
-            }
-    }
 }

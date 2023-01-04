@@ -69,11 +69,42 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //임시 코드. 추후 기능 생성후 삭제예정
+        val firstFace = binding.faceItemImageview
+        val secFace = binding.faceItemImageview2
+        val thirdFace = binding.faceItemImageview3
+        firstFace.setOnClickListener {
+            firstFace.isSelected = !firstFace.isSelected
+            if(firstFace.isSelected){
+                firstFace.background = this.getDrawable(R.color.picat_blue)
+            }else{
+                firstFace.background = this.getDrawable(R.color.picat_boundary_line_color)
+            }
+        }
+        secFace.setOnClickListener {
+            secFace.isSelected = !secFace.isSelected
+            if(secFace.isSelected){
+                secFace.background = this.getDrawable(R.color.picat_blue)
+            }else{
+                secFace.background = this.getDrawable(R.color.picat_boundary_line_color)
+            }
+        }
+        thirdFace.setOnClickListener {
+            thirdFace.isSelected = !thirdFace.isSelected
+            if(thirdFace.isSelected){
+                thirdFace.background = this.getDrawable(R.color.picat_blue)
+            }else{
+                thirdFace.background = this.getDrawable(R.color.picat_boundary_line_color)
+            }
+        }
+
+
+
 
         // mainActivity로부터 앨범이름 가져오기
         val mainActivityIntent = intent
         val roomName = mainActivityIntent.getStringExtra("albumName")
-        binding.roomName.text = roomName
+        binding.roomNameTextview.text = roomName
 
         // 액션바 제목 설정
         val actionbar: ActionBar? = supportActionBar
@@ -83,10 +114,6 @@ class SharePictureActivity: AppCompatActivity(){
         // socket 통신 연결
         mSocket = SocketApplication.get()
         mSocket.connect()
-//        binding.sendButton.setOnClickListener {
-//            mSocket.emit("message", binding.editText.text.toString())
-//            Log.d("send socket", binding.editText.text.toString())
-//        }
         mSocket.on("image", onMessage)
 
 
@@ -171,7 +198,7 @@ class SharePictureActivity: AppCompatActivity(){
             startSelecting = !startSelecting
             if(startSelecting){
                 // 안내 토스트 띄우기
-                Toast.makeText(this, "마음에 드는 사진을 선택해주세요", Toast.LENGTH_SHORT).show()
+                var toast = Toast.makeText(this, "마음에 드는 사진을 선택해주세요", Toast.LENGTH_SHORT).show()
             }else{
                 // 안내 토스트 띄우기
                 Toast.makeText(this, "선택 완료!", Toast.LENGTH_SHORT).show()
@@ -190,8 +217,12 @@ class SharePictureActivity: AppCompatActivity(){
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.confirm_alert).setOnClickListener {
             alertDialog?.dismiss()
             // TODO: 다운로드 실행
+            val bundle = Bundle()
+            bundle.putString("albumName", binding.roomNameTextview.text.toString())
+            val downloadAlbumFragment = DownloadCompleteFragment()
+            downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction()
-                .add(R.id.activity_share_picture_layout, DownloadCompleteFragment())
+                .add(R.id.activity_share_picture_layout, downloadAlbumFragment)
             transaction.commit()
         }
     }
