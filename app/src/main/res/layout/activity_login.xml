@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:gravity="center"
-        android:text="피켓과 함께 사진을 쉽고 빠르게 공유해요"
+        android:text="피캣과 함께 사진을 쉽고 빠르게 공유해요"
         android:textColor="@color/picat_font_color"
         android:textSize="@dimen/picat_text_size_small"
         app:layout_constraintEnd_toEndOf="@+id/app_title_text"

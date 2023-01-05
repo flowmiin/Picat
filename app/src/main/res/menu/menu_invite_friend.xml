@@ -4,9 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/out_button"
-        android:icon="@drawable/exit_room_icn_white"
-        android:title="나가기"
+        android:id="@+id/invite_button"
+        android:icon="@drawable/invite_icn_white"
+        android:title="초대하기"
         app:showAsAction="always" />
 
 </menu>

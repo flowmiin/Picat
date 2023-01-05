@@ -9,7 +9,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -25,8 +24,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
@@ -102,15 +99,22 @@ class SharePictureActivity: AppCompatActivity(){
 
 
 
-        // mainActivity로부터 앨범이름 가져오기
-        val mainActivityIntent = intent
-        val roomName = mainActivityIntent.getStringExtra("albumName")
-        binding.roomNameTextview.text = roomName
+//        // mainActivity로부터 앨범이름 가져오기
+//        val mainActivityIntent = intent
+//        val roomName = mainActivityIntent.getStringExtra("albumName")
+//        binding.roomNameTextview.text = roomName
+
 
         // 액션바 제목 설정
         val actionbar: ActionBar? = supportActionBar
         actionbar?.title = "공유방"
 
+        // 프로필 사진 옆 플러스 버튼 = 수동으로 친구추가
+        binding.profileItemPlusButton.setOnClickListener {
+            val addFriendIntent = Intent(this, FriendListActivity::class.java)
+            startActivity(addFriendIntent)
+            // FriendListActivity에서 종료될 때 finish()를 호출하므로 여기서 호출하지 않습니다.
+        }
 
         // socket 통신 연결
         mSocket = SocketApplication.get()
@@ -137,9 +141,9 @@ class SharePictureActivity: AppCompatActivity(){
 
         //바텀시트 초기화
         val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
-        bottomSheetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         val bottomSheetView = LayoutInflater.from(applicationContext)
             .inflate(R.layout.bottomsheet_content, findViewById<ConstraintLayout>(R.id.bottomsheet_layout))
+
         bottomSheetDialog.setContentView(bottomSheetView)
 
         // fab버튼 클릭 시 바텀시트 활성화
@@ -182,6 +186,7 @@ class SharePictureActivity: AppCompatActivity(){
         val builder = AlertDialog.Builder(this, R.style.BasicDialogTheme)
         val createAlbumAlertView = LayoutInflater.from(this)
             .inflate(R.layout.basic_alert_content, findViewById<ConstraintLayout>(R.id.basic_alert_layout))
+        var roomName = binding.roomNameEditText.text.toString()
         createAlbumAlertView.findViewById<TextView>(R.id.alert_title).text = "'$roomName' ${getString(R.string.download_album_alert_title)}"
         createAlbumAlertView.findViewById<TextView>(R.id.alert_subtitle).text = getString(R.string.download_album_alert_subtitle)
         builder.setView(createAlbumAlertView)
@@ -221,7 +226,7 @@ class SharePictureActivity: AppCompatActivity(){
             alertDialog?.dismiss()
             // TODO: 다운로드 실행
             val bundle = Bundle()
-            bundle.putString("albumName", binding.roomNameTextview.text.toString())
+            bundle.putString("albumName", binding.roomNameEditText.text.toString())
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction()
@@ -357,17 +362,12 @@ class SharePictureActivity: AppCompatActivity(){
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.out_button -> {
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
                 finish()
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    fun px2dp(px: Int, context: Context): Float {
-        return px / ((context.resources.displayMetrics.densityDpi.toFloat()) / DisplayMetrics.DENSITY_DEFAULT)
-    }
 
 //    소켓통신 테스트
     var onMessage = Emitter.Listener { args ->

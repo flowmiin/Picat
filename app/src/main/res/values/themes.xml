@@ -33,7 +33,10 @@
 
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="background">@android:color/white</item>
+        <item name="cornerSize">20dp</item>
+        <item name="cornerFamily">rounded</item>
     </style>
+
 
     <!--  기본 alert 테마  -->
     <style name="BasicDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
