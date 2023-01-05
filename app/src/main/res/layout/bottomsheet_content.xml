@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/bottomsheet_backgound"
-    android:padding="@dimen/picat_layout_padding">
+    android:paddingHorizontal="@dimen/picat_layout_padding"
+    android:paddingTop="20dp">
 
     <ImageView
         android:layout_width="50dp"
@@ -20,8 +21,8 @@
 
     <ImageButton
         android:id="@+id/bottomsheet_upload_button"
-        android:layout_width="58dp"
-        android:layout_height="58dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:scaleType="fitCenter"
         android:padding="20dp"
         android:background="@drawable/round_button_shape_light_blue"
@@ -47,8 +48,8 @@
 
     <ImageButton
         android:id="@+id/bottomsheet_select_button"
-        android:layout_width="58dp"
-        android:layout_height="58dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:scaleType="fitCenter"
         android:padding="20dp"
         android:background="@drawable/round_button_shape_light_blue"
@@ -74,8 +75,8 @@
 
     <ImageButton
         android:id="@+id/bottomsheet_download_button"
-        android:layout_width="58dp"
-        android:layout_height="58dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:scaleType="fitCenter"
         android:padding="20dp"
         android:background="@drawable/round_button_shape_light_blue"

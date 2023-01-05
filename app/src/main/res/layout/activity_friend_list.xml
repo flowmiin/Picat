@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".FriendListActivity"
     android:padding="@dimen/picat_layout_padding"
     android:background="@drawable/choose_friend_dummy_small">
 
@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:includeFontPadding="false"
-        android:text="    이 멤버들로 공유 시작    "
+        android:text="  선택한 멤버들 추가하기  "
         android:textColor="@color/white"
         android:fontFamily="@font/notosans_bold"
         android:layout_marginBottom="10dp"
