@@ -27,7 +27,7 @@ class LoginActivity : AppCompatActivity() {
         // val keyHash = Utility.getKeyHash(this)
         // println("해시 : ${keyHash}")
 
-        // 토큰 정보 보기
+//        // 토큰 정보 보기
 //       UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
 //            if (error != null) {
 //                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
