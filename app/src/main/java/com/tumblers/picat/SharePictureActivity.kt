@@ -36,7 +36,7 @@ import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
 import com.tumblers.picat.adapter.SamePictureAdapter
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.dataclass.APIInterface
+import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import io.socket.client.Socket
@@ -102,20 +102,26 @@ class SharePictureActivity: AppCompatActivity(){
                 val imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
                 var file = File(getAbsolutePath(imageUri, this))
                 var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
+                var emitBody: MutableList<MultipartBody.Part>? = mutableListOf()
                 var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-                apiRequest(body)
+                emitBody?.add(body)
+                apiRequest(emitBody, 1)
             }
             else if(intent.action == Intent.ACTION_SEND_MULTIPLE){
                 val imageUriList = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
 
                 val count: Int? = imageUriList?.toArray()?.size
-
+                var emitBody: MutableList<MultipartBody.Part>? = mutableListOf()
                 for (index in 0 until count!!) {
                     var file = File(getAbsolutePath(imageUriList[index], this))
                     var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                     var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-                    apiRequest(body)
+                    emitBody?.add(body)
                 }
+                if (emitBody == null) {
+                    println("emitBody가 null")
+                }
+                apiRequest(emitBody, count)
             }
         }
 
@@ -355,30 +361,30 @@ class SharePictureActivity: AppCompatActivity(){
             if(it.data!!.clipData != null) {
                 val count = it.data!!.clipData!!.itemCount
 
+                var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
                 for (index in 0 until count) {
                     val imageUri = it.data!!.clipData!!.getItemAt(index).uri
-
-//                    imageList.add(imageUri)
 
                     var file = File(getAbsolutePath(imageUri, this))
                     var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                     var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-                    apiRequest(body)
-
+                    emitBody?.add(body)
                 }
+                apiRequest(emitBody, count)
             }
             // 단일 이미지 선택한 경우
-            else {
-                val imageUri = it.data!!.data
-//                imageList.add(imageUri!!)
-                var file = File(getAbsolutePath(imageUri, this))
-                var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
-                var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-                apiRequest(body)
-            }
-
-//            setRecyclerView()
-
+//            else {
+//                val imageUri = it.data!!.data
+//
+//                var file = File(getAbsolutePath(imageUri, this))
+//                var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
+//                var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
+//                var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+//                emitBody?.add(body)
+//                println("단일 이미지 선택")
+//
+//                apiRequest(emitBody, 1)
+//            }
         }
     }
 
@@ -394,7 +400,7 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
 
-    private fun apiRequest(body: MultipartBody.Part) {
+    private fun apiRequest(body: MutableList<MultipartBody.Part>?, img_cnt: Int) {
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl("http://43.200.93.112:5000/")
@@ -402,16 +408,17 @@ class SharePictureActivity: AppCompatActivity(){
             .build()
 
         // APIInterface 객체 생성
-        var server: APIInterface = retrofit.create(APIInterface::class.java)
-        server.postImg(body, "").enqueue(object : Callback<ImageData> {
+        var server: RequestInterface = retrofit.create(RequestInterface::class.java)
+        server.postImg(body!!, img_cnt).enqueue(object : Callback<ImageData> {
 
             override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
-//                    imageList.add()
-                    println(response.body())
                     val jsonObject = JSONObject()
-                    jsonObject.put("location", response.body()?.location)
+                    println("이미지 리스트 : ${response.body()?.img_list}")
+                    jsonObject.put("img_list", response.body()?.img_list)
+                    jsonObject.put("img_cnt", response.body()?.img_cnt)
+
                     mSocket.emit("image", jsonObject)
                 }
             }
@@ -516,7 +523,13 @@ class SharePictureActivity: AppCompatActivity(){
         Thread {
             runOnUiThread(Runnable {
                 kotlin.run {
-                    imageList.add(args[0].toString().toUri())
+                    println("args : ${args[0]}")
+                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+                    for (i in 0..img_count - 1) {
+                        val imgIObj = JSONObject(img_list[i].toString()).getString("url")
+                        imageList.add(imgIObj.toString().toUri())
+                    }
                     setRecyclerView()
                 }
             })
