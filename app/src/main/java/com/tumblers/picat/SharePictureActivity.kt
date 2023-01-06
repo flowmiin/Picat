@@ -25,6 +25,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
@@ -299,7 +301,9 @@ class SharePictureActivity: AppCompatActivity(){
                 if (response.isSuccessful){
 //                    imageList.add()
                     println(response.body())
-                    mSocket.emit("image", response.body()?.location)
+                    val jsonObject = JSONObject()
+                    jsonObject.put("location", response.body()?.location)
+                    mSocket.emit("image", jsonObject)
                 }
             }
 
@@ -380,6 +384,7 @@ class SharePictureActivity: AppCompatActivity(){
             })
         }.start()
     }
+
     var onRoom = Emitter.Listener { args->
         Thread {
             runOnUiThread(Runnable {
