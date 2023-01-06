@@ -19,7 +19,7 @@
         android:theme="@style/Theme.Picat"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <!-- socket.io ! -->
+
         <!-- LoginActivity -->
         <activity
             android:name=".LoginActivity"
@@ -28,6 +28,7 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
         <!-- FriendListActivity -->
         <activity
             android:name=".FriendListActivity"
@@ -54,6 +55,7 @@
             </intent-filter>
         </activity>
 
+        <!-- 카카오톡 로그인 implement -->
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:launchMode="singleTask"

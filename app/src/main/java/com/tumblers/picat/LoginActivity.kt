@@ -27,18 +27,7 @@ class LoginActivity : AppCompatActivity() {
         // val keyHash = Utility.getKeyHash(this)
         // println("해시 : ${keyHash}")
 
-//        // 토큰 정보 보기
-//       UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
-//            if (error != null) {
-//                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
-//            }
-//            else if (tokenInfo != null) {
-//                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
-//                val intent = Intent(this, SharePictureActivity::class.java)
-//                startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-//                finish()
-//            }
-//        }
+
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
             if (error != null) {
                 when {
@@ -66,9 +55,9 @@ class LoginActivity : AppCompatActivity() {
                     error.toString() == AuthErrorCause.Unauthorized.toString() -> {
                         Toast.makeText(this, "앱이 요청 권한이 없음", Toast.LENGTH_SHORT).show()
                     }
-//                    else -> { // Unknown
-//                        Toast.makeText(this, "기타 에러", Toast.LENGTH_SHORT).show()
-//                    }
+    //                    else -> { // Unknown
+    //                        Toast.makeText(this, "기타 에러", Toast.LENGTH_SHORT).show()
+    //                    }
                 }
             }
             else if (token != null) {

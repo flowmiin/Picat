@@ -1,13 +1,12 @@
 package com.tumblers.picat.adapter
 
 import android.content.Context
-import android.graphics.Color
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
@@ -36,24 +35,37 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             .load(imageList[position])
             .into(holder.uploadPicture)
 
+
+        val isSelectedButton = holder.containerView.findViewById<ImageButton>(R.id.is_selected_imageview)
+        val zoomButton = holder.containerView.findViewById<ImageButton>(R.id.zoom_imagebutton)
+
         if (selectionList.contains(id)){
             holder.itemView.isSelected = true
+            isSelectedButton.setImageResource(R.drawable.selected_icn)
+            isSelectedButton.visibility = View.VISIBLE
         }
 
+        // 선택중일때
         if (startSelecting){
             holder.containerView.isClickable = true
+            isSelectedButton.visibility = View.VISIBLE
+            zoomButton.visibility = View.VISIBLE
 
             holder.containerView.setOnClickListener {
                 if (selectionList.contains(id)){
                     holder.itemView.isSelected = false
+                    isSelectedButton.setImageResource(R.drawable.unselected_icn)
                     selectionList.remove(id)
                 }else{
                     holder.itemView.isSelected = true
+                    isSelectedButton.setImageResource(R.drawable.selected_icn)
                     selectionList[id] = imageList[position]
                 }
                 onItemSelectionChangedListener?.let { it(selectionList) }
             }
-        }else{
+        }
+        else{
+            // 선택 완료했을 때
             holder.containerView.isClickable = false
         }
 
