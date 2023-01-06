@@ -2,10 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- socket.io -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 인터넷 사용 권한 설정 -->
+
 
     <application
+        android:name=".GlobalApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -43,6 +45,21 @@
         </activity>
         <!-- SharePictureActivity -->
         <activity android:name=".SharePictureActivity" />
+        <activity
+        android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+        android:launchMode="singleTask"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+
+            <data
+                android:host="oauth"
+                android:scheme="@string/kakao_redirection_scheme" />
+        </intent-filter>
+        </activity>
     </application>
 
 </manifest>

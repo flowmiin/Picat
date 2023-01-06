@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  kakao string  -->
+    <string name="kakao_native_app_key">3316a30016aae0ca0c99e236b9e7db5e</string>
+    <string name="kakao_redirection_scheme">kakao3316a30016aae0ca0c99e236b9e7db5e</string>
+</resources>

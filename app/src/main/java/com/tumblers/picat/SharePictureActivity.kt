@@ -28,6 +28,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
@@ -294,7 +296,9 @@ class SharePictureActivity: AppCompatActivity(){
                 if (response.isSuccessful){
 //                    imageList.add()
                     println(response.body())
-                    mSocket.emit("image", response.body()?.location)
+                    val jsonObject = JSONObject()
+                    jsonObject.put("location", response.body()?.location)
+                    mSocket.emit("image", jsonObject)
                 }
             }
 
@@ -365,9 +369,6 @@ class SharePictureActivity: AppCompatActivity(){
         return super.onOptionsItemSelected(item)
     }
 
-    fun px2dp(px: Int, context: Context): Float {
-        return px / ((context.resources.displayMetrics.densityDpi.toFloat()) / DisplayMetrics.DENSITY_DEFAULT)
-    }
 
 //    소켓통신 테스트
     var onMessage = Emitter.Listener { args ->
@@ -380,6 +381,7 @@ class SharePictureActivity: AppCompatActivity(){
             })
         }.start()
     }
+
     var onRoom = Emitter.Listener { args->
         Thread {
             runOnUiThread(Runnable {
