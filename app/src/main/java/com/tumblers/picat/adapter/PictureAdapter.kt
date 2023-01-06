@@ -35,12 +35,17 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             .load(imageList[position])
             .into(holder.uploadPicture)
 
-        if (selectionList.contains(id)){
-            holder.itemView.isSelected = true
-        }
 
         val isSelectedButton = holder.containerView.findViewById<ImageButton>(R.id.is_selected_imageview)
         val zoomButton = holder.containerView.findViewById<ImageButton>(R.id.zoom_imagebutton)
+
+        if (selectionList.contains(id)){
+            holder.itemView.isSelected = true
+            isSelectedButton.setImageResource(R.drawable.selected_icn)
+            isSelectedButton.visibility = View.VISIBLE
+        }
+
+        // 선택중일때
         if (startSelecting){
             holder.containerView.isClickable = true
             isSelectedButton.visibility = View.VISIBLE
@@ -58,11 +63,10 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
                 }
                 onItemSelectionChangedListener?.let { it(selectionList) }
             }
-        }else{
+        }
+        else{
+            // 선택 완료했을 때
             holder.containerView.isClickable = false
-            isSelectedButton.visibility = View.GONE
-            zoomButton.visibility = View.GONE
-
         }
 
 

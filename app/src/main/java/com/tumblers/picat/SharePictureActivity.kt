@@ -162,7 +162,7 @@ class SharePictureActivity: AppCompatActivity(){
 
 
         //바텀시트 초기화
-        bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
+        bottomSheetDialog = BottomSheetDialog(this, R.style.CustomBottomSheetDialog)
         val bottomSheetView = LayoutInflater.from(applicationContext)
             .inflate(R.layout.bottomsheet_content, findViewById<ConstraintLayout>(R.id.bottomsheet_layout))
 
@@ -468,7 +468,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     override fun onBackPressed() {
         if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
-            backKeyPressedTime = System.currentTimeMillis();
+            backKeyPressedTime = System.currentTimeMillis()
             Toast.makeText(this, "뒤로 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
             return
         }
