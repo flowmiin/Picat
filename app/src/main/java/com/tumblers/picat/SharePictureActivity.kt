@@ -209,7 +209,7 @@ class SharePictureActivity: AppCompatActivity(){
             startSelecting = !startSelecting
             if(startSelecting){
                 // 안내 토스트 띄우기
-                var toast = Toast.makeText(this, "마음에 드는 사진을 선택해주세요", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "마음에 드는 사진을 선택해주세요", Toast.LENGTH_SHORT).show()
             }else{
                 // 안내 토스트 띄우기
                 Toast.makeText(this, "선택 완료!", Toast.LENGTH_SHORT).show()
@@ -327,12 +327,15 @@ class SharePictureActivity: AppCompatActivity(){
         // same recyclerview 설정
         samePictureAdapter = SamePictureAdapter(imageList, this)
         binding.sameRecyclerview.adapter = samePictureAdapter
+        //중복 사진탭 열기
         binding.expandSameButton.setOnClickListener {
             if(binding.sameRecyclerview.visibility == View.VISIBLE) {
                 binding.sameRecyclerview.visibility = View.GONE
+                binding.expandSameButton.setImageResource(R.drawable.unfold_icn)
             }
             else {
                 binding.sameRecyclerview.visibility = View.VISIBLE
+                binding.expandSameButton.setImageResource(R.drawable.fold_icn)
             }
         }
 
@@ -340,12 +343,15 @@ class SharePictureActivity: AppCompatActivity(){
         // blur recyclerview 설정
         blurPictureAdapter = BlurPictureAdapter(imageList, this)
         binding.blurRecyclerview.adapter = blurPictureAdapter
+        // 흐린 사진탭 열기
         binding.expandBlurButton.setOnClickListener {
             if(binding.blurRecyclerview.visibility == View.VISIBLE) {
                 binding.blurRecyclerview.visibility = View.GONE
+                binding.expandBlurButton.setImageResource(R.drawable.unfold_icn)
             }
             else {
                 binding.blurRecyclerview.visibility = View.VISIBLE
+                binding.expandBlurButton.setImageResource(R.drawable.fold_icn)
             }
         }
 
