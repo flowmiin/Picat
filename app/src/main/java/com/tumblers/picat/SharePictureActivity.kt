@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
@@ -366,6 +367,15 @@ class SharePictureActivity: AppCompatActivity(){
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.out_button -> {
+                //카톡 로그인 사용자 동의 테스트용
+//                UserApiClient.instance.unlink { error ->
+//                    if (error != null) {
+//                        println("연결 끊기 실패.")
+//                    }
+//                    else {
+//                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+//                    }
+//                }
                 finish()
             }
         }
