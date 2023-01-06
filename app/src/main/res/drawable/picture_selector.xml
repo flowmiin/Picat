@@ -3,9 +3,10 @@
 
     <item
         android:state_selected="true"
-        android:drawable="@color/picat_blue" />
+        android:drawable="@color/black_overlay" />
 
     <item
-        android:drawable="@android:color/black" />
+        android:state_selected="false"
+        android:drawable="@color/transparent" />
 
 </selector>

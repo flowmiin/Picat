@@ -83,7 +83,7 @@ class SharePictureActivity: AppCompatActivity(){
         setContentView(binding.root)
 
         if((intent.action == Intent.ACTION_SEND || intent.action == Intent.ACTION_SEND_MULTIPLE) && intent.type == "image/*") {
-            println("전달 받은 사진: ${intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)}")
+//            println("전달 받은 사진: ${intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)}")
             val imageUriList = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
 
             val count : Int? = imageUriList?.toArray()?.size
@@ -125,13 +125,6 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-
-
-
-//        // mainActivity로부터 앨범이름 가져오기
-//        val mainActivityIntent = intent
-//        val roomName = mainActivityIntent.getStringExtra("albumName")
-//        binding.roomNameTextview.text = roomName
 
 
         // 액션바 제목 설정
@@ -265,12 +258,11 @@ class SharePictureActivity: AppCompatActivity(){
         // 다운로드 확인
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.confirm_alert).setOnClickListener {
             alertDialog?.dismiss()
-            // TODO: 다운로드 실행
             imageDownload(binding.roomNameEditText.text.toString())
-
 
             val bundle = Bundle()
             bundle.putString("albumName", binding.roomNameEditText.text.toString())
+            bundle.putString("firstPicture", imageList[0].toString())
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction().add(R.id.activity_share_picture_layout, downloadAlbumFragment)

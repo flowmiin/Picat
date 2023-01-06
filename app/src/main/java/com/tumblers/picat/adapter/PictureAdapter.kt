@@ -1,13 +1,12 @@
 package com.tumblers.picat.adapter
 
 import android.content.Context
-import android.graphics.Color
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
@@ -40,21 +39,30 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             holder.itemView.isSelected = true
         }
 
+        val isSelectedButton = holder.containerView.findViewById<ImageButton>(R.id.is_selected_imageview)
+        val zoomButton = holder.containerView.findViewById<ImageButton>(R.id.zoom_imagebutton)
         if (startSelecting){
             holder.containerView.isClickable = true
+            isSelectedButton.visibility = View.VISIBLE
+            zoomButton.visibility = View.VISIBLE
 
             holder.containerView.setOnClickListener {
                 if (selectionList.contains(id)){
                     holder.itemView.isSelected = false
+                    isSelectedButton.setImageResource(R.drawable.unselected_icn)
                     selectionList.remove(id)
                 }else{
                     holder.itemView.isSelected = true
+                    isSelectedButton.setImageResource(R.drawable.selected_icn)
                     selectionList[id] = imageList[position]
                 }
                 onItemSelectionChangedListener?.let { it(selectionList) }
             }
         }else{
             holder.containerView.isClickable = false
+            isSelectedButton.visibility = View.GONE
+            zoomButton.visibility = View.GONE
+
         }
 
 
