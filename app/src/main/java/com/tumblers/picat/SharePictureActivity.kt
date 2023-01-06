@@ -6,18 +6,23 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.os.Environment.DIRECTORY_DCIM
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.ImageButton
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -25,9 +30,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
@@ -38,6 +40,9 @@ import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -48,6 +53,10 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 class SharePictureActivity: AppCompatActivity(){
@@ -57,13 +66,16 @@ class SharePictureActivity: AppCompatActivity(){
     lateinit var samePictureAdapter: SamePictureAdapter
     lateinit var blurPictureAdapter: BlurPictureAdapter
     lateinit var profilePictureAdapter: ProfilePictureAdapter
-    val selectionList: MutableList<String> = mutableListOf<String>()
     var startSelecting = false
-
-
     lateinit var mSocket: Socket
+    lateinit var bottomSheetDialog: BottomSheetDialog
+
 
     var imageList: ArrayList<Uri> = ArrayList()
+    val selectionList: MutableMap<String, Uri> = mutableMapOf<String, Uri>()
+
+    //뒤로가기 타이머
+    var backKeyPressedTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -143,7 +155,7 @@ class SharePictureActivity: AppCompatActivity(){
 
 
         //바텀시트 초기화
-        val bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
+        bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
         val bottomSheetView = LayoutInflater.from(applicationContext)
             .inflate(R.layout.bottomsheet_content, findViewById<ConstraintLayout>(R.id.bottomsheet_layout))
 
@@ -189,17 +201,29 @@ class SharePictureActivity: AppCompatActivity(){
         val builder = AlertDialog.Builder(this, R.style.BasicDialogTheme)
         val createAlbumAlertView = LayoutInflater.from(this)
             .inflate(R.layout.basic_alert_content, findViewById<ConstraintLayout>(R.id.basic_alert_layout))
-        var roomName = binding.roomNameEditText.text.toString()
-        createAlbumAlertView.findViewById<TextView>(R.id.alert_title).text = "'$roomName' ${getString(R.string.download_album_alert_title)}"
-        createAlbumAlertView.findViewById<TextView>(R.id.alert_subtitle).text = getString(R.string.download_album_alert_subtitle)
         builder.setView(createAlbumAlertView)
         var alertDialog : AlertDialog? = builder.create()
         alertDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        val roomNameEditText = binding.roomNameEditText
+
 
         //바텀시트 내 다운로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_download_button).setOnClickListener {
             bottomSheetDialog.hide()
-            alertDialog?.show()
+
+            requestPermissionLauncher.launch("android.permission.WRITE_EXTERNAL_STORAGE")
+
+            var roomName = roomNameEditText.text.toString()
+            if(roomName.isEmpty()){
+                Toast.makeText(this, "앨범 이름을 입력해주세요", Toast.LENGTH_SHORT).show()
+                roomNameEditText.requestFocus()
+            }else{
+                roomNameEditText.clearFocus()
+                createAlbumAlertView.findViewById<TextView>(R.id.alert_title).text = "\"${roomName}\" ${getString(R.string.download_album_alert_title)}"
+                createAlbumAlertView.findViewById<TextView>(R.id.alert_subtitle).text = getString(R.string.download_album_alert_subtitle)
+
+                alertDialog?.show()
+            }
         }
 
         //바텀시트 내 사진선택 버튼
@@ -221,20 +245,67 @@ class SharePictureActivity: AppCompatActivity(){
 
         // 다운로드 취소
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.cancel_alert).setOnClickListener {
-            alertDialog?.hide()
+            alertDialog?.dismiss()
         }
 
         // 다운로드 확인
         createAlbumAlertView.findViewById<AppCompatButton>(R.id.confirm_alert).setOnClickListener {
             alertDialog?.dismiss()
             // TODO: 다운로드 실행
+            imageDownload(binding.roomNameEditText.text.toString())
+
+
             val bundle = Bundle()
             bundle.putString("albumName", binding.roomNameEditText.text.toString())
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
-            val transaction = supportFragmentManager.beginTransaction()
-                .add(R.id.activity_share_picture_layout, downloadAlbumFragment)
+            val transaction = supportFragmentManager.beginTransaction().add(R.id.activity_share_picture_layout, downloadAlbumFragment)
             transaction.commit()
+        }
+    }
+
+    fun getFileNameInUrl(imgUrl: String): String{
+        val ary = imgUrl.split("/")
+        println(ary)
+        return ary[3]
+    }
+
+    private fun imageDownload(albumName: String){
+        val savePath: String = Environment.getExternalStoragePublicDirectory(DIRECTORY_DCIM).toString() + "/" + albumName
+        val dir = File(savePath)
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        for (pic in selectionList){
+            val imgUrl = pic.value
+            println(imgUrl.toString())
+            val fileName = getFileNameInUrl(imgUrl.toString())
+            val localPath = "$savePath/$fileName"
+
+            val imgDownloadCoroutine = CoroutineScope(Dispatchers.IO)
+            imgDownloadCoroutine.launch {
+                //url로 서버와 접속해서 이미지를 다운받기
+                val conn: HttpURLConnection = URL(imgUrl.toString()).openConnection() as HttpURLConnection
+                val len: Int = conn.contentLength
+                val tmpByte = ByteArray(len)
+                val inputStream : InputStream = conn.inputStream
+
+                val file = File(localPath)
+                val outputStream = FileOutputStream(file)
+                var readData: Int
+                while (true) {
+                    readData = inputStream.read(tmpByte)
+                    if (readData <= 0) {
+                        break
+                    }
+                    outputStream.write(tmpByte, 0, readData)
+                }
+                MediaScannerConnection.scanFile(applicationContext, arrayOf(dir.toString()), null, null)
+                inputStream.close()
+                outputStream.close()
+                conn.disconnect()
+            }
         }
     }
 
@@ -382,11 +453,25 @@ class SharePictureActivity: AppCompatActivity(){
 //                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
 //                    }
 //                }
+                bottomSheetDialog.dismiss()
                 finish()
             }
         }
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onBackPressed() {
+        if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+            backKeyPressedTime = System.currentTimeMillis();
+            Toast.makeText(this, "뒤로 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
+            bottomSheetDialog.dismiss()
+            finish()
+        }
+    }
+
 
 
 //    소켓통신 테스트

@@ -6,7 +6,7 @@
     android:layout_height="50dp"
     android:layout_centerVertical="true"
     app:cardCornerRadius="300dp"
-    android:layout_marginRight="40dp">
+    android:layout_margin="20dp">
 
     <ImageView
         android:id="@+id/profile_picture"
