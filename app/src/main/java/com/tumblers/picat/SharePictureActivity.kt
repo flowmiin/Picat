@@ -30,6 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
@@ -79,20 +80,43 @@ class SharePictureActivity: AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        // 토큰 정보 보기
+        UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
+            if (error != null) {
+                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                finish()
+            }
+            else if (tokenInfo != null) {
+                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if((intent.action == Intent.ACTION_SEND || intent.action == Intent.ACTION_SEND_MULTIPLE) && intent.type == "image/*") {
-//            println("전달 받은 사진: ${intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)}")
-            val imageUriList = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
-
-            val count : Int? = imageUriList?.toArray()?.size
-
-            for (index in 0 until count!!) {
-                var file = File(getAbsolutePath(imageUriList[index], this))
+        if(intent.type == "image/*") {
+            if (intent.action == Intent.ACTION_SEND){
+                val imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                var file = File(getAbsolutePath(imageUri, this))
                 var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                 var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                 apiRequest(body)
+            }
+            else if(intent.action == Intent.ACTION_SEND_MULTIPLE){
+                val imageUriList = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+
+                val count: Int? = imageUriList?.toArray()?.size
+
+                for (index in 0 until count!!) {
+                    var file = File(getAbsolutePath(imageUriList[index], this))
+                    var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
+                    var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                    apiRequest(body)
+                }
             }
         }
 
