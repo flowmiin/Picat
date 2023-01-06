@@ -70,6 +70,20 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if((intent.action == Intent.ACTION_SEND || intent.action == Intent.ACTION_SEND_MULTIPLE) && intent.type == "image/*") {
+            println("전달 받은 사진: ${intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)}")
+            val imageUriList = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+
+            val count : Int? = imageUriList?.toArray()?.size
+
+            for (index in 0 until count!!) {
+                var file = File(getAbsolutePath(imageUriList[index], this))
+                var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
+                var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                apiRequest(body)
+            }
+        }
+
         //임시 코드. 추후 기능 생성후 삭제예정
         val firstFace = binding.faceItemImageview
         val secFace = binding.faceItemImageview2

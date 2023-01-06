@@ -43,22 +43,33 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
         <!-- SharePictureActivity -->
-        <activity android:name=".SharePictureActivity" />
         <activity
-        android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
-        android:launchMode="singleTask"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
+            android:name=".SharePictureActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <action android:name="android.intent.action.SEND_MULTIPLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
 
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:launchMode="singleTask"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-            <data
-                android:host="oauth"
-                android:scheme="@string/kakao_redirection_scheme" />
-        </intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="oauth"
+                    android:scheme="@string/kakao_redirection_scheme" />
+            </intent-filter>
         </activity>
     </application>
 
