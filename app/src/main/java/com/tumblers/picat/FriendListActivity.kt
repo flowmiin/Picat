@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +32,7 @@ class FriendListActivity : AppCompatActivity() {
         binding.startShareFab.setOnClickListener{
             // TODO: 사용자가 선택한 친구들에게 초대링크 전송
             // 공유방으로 돌아가기
+            Toast.makeText(this, "선택 완료!", Toast.LENGTH_SHORT).show()
             finish()
         }
 
