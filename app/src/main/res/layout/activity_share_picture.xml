@@ -133,7 +133,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/below_view_wrapper_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 app:layout_constraintTop_toBottomOf="@+id/profile_tab"
                 android:paddingHorizontal="@dimen/picat_layout_padding"
                 android:paddingTop="20dp"
@@ -436,9 +436,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
 
@@ -449,7 +447,7 @@
         android:src="@drawable/plus_fab"
         android:backgroundTint="@color/picat_blue"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:visibility="visible"
         android:layout_margin="@dimen/picat_layout_padding"/>
 

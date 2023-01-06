@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
@@ -15,9 +16,9 @@ import kotlinx.android.extensions.LayoutContainer
 class PictureAdapter(private var imageList: ArrayList<Uri>,
                      val context: Context,
                      private val startSelecting: Boolean,
-                     val selectionList: MutableList<String>) : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
+                     val selectionList: MutableMap<String, Uri>) : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
 
-    var onItemSelectionChangedListener : ((MutableList<String>) -> Unit)? = null
+    var onItemSelectionChangedListener : ((MutableMap<String, Uri>) -> Unit)? = null
 
 
     // 화면 설정
@@ -48,7 +49,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
                     selectionList.remove(id)
                 }else{
                     holder.itemView.isSelected = true
-                    selectionList.add(id as String)
+                    selectionList[id] = imageList[position]
                 }
                 onItemSelectionChangedListener?.let { it(selectionList) }
             }
