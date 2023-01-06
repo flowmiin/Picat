@@ -65,6 +65,6 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     // 카카오 로그인 모듈
-    implementation "com.kakao.sdk:v2-user:2.0.1"
+    implementation "com.kakao.sdk:v2-user:2.11.0"
     implementation group: 'com.kakao.sdk', name: 'usermgmt', version: '1.27.0'
 }

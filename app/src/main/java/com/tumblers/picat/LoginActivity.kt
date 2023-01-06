@@ -9,10 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.AuthErrorCause
-import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.databinding.ActivityLoginBinding
-import com.kakao.sdk.auth.LoginClient
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 
@@ -28,7 +26,6 @@ class LoginActivity : AppCompatActivity() {
 
         // val keyHash = Utility.getKeyHash(this)
         // println("해시 : ${keyHash}")
-        // 해시 : FQv64xfMYFfJQNT9Edn9wbiFueI=
 
         // 토큰 정보 보기
        UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
@@ -86,18 +83,8 @@ class LoginActivity : AppCompatActivity() {
         binding.kakaoLoginButton.setOnClickListener{
             // TODO: 추후 로그인 feature 추가해야합니다.
 
-            // 현재는 그냥 공유방 화면 전환
-//            val intent = Intent(this, SharePictureActivity::class.java)
-//            startActivity(intent)
-//            finish()
-
-//            if(LoginClient.instance.isKakaoTalkLoginAvailable(this)){
-//                LoginClient.instance.loginWithKakaoTalk(this, callback = callback)
-//            }else{
-//                LoginClient.instance.loginWithKakaoAccount(this, callback = callback)
-//            }
-            if (LoginClient.instance.isKakaoTalkLoginAvailable(this)) {
-                LoginClient.instance.loginWithKakaoTalk(this) { token, error ->
+            if (UserApiClient.instance.isKakaoTalkLoginAvailable(this)) {
+                UserApiClient.instance.loginWithKakaoTalk(this) { token, error ->
                     if (error != null) {
                         Log.e(TAG, "카카오톡으로 로그인 실패", error)
 
@@ -108,13 +95,16 @@ class LoginActivity : AppCompatActivity() {
                         }
 
                         // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
-                        LoginClient.instance.loginWithKakaoAccount(this, callback = callback)
+                        UserApiClient.instance.loginWithKakaoAccount(this, callback = callback)
                     } else if (token != null) {
                         Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
+                        val intent = Intent(this, SharePictureActivity::class.java)
+                        startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                        finish()
                     }
                 }
             } else {
-                LoginClient.instance.loginWithKakaoAccount(this, callback = callback)
+                UserApiClient.instance.loginWithKakaoAccount(this, callback = callback)
             }
 
         }
