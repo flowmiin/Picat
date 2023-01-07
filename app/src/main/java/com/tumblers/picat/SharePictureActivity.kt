@@ -30,12 +30,16 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.internal.UnsafeAllocator.create
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
 import com.tumblers.picat.adapter.SamePictureAdapter
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
+import com.tumblers.picat.dataclass.Data
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
@@ -47,12 +51,14 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory.create
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -407,9 +413,16 @@ class SharePictureActivity: AppCompatActivity(){
             override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
+                    val jsonArray = JSONArray()
+
+                    for (i in 0..response.body()?.img_cnt!! - 1) {
+                        val jsonObject = JSONObject()
+                        jsonObject.put("url", response.body()?.url?.toList()?.get(i))
+                        jsonArray.put(jsonObject)
+                    }
+
                     val jsonObject = JSONObject()
-                    println("이미지 리스트 : ${response.body()?.img_list}")
-                    jsonObject.put("img_list", response.body()?.img_list)
+                    jsonObject.put("img_list", jsonArray)
                     jsonObject.put("img_cnt", response.body()?.img_cnt)
 
                     mSocket.emit("image", jsonObject)
@@ -516,12 +529,11 @@ class SharePictureActivity: AppCompatActivity(){
         Thread {
             runOnUiThread(Runnable {
                 kotlin.run {
-                    println("args : ${args[0]}")
                     val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
                     val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
                     for (i in 0..img_count - 1) {
-                        val imgIObj = JSONObject(img_list[i].toString()).getString("url")
-                        imageList.add(imgIObj.toString().toUri())
+                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
+                        imageList.add(imgObj.toString().toUri())
                     }
                     setRecyclerView()
                 }
@@ -536,8 +548,8 @@ class SharePictureActivity: AppCompatActivity(){
                     val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
                     val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
                     for (i in 0..img_count - 1) {
-                        val imgIObj = JSONObject(img_list[i].toString()).getString("url")
-                        imageList.add(imgIObj.toString().toUri())
+                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
+                        imageList.add(imgObj.toString().toUri())
                     }
                     setRecyclerView()
                 }
