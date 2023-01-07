@@ -71,63 +71,70 @@
                         android:clipToPadding="false">
 
                         <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/profile_item_cardview"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_centerVertical="true"
-                            android:layout_marginRight="40dp"
-                            app:cardCornerRadius="300dp"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintTop_toTopOf="parent">
+<!--                        <androidx.cardview.widget.CardView-->
+<!--                            android:id="@+id/profile_item_cardview"-->
+<!--                            android:layout_width="50dp"-->
+<!--                            android:layout_height="50dp"-->
+<!--                            android:layout_centerVertical="true"-->
+<!--                            android:layout_marginRight="40dp"-->
+<!--                            app:cardCornerRadius="300dp"-->
+<!--                            app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                            app:layout_constraintTop_toTopOf="parent">-->
 
-                            <ImageView
-                                android:id="@+id/profile_item_imageview"
+<!--                            <ImageView-->
+<!--                                android:id="@+id/profile_item_imageview"-->
+<!--                                android:layout_width="wrap_content"-->
+<!--                                android:layout_height="wrap_content"-->
+<!--                                android:background="@color/picat_boundary_line_color"-->
+<!--                                app:srcCompat="@drawable/ic_launcher_foreground" />-->
+
+<!--                        </androidx.cardview.widget.CardView>-->
+
+<!--                        <ImageButton-->
+<!--                            android:id="@+id/profile_item_plus_button"-->
+<!--                            android:layout_width="20dp"-->
+<!--                            android:layout_height="20dp"-->
+<!--                            android:layout_marginLeft="10dp"-->
+<!--                            android:background="@drawable/round_button_shape_blue"-->
+<!--                            android:padding="5dp"-->
+<!--                            android:scaleType="fitCenter"-->
+<!--                            android:src="@drawable/plus_fab"-->
+<!--                            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                            app:layout_constraintLeft_toRightOf="@id/profile_item_cardview"-->
+<!--                            app:layout_constraintRight_toRightOf="parent"-->
+<!--                            app:layout_constraintTop_toTopOf="parent" />-->
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/profile_recyclerview"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@color/picat_boundary_line_color"
-                                app:srcCompat="@drawable/ic_launcher_foreground" />
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintLeft_toLeftOf="parent">
+                            </androidx.recyclerview.widget.RecyclerView>
 
-                        </androidx.cardview.widget.CardView>
-
-                        <ImageButton
-                            android:id="@+id/profile_item_plus_button"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginLeft="10dp"
-                            android:background="@drawable/round_button_shape_blue"
-                            android:padding="5dp"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/plus_fab"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintLeft_toRightOf="@id/profile_item_cardview"
-                            app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <!--                        <androidx.recyclerview.widget.RecyclerView-->
-                        <!--                            android:id="@+id/profile_recyclerview"-->
-                        <!--                            android:layout_width="wrap_content"-->
-                        <!--                            android:layout_height="wrap_content"-->
-                        <!--                            app:layout_constraintBottom_toBottomOf="parent"-->
-                        <!--                            app:layout_constraintLeft_toLeftOf="parent">-->
-                        <!--                        </androidx.recyclerview.widget.RecyclerView>-->
-
-                        <!--                        <ImageButton-->
-                        <!--                            android:layout_width="20dp"-->
-                        <!--                            android:layout_height="20dp"-->
-                        <!--                            android:background="@drawable/round_button_shape_blue"-->
-                        <!--                            android:src="@drawable/plus_fab"-->
-                        <!--                            android:scaleType="fitCenter"-->
-                        <!--                            android:padding="5dp"-->
-                        <!--                            android:layout_marginLeft="10dp"-->
-                        <!--                            app:layout_constraintBottom_toBottomOf="parent"-->
-                        <!--                            app:layout_constraintLeft_toRightOf="@id/profile_recyclerview"-->
-                        <!--                            app:layout_constraintTop_toTopOf="parent"-->
-                        <!--                            app:layout_constraintRight_toRightOf="parent"/>-->
+                            <ImageButton
+                                android:id="@+id/profile_item_plus_button"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:background="@drawable/round_button_shape_blue"
+                                android:src="@drawable/plus_fab"
+                                android:scaleType="fitCenter"
+                                android:padding="5dp"
+                                android:layout_marginLeft="10dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintLeft_toRightOf="@id/profile_recyclerview"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintRight_toRightOf="parent"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </HorizontalScrollView>
-
+                <Switch
+                    android:id="@+id/auto_upload_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
