@@ -32,7 +32,6 @@ class ProfilePictureAdapter(): RecyclerView.Adapter<ProfilePictureAdapter.Profil
         Glide.with(context)
             .load(imageList[position])
             .into(holder.uploadPicture)
-
     }
     // 아이템 개수
     override fun getItemCount(): Int {
