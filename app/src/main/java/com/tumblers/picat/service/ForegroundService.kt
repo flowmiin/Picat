@@ -1,39 +1,62 @@
 package com.tumblers.picat.service
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.graphics.Bitmap
+import android.os.Binder
+import android.os.Build
 import android.os.IBinder
+import android.provider.MediaStore
+import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.NotificationCompat
+import com.tumblers.picat.R
+import kotlin.concurrent.thread
 
 class ForegroundService : Service() {
-    override fun onBind(p0: Intent?): IBinder? {
-        throw java.lang.UnsupportedOperationException("Not yet implemented")
+
+    val CHANNEL_ID = "PICAT5"
+    val NOTI_ID = 5
+
+    fun createNotificationChannel() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val serviceChannel = NotificationChannel(CHANNEL_ID, "FOREGROUND", NotificationManager.IMPORTANCE_DEFAULT)
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(serviceChannel)
+        }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        createNotification()
-    }
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        createNotificationChannel()
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Picat이 백그라운드 실행중입니다.")
+            .setSmallIcon(R.mipmap.picat_app_icn)
+            .build()
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int) : Int {
+        startForeground(NOTI_ID, notification)
+
+        runBackground()
+
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private var mThread: Thread? = object : Thread("My Thread") {
-        override fun run() {
-            super.run()
-            for (i in 0..99) {
-                try {
-                    sleep(1000)
-                } catch(e: InterruptedException) {
-                    currentThread().interrupt()
-                    break
-                }
+    fun runBackground() {
+        thread(start = true) {
+            val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            println("intent = ${intent}")
+            println("intent data = ${intent.data}")
+            if(intent.data != null) {
+                var bitmap: Bitmap = intent.data as Bitmap
+                println("bitmap : ${bitmap}")
             }
         }
     }
 
-    private fun createNotification() {
-        val builder = NotificationCompat.Builder(this, "default")
+
+
+    override fun onBind(p0: Intent?): IBinder? {
+        return Binder()
     }
 }

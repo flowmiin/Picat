@@ -1,6 +1,5 @@
 package com.tumblers.picat
 
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -32,15 +31,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.internal.UnsafeAllocator.create
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
 import com.kakao.sdk.friend.model.ViewAppearance
-import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
@@ -50,6 +47,7 @@ import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
+import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.CoroutineScope
@@ -65,7 +63,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.gson.GsonConverterFactory.create
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -86,6 +83,7 @@ class SharePictureActivity: AppCompatActivity(){
 
 
     var imageList: ArrayList<Uri> = ArrayList()
+    var profileImageList: ArrayList<Uri> = ArrayList()
     val selectionList: MutableMap<String, Uri> = mutableMapOf<String, Uri>()
 
     //뒤로가기 타이머
@@ -196,9 +194,14 @@ class SharePictureActivity: AppCompatActivity(){
                 params = openPickerFriendRequestParams
             ) { selectedUsers, error ->
                 if (error != null) {
-                    Log.e(ContentValues.TAG, "친구 선택 실패", error)
+                    Log.e(TAG, "친구 선택 실패", error)
                 } else {
-                    Log.d(ContentValues.TAG, "친구 선택 성공 $selectedUsers")
+                    Log.d(TAG, "친구 선택 성공 $selectedUsers")
+                    val friend_count = selectedUsers?.totalCount
+                    for (i in 0..friend_count!! - 1) {
+                        profileImageList.add(selectedUsers?.users?.get(i)?.profileThumbnailImage.toString().toUri())
+                    }
+                    setProfileRecyclerview()
                 }
             }
 //            val addFriendIntent = Intent(this, FriendListActivity::class.java)
@@ -218,13 +221,13 @@ class SharePictureActivity: AppCompatActivity(){
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
         samePictureAdapter = SamePictureAdapter(imageList, this)
         blurPictureAdapter = BlurPictureAdapter(imageList, this)
-        //profilePictureAdapter = ProfilePictureAdapter(imageList, this)
+        profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
 
         // profile recyclerview 설정
-        //binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         binding.sameRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
+        binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
 
         setRecyclerView()
 
@@ -250,6 +253,27 @@ class SharePictureActivity: AppCompatActivity(){
             }
             else {
                 println("denied")
+            }
+        }
+
+        // 자동 업로드 스위치 버튼
+        binding.autoUploadSwitch.setOnCheckedChangeListener { p0, isChecked ->
+            if (isChecked) {
+                val status = ContextCompat.checkSelfPermission(this, "android.permission.CAMERA")
+                if (status == PackageManager.PERMISSION_GRANTED) {
+                    // 포어그라운드 실행
+                    val intent = Intent(this, ForegroundService::class.java)
+                    ContextCompat.startForegroundService(this, intent)
+                }
+                else {
+                    // permission 허용 요청 실행
+                    requestPermissionLauncher.launch("android.permission.CAMERA")
+                }
+            }
+            else {
+                // 포어그라운드 종료
+                val intent = Intent(this, ForegroundService::class.java)
+                stopService(intent)
             }
         }
 
@@ -466,6 +490,10 @@ class SharePictureActivity: AppCompatActivity(){
             }
         })
     }
+    private fun setProfileRecyclerview(){
+        profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
+        binding.profileRecyclerview.adapter = profilePictureAdapter
+    }
 
     private fun setRecyclerView(){
 
@@ -558,20 +586,6 @@ class SharePictureActivity: AppCompatActivity(){
 
 //    소켓통신 테스트
     var onMessage = Emitter.Listener { args ->
-//        Thread {
-//            runOnUiThread(Runnable {
-//                kotlin.run {
-//                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-//                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-//                    for (i in 0..img_count - 1) {
-//                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
-//                        imageList.add(imgObj.toString().toUri())
-//                    }
-//                    setRecyclerView()
-//                }
-//            })
-//        }.start()
-
         CoroutineScope(Dispatchers.Main).launch {
             val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
