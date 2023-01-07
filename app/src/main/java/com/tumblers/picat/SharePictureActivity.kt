@@ -44,7 +44,6 @@ import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
 import com.tumblers.picat.adapter.SamePictureAdapter
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.dataclass.Data
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
@@ -97,13 +96,15 @@ class SharePictureActivity: AppCompatActivity(){
         // 토큰 정보 보기
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
-                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                 finish()
             }
             else if (tokenInfo != null) {
-                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
+
+
             }
         }
 
@@ -553,15 +554,15 @@ class SharePictureActivity: AppCompatActivity(){
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.out_button -> {
-                //카톡 로그인 사용자 동의 테스트용
-//                UserApiClient.instance.unlink { error ->
-//                    if (error != null) {
-//                        println("연결 끊기 실패.")
-//                    }
-//                    else {
-//                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
-//                    }
-//                }
+                //카톡 로그인 사용자 동의 및 회원가입 테스트용
+                UserApiClient.instance.unlink { error ->
+                    if (error != null) {
+                        println("연결 끊기 실패.")
+                    }
+                    else {
+                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+                    }
+                }
                 bottomSheetDialog.dismiss()
                 finish()
             }
@@ -596,18 +597,6 @@ class SharePictureActivity: AppCompatActivity(){
             setRecyclerView()
         }
     }
-
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-//            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-//            for (i in 0..img_count - 1) {
-//                val imgObj = JSONObject(img_list[i].toString()).getString("url")
-//                imageList.add(imgObj.toString().toUri())
-//            }
-//        }.invokeOnCompletion {
-//            setRecyclerView()
-//        }
-//    }
 
     var onRoom = Emitter.Listener { args->
         CoroutineScope(Dispatchers.Main).launch {
