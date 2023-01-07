@@ -6,7 +6,7 @@
     </style>
 
 
-<!--  커스텀 바텀시트 테마  -->
+    <!--  커스텀 바텀시트 테마  -->
     <style name="CustomBottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/CustomBottomSheet</item>
     </style>

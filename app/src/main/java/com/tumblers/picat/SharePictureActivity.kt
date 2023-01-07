@@ -539,22 +539,30 @@ class SharePictureActivity: AppCompatActivity(){
                 }
             })
         }.start()
+
+//        CoroutineScope(Dispatchers.Main).launch {
+//            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+//            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+//            for (i in 0..img_count - 1) {
+//                val imgObj = JSONObject(img_list[i].toString()).getString("url")
+//                imageList.add(imgObj.toString().toUri())
+//            }
+//        }.invokeOnCompletion {
+//            setRecyclerView()
+//        }
     }
 
     var onRoom = Emitter.Listener { args->
-        Thread {
-            runOnUiThread(Runnable {
-                kotlin.run {
-                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-                    for (i in 0..img_count - 1) {
-                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                        imageList.add(imgObj.toString().toUri())
-                    }
-                    setRecyclerView()
-                }
-            })
-        }.start()
+        CoroutineScope(Dispatchers.Main).launch {
+            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+            for (i in 0..img_count - 1) {
+                val imgObj = JSONObject(img_list[i].toString()).getString("url")
+                imageList.add(imgObj.toString().toUri())
+            }
+        }.invokeOnCompletion {
+            setRecyclerView()
+        }
     }
 }
 
