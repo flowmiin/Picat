@@ -1,11 +1,12 @@
 package com.tumblers.picat.dataclass
 
-import okhttp3.MultipartBody
+import com.google.gson.annotations.SerializedName
 
 data class ImageData(
-    //request members
-    val image: MultipartBody.Part,
+    val url: List<String>,
+    val img_cnt: Int
+)
 
-    //response members
-    val location: String
+class Data(
+    @SerializedName("url") var url: String,
 )

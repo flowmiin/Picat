@@ -7,11 +7,13 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 
 
-interface APIInterface {
+interface RequestInterface {
     @Multipart
     @POST("image/")
     fun postImg(
-        @Part image: MultipartBody.Part,
-        @Part ("location") location: String
+        @Part arrayImage: MutableList<MultipartBody.Part>,
+        @Part ("img_cnt") img_cnt: Int,
+        //@Part ("img_list") img_list: ArrayList<Data>
+
     ): Call<ImageData>
 }
