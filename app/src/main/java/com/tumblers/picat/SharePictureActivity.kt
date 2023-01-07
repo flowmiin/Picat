@@ -1,5 +1,7 @@
 package com.tumblers.picat
 
+import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +14,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Environment.DIRECTORY_DCIM
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -33,13 +36,17 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.internal.UnsafeAllocator.create
+import com.kakao.sdk.friend.client.PickerClient
+import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
+import com.kakao.sdk.friend.model.PickerOrientation
+import com.kakao.sdk.friend.model.ViewAppearance
+import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.BlurPictureAdapter
 import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.ProfilePictureAdapter
 import com.tumblers.picat.adapter.SamePictureAdapter
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.dataclass.Data
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
@@ -91,13 +98,15 @@ class SharePictureActivity: AppCompatActivity(){
         // 토큰 정보 보기
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
-                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                 finish()
             }
             else if (tokenInfo != null) {
-                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
+
+
             }
         }
 
@@ -169,8 +178,31 @@ class SharePictureActivity: AppCompatActivity(){
 
         // 프로필 사진 옆 플러스 버튼 = 수동으로 친구추가
         binding.profileItemPlusButton.setOnClickListener {
-            val addFriendIntent = Intent(this, FriendListActivity::class.java)
-            startActivity(addFriendIntent)
+            val openPickerFriendRequestParams = OpenPickerFriendRequestParams(
+                title = "풀 스크린 멀티 친구 피커", //default "친구 선택"
+                viewAppearance = ViewAppearance.AUTO, //default ViewAppearance.AUTO
+                orientation = PickerOrientation.AUTO, //default PickerOrientation.AUTO
+                enableSearch = true, //default true
+                enableIndex = true, //default true
+                showMyProfile = true, //default true
+                showFavorite = true, //default true
+                showPickedFriend = null, // default true
+                maxPickableCount = null, // default 30
+                minPickableCount = null // default 1
+            )
+
+            PickerClient.instance.selectFriends(
+                context = this!!,
+                params = openPickerFriendRequestParams
+            ) { selectedUsers, error ->
+                if (error != null) {
+                    Log.e(ContentValues.TAG, "친구 선택 실패", error)
+                } else {
+                    Log.d(ContentValues.TAG, "친구 선택 성공 $selectedUsers")
+                }
+            }
+//            val addFriendIntent = Intent(this, FriendListActivity::class.java)
+//            startActivity(addFriendIntent)
             // FriendListActivity에서 종료될 때 finish()를 호출하므로 여기서 호출하지 않습니다.
         }
 
@@ -494,15 +526,15 @@ class SharePictureActivity: AppCompatActivity(){
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.out_button -> {
-                //카톡 로그인 사용자 동의 테스트용
-//                UserApiClient.instance.unlink { error ->
-//                    if (error != null) {
-//                        println("연결 끊기 실패.")
-//                    }
-//                    else {
-//                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
-//                    }
-//                }
+                //카톡 로그인 사용자 동의 및 회원가입 테스트용
+                UserApiClient.instance.unlink { error ->
+                    if (error != null) {
+                        println("연결 끊기 실패.")
+                    }
+                    else {
+                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+                    }
+                }
                 bottomSheetDialog.dismiss()
                 finish()
             }
@@ -526,30 +558,30 @@ class SharePictureActivity: AppCompatActivity(){
 
 //    소켓통신 테스트
     var onMessage = Emitter.Listener { args ->
-        Thread {
-            runOnUiThread(Runnable {
-                kotlin.run {
-                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-                    for (i in 0..img_count - 1) {
-                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                        imageList.add(imgObj.toString().toUri())
-                    }
-                    setRecyclerView()
-                }
-            })
-        }.start()
+//        Thread {
+//            runOnUiThread(Runnable {
+//                kotlin.run {
+//                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+//                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+//                    for (i in 0..img_count - 1) {
+//                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
+//                        imageList.add(imgObj.toString().toUri())
+//                    }
+//                    setRecyclerView()
+//                }
+//            })
+//        }.start()
 
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-//            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-//            for (i in 0..img_count - 1) {
-//                val imgObj = JSONObject(img_list[i].toString()).getString("url")
-//                imageList.add(imgObj.toString().toUri())
-//            }
-//        }.invokeOnCompletion {
-//            setRecyclerView()
-//        }
+        CoroutineScope(Dispatchers.Main).launch {
+            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+            for (i in 0..img_count - 1) {
+                val imgObj = JSONObject(img_list[i].toString()).getString("url")
+                imageList.add(imgObj.toString().toUri())
+            }
+        }.invokeOnCompletion {
+            setRecyclerView()
+        }
     }
 
     var onRoom = Emitter.Listener { args->

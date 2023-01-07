@@ -1,9 +1,11 @@
 package com.tumblers.picat
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -14,6 +16,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.kakao.sdk.friend.client.PickerClient
+import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
+import com.kakao.sdk.friend.model.PickerOrientation
+import com.kakao.sdk.friend.model.ViewAppearance
+import com.kakao.sdk.talk.TalkApiClient
 import com.tumblers.picat.databinding.ActivityFriendListBinding
 
 class FriendListActivity : AppCompatActivity() {
@@ -32,9 +39,23 @@ class FriendListActivity : AppCompatActivity() {
         binding.startShareFab.setOnClickListener{
             // TODO: 사용자가 선택한 친구들에게 초대링크 전송
             // 공유방으로 돌아가기
-            Toast.makeText(this, "선택 완료!", Toast.LENGTH_SHORT).show()
-            finish()
+//            // 카카오톡 친구 목록 가져오기 (기본)
+//            TalkApiClient.instance.friends { friends, error ->
+//                if (error != null) {
+//                    Log.e(TAG, "카카오톡 친구 목록 가져오기 실패", error)
+//                }
+//                else if (friends != null) {
+//                    Log.i(TAG, "카카오톡 친구 목록 가져오기 성공 \n${friends.elements?.joinToString("\n")}")
+//                    // 친구의 UUID 로 메시지 보내기 가능
+//                }
+//            }
+//            Toast.makeText(this, "친구 초대 완료!", Toast.LENGTH_SHORT).show()
+//            finish()
         }
+
+
+
+        
 
     }
 

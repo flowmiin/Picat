@@ -7,12 +7,23 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.AuthErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.databinding.ActivityLoginBinding
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.talk.TalkApiClient
+import com.tumblers.picat.dataclass.RequestInterface
+import com.tumblers.picat.dataclass.SimpleResponseData
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +73,10 @@ class LoginActivity : AppCompatActivity() {
             }
             else if (token != null) {
                 Toast.makeText(this, "로그인에 성공하였습니다.", Toast.LENGTH_SHORT).show()
+
+
+
+
                 val intent = Intent(this, SharePictureActivity::class.java)
                 startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                 finish()
@@ -70,7 +85,6 @@ class LoginActivity : AppCompatActivity() {
 
         // 카카오톡으로 로그인
         binding.kakaoLoginButton.setOnClickListener{
-            // TODO: 추후 로그인 feature 추가해야합니다.
 
             if (UserApiClient.instance.isKakaoTalkLoginAvailable(this)) {
                 UserApiClient.instance.loginWithKakaoTalk(this) { token, error ->
@@ -85,8 +99,64 @@ class LoginActivity : AppCompatActivity() {
 
                         // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
                         UserApiClient.instance.loginWithKakaoAccount(this, callback = callback)
+
                     } else if (token != null) {
                         Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
+                        var requestData = JsonObject()
+                        // 사용자 정보 요청 (기본)
+                        UserApiClient.instance.me { user, error ->
+                            if (error != null) {
+                                Log.e(TAG, "사용자 정보 요청 실패", error)
+                            }
+                            else if (user != null) {
+                                Log.i(TAG, "사용자 정보 요청 성공" +
+                                        "\n회원번호: ${user.id}" +
+                                        "\n이메일: ${user.kakaoAccount?.email}" +
+                                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
+                                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
+
+                                requestData.addProperty("id", user.id)
+                                requestData.addProperty("nickname", user.kakaoAccount?.profile?.nickname)
+                                requestData.addProperty("picture", user.kakaoAccount?.profile?.thumbnailImageUrl)
+                                requestData.addProperty("email", user.kakaoAccount?.email)
+                                Log.i(TAG, "결과1 $requestData")
+
+
+                                // 카카오톡 친구 목록 가져오기 (기본)
+                                TalkApiClient.instance.friends { friends, error ->
+                                    if (error != null) {
+                                        Log.e(TAG, "카카오톡 친구 목록 가져오기 실패", error)
+                                    }
+                                    else if (friends != null) {
+                                        Log.i(TAG, "카카오톡 친구 목록 가져오기 성공 \n${friends.elements?.joinToString("\n")}")
+                                        Log.i(TAG, "카카오톡 친구 목록 가져오기 성공2 \n${friends.elements}")
+                                        requestData.addProperty("total_count", friends.totalCount)
+
+                                        val friendList = JsonArray()
+                                        if (friends.totalCount > 0){
+                                            val friendObj = JsonObject()
+                                            for (friend in friends.elements!!) {
+                                                friendObj.addProperty("id", friend.id)
+                                                friendObj.addProperty("uuid", friend.uuid)
+                                                friendObj.addProperty("profile_nickname", friend.profileNickname)
+                                                friendObj.addProperty("profile_thumbnail_image", friend.profileThumbnailImage)
+                                                friendObj.addProperty("favorite", friend.favorite)
+                                                friendObj.addProperty("allowedMsg", friend.allowedMsg)
+                                            }
+                                            friendList.add(friendObj)
+                                        }
+                                        requestData.add("elements", friendList)
+                                        Log.i(TAG, "결과2 $requestData")
+
+                                        apiRequest(requestData)
+
+                                    }
+
+                                }
+                            }
+
+                        }
+
                         val intent = Intent(this, SharePictureActivity::class.java)
                         startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                         finish()
@@ -97,5 +167,31 @@ class LoginActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+
+
+    private fun apiRequest(requestData :JsonObject) {
+        // retrofit 객체 생성
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl("http://43.200.93.112:5000/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        // APIInterface 객체 생성
+        var server: RequestInterface = retrofit.create(RequestInterface::class.java)
+        server.postUser(requestData).enqueue(object : Callback<SimpleResponseData> {
+
+            override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
+                if (response.isSuccessful){
+                    Toast.makeText(applicationContext, "${response.body()?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<SimpleResponseData>, t: Throwable) {
+                Toast.makeText(applicationContext, "회원 가입 실패", Toast.LENGTH_SHORT).show()
+
+            }
+        })
     }
 }
