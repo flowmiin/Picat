@@ -508,16 +508,39 @@ class SharePictureActivity: AppCompatActivity(){
                 startSelecting = true
                 setRecyclerView()
             }
-
-            override fun onItemClicked(position: Int) {
-            }
-
-            override fun onMultipleViewHoldersSelected(selection: MutableList<ViewHolder?>) {
-                println("복수 선택")
-            }
-
         })
         binding.pictureRecyclerview.adapter = pictureAdapter
+//        binding.pictureRecyclerview.addOnItemTouchListener(
+//            DragSelectionItemTouchListener(
+//                this,
+//                object : PictureAdapter.OnItemInteractionListener {
+//                    override fun onLongItemClicked(
+//                        recyclerView: RecyclerView?,
+//                        mViewHolderTouched: ViewHolder?,
+//                        position: Int
+//                    ) {
+//                        println("롱클릭")
+//                    }
+//
+//                    override fun onItemClicked(
+//                        recyclerView: RecyclerView?,
+//                        mViewHolderTouched: ViewHolder?,
+//                        position: Int
+//                    ) {
+//                        println("클릭")
+//
+//                    }
+//
+//                    override fun onViewHolderHovered(rv: RecyclerView?, viewHolder: ViewHolder?) {}
+//                    override fun onMultipleViewHoldersSelected(
+//                        rv: RecyclerView?,
+//                        selection: List<ViewHolder?>?
+//                    ) {
+//                        println("다중 클릭")
+//
+//                    }
+//                })
+//        )
 
 
         // same recyclerview 설정

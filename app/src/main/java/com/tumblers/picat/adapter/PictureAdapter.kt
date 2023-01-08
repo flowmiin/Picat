@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
 import kotlinx.android.extensions.LayoutContainer
@@ -19,14 +18,37 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
                      val selectionList: MutableMap<String, Uri>)
     : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
 
+
+    var onItemSelectionChangedListener : ((MutableMap<String, Uri>) -> Unit)? = null
+
+    interface OnItemInteractionListener {
+        fun onLongItemClicked(
+            recyclerView: RecyclerView?,
+            mViewHolderTouched: RecyclerView.ViewHolder?,
+            position: Int
+        ) {
+        }
+
+        fun onItemClicked(
+            recyclerView: RecyclerView?,
+            mViewHolderTouched: RecyclerView.ViewHolder?,
+            position: Int
+        ) {
+        }
+
+        fun onViewHolderHovered(rv: RecyclerView?, viewHolder: RecyclerView.ViewHolder?) {}
+        fun onMultipleViewHoldersSelected(
+            rv: RecyclerView?,
+            selection: List<RecyclerView.ViewHolder?>?
+        ) {
+        }
+    }
+
     //커스텀 클릭 인터페이스를 정의
     interface MyItemClickListener {
         fun onLongItemClicked(position: Int)
-        fun onItemClicked(position: Int)
-        fun onMultipleViewHoldersSelected(selection: MutableList<ViewHolder?>)
     }
 
-    var onItemSelectionChangedListener : ((MutableMap<String, Uri>) -> Unit)? = null
     private var myItemClickListener : MyItemClickListener? = null
 
     //액티비티 코드에서 인터페이스 초기화 용도
@@ -50,6 +72,12 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             .load(imageList[position])
             .into(holder.uploadPicture)
 
+        //롱 클릭시 사진 선택 시작하기
+        holder.containerView.setOnLongClickListener {
+            myItemClickListener?.onLongItemClicked(position)
+            return@setOnLongClickListener(true)
+        }
+
 
         val isSelectedButton = holder.containerView.findViewById<ImageButton>(R.id.is_selected_imageview)
         val zoomButton = holder.containerView.findViewById<ImageButton>(R.id.zoom_imagebutton)
@@ -60,11 +88,6 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             isSelectedButton.visibility = View.VISIBLE
         }
 
-        //롱 클릭시 사진 선택 시작하기
-        holder.containerView.setOnLongClickListener {
-            myItemClickListener?.onLongItemClicked(position)
-            return@setOnLongClickListener(true)
-        }
 
         // 선택중일때
         if (startSelecting){

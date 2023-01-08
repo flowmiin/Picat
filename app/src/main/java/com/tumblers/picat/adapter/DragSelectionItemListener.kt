@@ -7,7 +7,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 
-class DragSelectionItemTouchListener(context: Context?, listener: PictureAdapter.MyItemClickListener?) :
+class DragSelectionItemTouchListener(
+    context: Context?,
+    listener: PictureAdapter.OnItemInteractionListener?) :
     LongPressItemTouchListener(context, listener), OnItemTouchListener {
     private var mPreviousViewHolder: RecyclerView.ViewHolder? = null
     private val mHitRect = Rect()
@@ -29,6 +31,24 @@ class DragSelectionItemTouchListener(context: Context?, listener: PictureAdapter
         mRangeSelection.clear()
     }
 
+    private fun onActionMove(rv: RecyclerView, e: MotionEvent): Boolean {
+        if (isMotionEventInCurrentViewHolder(e) || mViewHolderLongPressed == null) {
+            return false
+        }
+        if (mViewHolderLongPressed != null && mPreviousViewHolder == null) {
+            mPreviousViewHolder = mViewHolderLongPressed
+        }
+        val childViewUnder = rv.findChildViewUnder(e.x, e.y) ?: return false
+        val viewHolder = rv.getChildViewHolder(childViewUnder)
+        if (mPreviousViewHolder == null && viewHolder != null && mViewHolderLongPressed != null && viewHolder.adapterPosition != mViewHolderLongPressed!!.adapterPosition) {
+            dispatchOnViewHolderHovered(rv, viewHolder)
+            return true
+        } else if (mPreviousViewHolder != null && viewHolder != null && viewHolder.adapterPosition != mPreviousViewHolder!!.adapterPosition) {
+            dispatchOnViewHolderHovered(rv, viewHolder)
+            return true
+        }
+        return false
+    }
 
     private fun isMotionEventInCurrentViewHolder(e: MotionEvent): Boolean {
         if (mPreviousViewHolder != null) {
@@ -38,7 +58,12 @@ class DragSelectionItemTouchListener(context: Context?, listener: PictureAdapter
         return false
     }
 
-
+    private fun dispatchOnViewHolderHovered(rv: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+        if (!checkForSpanSelection(rv, viewHolder)) {
+            mListener?.onViewHolderHovered(rv, viewHolder)
+        }
+        mPreviousViewHolder = viewHolder
+    }
 
     private fun checkForSpanSelection(
         rv: RecyclerView,
@@ -61,19 +86,21 @@ class DragSelectionItemTouchListener(context: Context?, listener: PictureAdapter
         if (mListener != null) {
             mRangeSelection.clear()
             val start =
-                Math.min(mPreviousViewHolder!!.adapterPosition + 1, viewHolder.adapterPosition)
+                Math.min(mPreviousViewHolder!!.bindingAdapterPosition + 1, viewHolder.bindingAdapterPosition)
             val end =
-                Math.max(mPreviousViewHolder!!.adapterPosition + 1, viewHolder.adapterPosition)
+                Math.max(mPreviousViewHolder!!.bindingAdapterPosition + 1, viewHolder.bindingAdapterPosition)
             for (i in start..end) {
                 mRangeSelection.add(rv.findViewHolderForAdapterPosition(i))
             }
-            mListener.onMultipleViewHoldersSelected(mRangeSelection)
+            mListener.onMultipleViewHoldersSelected(rv, mRangeSelection)
         }
     }
 
     override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
         if (e.action == MotionEvent.ACTION_UP || e.action == MotionEvent.ACTION_POINTER_UP) {
             cancelPreviousSelection()
+        } else if (mViewHolderLongPressed != null) {
+            onActionMove(rv, e)
         }
     }
 
