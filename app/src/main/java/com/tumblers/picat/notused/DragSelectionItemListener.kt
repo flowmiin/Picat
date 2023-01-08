@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
+import com.tumblers.picat.notused.LongPressItemTouchListener
 
 class DragSelectionItemTouchListener(
     context: Context?,

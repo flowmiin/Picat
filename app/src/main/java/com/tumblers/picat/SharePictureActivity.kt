@@ -33,7 +33,6 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
@@ -352,8 +351,9 @@ class SharePictureActivity: AppCompatActivity(){
             imageDownload(binding.roomNameEditText.text.toString())
 
             val bundle = Bundle()
+            bundle.putString("pictureCount", selectionList.size.toString())
             bundle.putString("albumName", binding.roomNameEditText.text.toString())
-            bundle.putString("firstPicture", imageList[0].toString())
+            bundle.putString("albumCover", imageList[0].toString())
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction().add(R.id.activity_share_picture_layout, downloadAlbumFragment)
@@ -503,13 +503,47 @@ class SharePictureActivity: AppCompatActivity(){
         // 나머지 picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
         // 롱클릭 시 사진 선택 시작되도록함.
-        pictureAdapter.setMyItemClickListener(object : PictureAdapter.MyItemClickListener{
-            override fun onLongItemClicked(position: Int) {
-                startSelecting = true
-                setRecyclerView()
-            }
-        })
+//        pictureAdapter.setMyItemClickListener(object : PictureAdapter.MyItemClickListener{
+//            override fun onLongItemClicked(position: Int) {
+//                startSelecting = true
+//                setRecyclerView()
+//            }
+//        })
         binding.pictureRecyclerview.adapter = pictureAdapter
+        binding.pictureRecyclerview.addOnItemTouchListener(
+            RecyclerViewOnItemClickListener(
+                applicationContext,
+                binding.pictureRecyclerview,
+                object : RecyclerViewOnItemClickListener.OnItemClickListener {
+                    override fun onItemClick(v: View?, position: Int) {
+                        val isSelectedButton = v?.findViewById<ImageButton>(R.id.is_selected_imageview)
+                        if (startSelecting){
+                            if (selectionList.contains(position.toString())){
+                                v?.isSelected = false
+                                isSelectedButton?.setImageResource(R.drawable.unselected_icn)
+                                selectionList.remove(position.toString())
+                            }else{
+                                v?.isSelected = true
+                                isSelectedButton?.setImageResource(R.drawable.selected_icn)
+                                selectionList[position.toString()] = imageList[position]
+                            }
+                            pictureAdapter.onItemSelectionChangedListener?.let { it(selectionList) }
+                        }else{
+                            // 선택 완료했을 때
+                            v?.isClickable = false
+                        }
+                    }
+
+                    override fun onItemLongClick(v: View?, position: Int){
+                        Log.d(TAG, "long click")
+                        startSelecting = true
+                        selectionList[position.toString()] = imageList[position]
+                        setRecyclerView()
+                    }
+            }
+        ))
+
+
 //        binding.pictureRecyclerview.addOnItemTouchListener(
 //            DragSelectionItemTouchListener(
 //                this,

@@ -1,4 +1,4 @@
-package com.tumblers.picat.adapter
+package com.tumblers.picat.notused
 
 import android.content.Context
 import android.view.GestureDetector
@@ -6,6 +6,7 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener
+import com.tumblers.picat.adapter.PictureAdapter
 
 
 abstract class LongPressItemTouchListener(context: Context?, listener: PictureAdapter.OnItemInteractionListener?) :

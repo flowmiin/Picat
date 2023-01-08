@@ -72,11 +72,11 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             .load(imageList[position])
             .into(holder.uploadPicture)
 
-        //롱 클릭시 사진 선택 시작하기
-        holder.containerView.setOnLongClickListener {
-            myItemClickListener?.onLongItemClicked(position)
-            return@setOnLongClickListener(true)
-        }
+//        //롱 클릭시 사진 선택 시작하기
+//        holder.containerView.setOnLongClickListener {
+//            myItemClickListener?.onLongItemClicked(position)
+//            return@setOnLongClickListener(true)
+//        }
 
 
         val isSelectedButton = holder.containerView.findViewById<ImageButton>(R.id.is_selected_imageview)
@@ -96,6 +96,19 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             zoomButton.visibility = View.VISIBLE
 
             holder.containerView.setOnClickListener {
+                if (selectionList.contains(id)){
+                    holder.itemView.isSelected = false
+                    isSelectedButton.setImageResource(R.drawable.unselected_icn)
+                    selectionList.remove(id)
+                }else{
+                    holder.itemView.isSelected = true
+                    isSelectedButton.setImageResource(R.drawable.selected_icn)
+                    selectionList[id] = imageList[position]
+                }
+                onItemSelectionChangedListener?.let { it(selectionList) }
+            }
+
+            isSelectedButton.setOnClickListener {
                 if (selectionList.contains(id)){
                     holder.itemView.isSelected = false
                     isSelectedButton.setImageResource(R.drawable.unselected_icn)
