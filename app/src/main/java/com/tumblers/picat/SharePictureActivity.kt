@@ -512,6 +512,10 @@ class SharePictureActivity: AppCompatActivity(){
             override fun onItemClicked(position: Int) {
             }
 
+            override fun onMultipleViewHoldersSelected(selection: MutableList<ViewHolder?>) {
+                println("복수 선택")
+            }
+
         })
         binding.pictureRecyclerview.adapter = pictureAdapter
 

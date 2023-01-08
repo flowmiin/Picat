@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
 import kotlinx.android.extensions.LayoutContainer
@@ -23,6 +23,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     interface MyItemClickListener {
         fun onLongItemClicked(position: Int)
         fun onItemClicked(position: Int)
+        fun onMultipleViewHoldersSelected(selection: MutableList<ViewHolder?>)
     }
 
     var onItemSelectionChangedListener : ((MutableMap<String, Uri>) -> Unit)? = null
