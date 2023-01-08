@@ -230,6 +230,7 @@ class SharePictureActivity: AppCompatActivity(){
         setRecyclerView()
 
 
+
         //바텀시트 초기화
         bottomSheetDialog = BottomSheetDialog(this, R.style.CustomBottomSheetDialog)
         val bottomSheetView = LayoutInflater.from(applicationContext)
@@ -501,7 +502,17 @@ class SharePictureActivity: AppCompatActivity(){
 
         // 나머지 picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
-        pictureAdapter.setMyItemClickListener()
+        // 롱클릭 시 사진 선택 시작되도록함.
+        pictureAdapter.setMyItemClickListener(object : PictureAdapter.MyItemClickListener{
+            override fun onLongItemClicked(position: Int) {
+                startSelecting = true
+                setRecyclerView()
+            }
+
+            override fun onItemClicked(position: Int) {
+            }
+
+        })
         binding.pictureRecyclerview.adapter = pictureAdapter
 
 
