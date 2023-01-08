@@ -33,19 +33,17 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
 import com.kakao.sdk.friend.model.ViewAppearance
 import com.kakao.sdk.user.UserApiClient
-import com.tumblers.picat.adapter.BlurPictureAdapter
-import com.tumblers.picat.adapter.PictureAdapter
-import com.tumblers.picat.adapter.ProfilePictureAdapter
-import com.tumblers.picat.adapter.SamePictureAdapter
+import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
+import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
@@ -503,7 +501,9 @@ class SharePictureActivity: AppCompatActivity(){
 
         // 나머지 picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
+        pictureAdapter.setMyItemClickListener()
         binding.pictureRecyclerview.adapter = pictureAdapter
+
 
         // same recyclerview 설정
         samePictureAdapter = SamePictureAdapter(imageList, this)
@@ -610,5 +610,8 @@ class SharePictureActivity: AppCompatActivity(){
             setRecyclerView()
         }
     }
+
 }
+
+
 
