@@ -353,7 +353,8 @@ class SharePictureActivity: AppCompatActivity(){
             val bundle = Bundle()
             bundle.putString("pictureCount", selectionList.size.toString())
             bundle.putString("albumName", binding.roomNameEditText.text.toString())
-            bundle.putString("albumCover", imageList[0].toString())
+            var tmpList = selectionList.values.toList()
+            bundle.putString("albumCover", tmpList[0].toString())
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction().add(R.id.activity_share_picture_layout, downloadAlbumFragment)
