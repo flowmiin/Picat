@@ -96,21 +96,19 @@ class SharePictureActivity: AppCompatActivity(){
         // 토큰 정보 보기
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
-//                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                 finish()
             }
             else if (tokenInfo != null) {
 //                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
-
-
             }
         }
 
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 갤러리에서 사진 선택 후 공유 버튼을 눌러 picat앱에 들어왔을 때
         if(intent.type == "image/*") {
             if (intent.action == Intent.ACTION_SEND){
                 val imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
@@ -201,18 +199,16 @@ class SharePictureActivity: AppCompatActivity(){
                     for (i in 0..friend_count!! - 1) {
                         profileImageList.add(selectedUsers?.users?.get(i)?.profileThumbnailImage.toString().toUri())
                     }
+                    // 친구 프로필을 화면에 띄우기
                     setProfileRecyclerview()
                 }
             }
-//            val addFriendIntent = Intent(this, FriendListActivity::class.java)
-//            startActivity(addFriendIntent)
-            // FriendListActivity에서 종료될 때 finish()를 호출하므로 여기서 호출하지 않습니다.
         }
 
         // socket 통신 연결
         mSocket = SocketApplication.get()
         mSocket.connect()
-        mSocket.emit("join", "room1")
+        mSocket.emit("join")
         mSocket.on("image", onMessage)
         mSocket.on("join", onRoom)
 
@@ -262,8 +258,9 @@ class SharePictureActivity: AppCompatActivity(){
                 val status = ContextCompat.checkSelfPermission(this, "android.permission.CAMERA")
                 if (status == PackageManager.PERMISSION_GRANTED) {
                     // 포어그라운드 실행
-                    val intent = Intent(this, ForegroundService::class.java)
-                    ContextCompat.startForegroundService(this, intent)
+                    val serviceIntent = Intent(this, ForegroundService::class.java)
+                    ContextCompat.startForegroundService(this, serviceIntent)
+                    Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
                 }
                 else {
                     // permission 허용 요청 실행
@@ -272,8 +269,10 @@ class SharePictureActivity: AppCompatActivity(){
             }
             else {
                 // 포어그라운드 종료
-                val intent = Intent(this, ForegroundService::class.java)
-                stopService(intent)
+                val serviceIntent = Intent(this, ForegroundService::class.java)
+                stopService(serviceIntent)
+                println("Foreground service stop")
+                Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -285,7 +284,6 @@ class SharePictureActivity: AppCompatActivity(){
                 // 갤러리 호출
                 val intent = Intent(Intent.ACTION_PICK)
                 intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-//                intent.type = "image/*"
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                 activityResult.launch(intent)
                 bottomSheetDialog.hide()
@@ -362,6 +360,19 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
+    // 포어그라운드 서비스에서 이미지 데이터 받는다.
+    override fun onNewIntent(intent: Intent?) {
+        if(intent != null) {
+            val newImageList : ArrayList<String>? = intent.getStringArrayListExtra("imageList")
+
+            for (image in newImageList!!) {
+                imageList.add(image.toUri())
+            }
+            setRecyclerView()
+        }
+        super.onNewIntent(intent)
+    }
+
     fun getFileNameInUrl(imgUrl: String): String{
         val ary = imgUrl.split("/")
         println(ary)
@@ -412,7 +423,7 @@ class SharePictureActivity: AppCompatActivity(){
         ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == RESULT_OK) {
-            // 다중 이미지 선택한 경우
+            // 이미지가 선택된 경우
             if(it.data!!.clipData != null) {
                 val count = it.data!!.clipData!!.itemCount
 
@@ -491,16 +502,12 @@ class SharePictureActivity: AppCompatActivity(){
         })
     }
     private fun setProfileRecyclerview(){
+        // profile picture recyclerview 설정
         profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
         binding.profileRecyclerview.adapter = profilePictureAdapter
     }
 
     private fun setRecyclerView(){
-
-        // profile recyclerview 설정
-        //profilePictureAdapter = ProfilePictureAdapter(imageList, this)
-        //binding.profileRecyclerview.adapter = profilePictureAdapter
-
         // 나머지 picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
         binding.pictureRecyclerview.adapter = pictureAdapter
