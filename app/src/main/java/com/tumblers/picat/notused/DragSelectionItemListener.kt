@@ -15,6 +15,7 @@ class DragSelectionItemTouchListener(
     private var mPreviousViewHolder: RecyclerView.ViewHolder? = null
     private val mHitRect = Rect()
     private val mRangeSelection: MutableList<RecyclerView.ViewHolder?> = ArrayList()
+
     override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
         if (e.action == MotionEvent.ACTION_UP || e.action == MotionEvent.ACTION_POINTER_UP) {
             cancelPreviousSelection()

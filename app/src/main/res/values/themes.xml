@@ -27,8 +27,6 @@
     <style name="Theme.Picat.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
-
-
     <!--  기본 alert 테마  -->
     <style name="BasicDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>

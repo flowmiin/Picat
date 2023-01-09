@@ -39,6 +39,9 @@ import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
 import com.kakao.sdk.friend.model.ViewAppearance
 import com.kakao.sdk.user.UserApiClient
+import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
+import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
+import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor.ISelectionHandler
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.ImageData
@@ -86,9 +89,14 @@ class SharePictureActivity: AppCompatActivity(){
     //뒤로가기 타이머
     var backKeyPressedTime: Long = 0
 
+    //드래그 선택 리사이클러뷰 관련
+    private var mMode = DragSelectionProcessor.Mode.Simple
+    private lateinit var mDragSelectTouchListener: DragSelectTouchListener
+    private lateinit var mAdapter: TestAdapter
+    private lateinit var mDragSelectionProcessor: DragSelectionProcessor
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         // 토큰 정보 보기
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
