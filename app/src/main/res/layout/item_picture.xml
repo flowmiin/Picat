@@ -33,7 +33,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageButton
-        android:id="@+id/is_selected_imageview"
+        android:id="@+id/is_selected_imagebutton"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/unselected_icn"

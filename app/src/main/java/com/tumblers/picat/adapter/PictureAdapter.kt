@@ -6,57 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
-import kotlinx.android.extensions.LayoutContainer
 
 class PictureAdapter(private var imageList: ArrayList<Uri>,
                      val context: Context,
                      private var startSelecting: Boolean,
-                     val selectionList: MutableMap<String, Uri>)
+                     private val selectionList: MutableMap<String, Uri>,
+                     var selectionIdList: HashSet<Int>)
     : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
+    private var mClickListener: ItemClickListener? = null
 
 
     var onItemSelectionChangedListener : ((MutableMap<String, Uri>) -> Unit)? = null
 
-    interface OnItemInteractionListener {
-        fun onLongItemClicked(
-            recyclerView: RecyclerView?,
-            mViewHolderTouched: RecyclerView.ViewHolder?,
-            position: Int
-        ) {
-        }
-
-        fun onItemClicked(
-            recyclerView: RecyclerView?,
-            mViewHolderTouched: RecyclerView.ViewHolder?,
-            position: Int
-        ) {
-        }
-
-        fun onViewHolderHovered(rv: RecyclerView?, viewHolder: RecyclerView.ViewHolder?) {}
-        fun onMultipleViewHoldersSelected(
-            rv: RecyclerView?,
-            selection: List<RecyclerView.ViewHolder?>?
-        ) {
-        }
-    }
-
-    //커스텀 클릭 인터페이스를 정의
-    interface MyItemClickListener {
-        fun onLongItemClicked(position: Int)
-    }
-
-    private var myItemClickListener : MyItemClickListener? = null
-
-    //액티비티 코드에서 인터페이스 초기화 용도
-    fun setMyItemClickListener(itemClickListener: MyItemClickListener){
-        myItemClickListener = itemClickListener
-    }
-
-    // 화면 설정
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         val view: View = inflater.inflate(R.layout.item_picture, parent, false)
@@ -64,66 +28,35 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
         return PictureViewHolder(view)
     }
 
-    // 데이터 설정
     override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
         val id = getItemId(position).toString()
-        holder.containerView.tag = id
+        holder.itemView.tag = id
         Glide.with(context)
             .load(imageList[position])
-            .into(holder.uploadPicture)
+            .into(holder.itemView.findViewById(R.id.iv_image))
 
-//        //롱 클릭시 사진 선택 시작하기
-//        holder.containerView.setOnLongClickListener {
-//            myItemClickListener?.onLongItemClicked(position)
-//            return@setOnLongClickListener(true)
-//        }
+        val isSelectedButton = holder.itemView.findViewById<ImageButton>(R.id.is_selected_imagebutton)
+        val zoomButton = holder.itemView.findViewById<ImageButton>(R.id.zoom_imagebutton)
 
-
-        val isSelectedButton = holder.containerView.findViewById<ImageButton>(R.id.is_selected_imageview)
-        val zoomButton = holder.containerView.findViewById<ImageButton>(R.id.zoom_imagebutton)
-
+        // 화면 갱신 시 필요
+        // 선택된 사진이면
         if (selectionList.contains(id)){
             holder.itemView.isSelected = true
             isSelectedButton.setImageResource(R.drawable.selected_icn)
             isSelectedButton.visibility = View.VISIBLE
         }
 
-
         // 선택중일때
         if (startSelecting){
-            holder.containerView.isClickable = true
+            holder.itemView.isClickable = true
             isSelectedButton.visibility = View.VISIBLE
             zoomButton.visibility = View.VISIBLE
-
-            holder.containerView.setOnClickListener {
-                if (selectionList.contains(id)){
-                    holder.itemView.isSelected = false
-                    isSelectedButton.setImageResource(R.drawable.unselected_icn)
-                    selectionList.remove(id)
-                }else{
-                    holder.itemView.isSelected = true
-                    isSelectedButton.setImageResource(R.drawable.selected_icn)
-                    selectionList[id] = imageList[position]
-                }
-                onItemSelectionChangedListener?.let { it(selectionList) }
-            }
-
-            isSelectedButton.setOnClickListener {
-                if (selectionList.contains(id)){
-                    holder.itemView.isSelected = false
-                    isSelectedButton.setImageResource(R.drawable.unselected_icn)
-                    selectionList.remove(id)
-                }else{
-                    holder.itemView.isSelected = true
-                    isSelectedButton.setImageResource(R.drawable.selected_icn)
-                    selectionList[id] = imageList[position]
-                }
-                onItemSelectionChangedListener?.let { it(selectionList) }
-            }
         }
         else{
             // 선택 완료했을 때
-            holder.containerView.isClickable = false
+            holder.itemView.isClickable = false
+            isSelectedButton.visibility = View.INVISIBLE
+            zoomButton.visibility = View.INVISIBLE
         }
 
 
@@ -139,8 +72,105 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
         return position.toLong()
     }
 
+    // ----------------------
+    // Selection
+    // ----------------------
 
-    class PictureViewHolder(override val containerView: View): RecyclerView.ViewHolder(containerView), LayoutContainer {
-        val uploadPicture: ImageView = containerView.findViewById(R.id.iv_image)
+    fun toggleSelection(view: View?, pos: Int) {
+        val isSelectedButton = view?.findViewById<ImageButton>(R.id.is_selected_imagebutton)
+
+        if (selectionList.contains(pos.toString())) {
+            view?.isSelected = false
+            isSelectedButton?.setImageResource(R.drawable.unselected_icn)
+            selectionList.remove(pos.toString())
+            selectionIdList.remove(pos)
+        } else {
+            view?.isSelected = true
+            isSelectedButton?.setImageResource(R.drawable.selected_icn)
+            selectionList[pos.toString()] = imageList[pos]
+            selectionIdList.add(pos)
+        }
+        onItemSelectionChangedListener?.let { it(selectionList) }
+    }
+
+    fun select(pos: Int, selected: Boolean) {
+        if (selected) {
+            selectionList[pos.toString()] = imageList[pos]
+            selectionIdList.add(pos)
+        } else {
+            selectionList.remove(pos.toString())
+            selectionIdList.remove(pos)
+        }
+        notifyItemChanged(pos)
+    }
+
+    fun selectRange(start: Int, end: Int, selected: Boolean) {
+        for (i in start..end) {
+            if (selected) {
+                selectionList[i.toString()] = imageList[i]
+                selectionIdList.add(i)
+            } else{
+                selectionList.remove(i.toString())
+                selectionIdList.add(i)
+            }
+        }
+        onItemSelectionChangedListener?.let { it(selectionList) }
+//        notifyItemRangeChanged(start, end - start + 1)
+    }
+
+//    fun deselectAll() {
+//        // this is not beautiful...
+//        mSelected.clear()
+//        notifyDataSetChanged()
+//    }
+
+//    fun selectAll() {
+//        for (i in 0 until mDataSize) mSelected.add(i)
+//        notifyDataSetChanged()
+//    }
+
+    fun getCountSelected(): Int {
+        return selectionList.size
+    }
+
+    fun getSelection(): HashSet<Int> {
+        return selectionIdList
+    }
+
+    // ----------------------
+    // Click Listener
+    // ----------------------
+
+    fun setClickListener(itemClickListener: ItemClickListener?) {
+        mClickListener = itemClickListener
+    }
+
+    interface ItemClickListener {
+        fun onItemClick(view: View?, position: Int)
+        fun onItemLongClick(view: View?, position: Int): Boolean
+    }
+
+    // ----------------------
+    // ViewHolder
+    // ----------------------
+    inner class PictureViewHolder(itemView: View)
+        : RecyclerView.ViewHolder(itemView),
+        View.OnClickListener, View.OnLongClickListener {
+
+        init {
+            itemView.setOnClickListener(this)
+            itemView.setOnLongClickListener(this)
+        }
+
+        override fun onClick(view: View) {
+            if (mClickListener != null) mClickListener!!.onItemClick(view, bindingAdapterPosition)
+        }
+
+        override fun onLongClick(view: View): Boolean {
+            return if (mClickListener != null) mClickListener!!.onItemLongClick(
+                view,
+                bindingAdapterPosition
+            ) else false
+        }
     }
 }

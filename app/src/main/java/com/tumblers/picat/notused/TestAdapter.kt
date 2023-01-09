@@ -1,4 +1,4 @@
-package com.tumblers.picat
+package com.tumblers.picat.notused
 
 import android.content.Context
 import android.graphics.Color
@@ -8,6 +8,7 @@ import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.tumblers.picat.R
 
 
 class TestAdapter(

@@ -47,6 +47,7 @@ import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.fragment.DownloadCompleteFragment
+import com.tumblers.picat.notused.MainActivity
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -82,40 +83,42 @@ class SharePictureActivity: AppCompatActivity(){
     lateinit var bottomSheetDialog: BottomSheetDialog
 
 
-    var imageList: ArrayList<Uri> = ArrayList()
     var profileImageList: ArrayList<Uri> = ArrayList()
+    var imageList: ArrayList<Uri> = ArrayList()
     val selectionList: MutableMap<String, Uri> = mutableMapOf<String, Uri>()
+    val selectionIdList: HashSet<Int> = hashSetOf()
 
     //뒤로가기 타이머
     var backKeyPressedTime: Long = 0
 
     //드래그 선택 리사이클러뷰 관련
-    private var mMode = DragSelectionProcessor.Mode.Simple
+    private var mMode = DragSelectionProcessor.Mode.ToggleAndUndo
     private lateinit var mDragSelectTouchListener: DragSelectTouchListener
-    private lateinit var mAdapter: TestAdapter
     private lateinit var mDragSelectionProcessor: DragSelectionProcessor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivitySharePictureBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // 토큰 정보 보기
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
-//                Toast.makeText(this, "토큰 정보 보기 실패", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                 finish()
             }
             else if (tokenInfo != null) {
-//                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
-
-
+                //회원가입된 유저이면 소켓 연결
+                mSocket = SocketApplication.get()
+                mSocket.connect()
+                mSocket.on("image", onMessage)
+                mSocket.on("join", onRoom)
+                mSocket.emit("join", 2611339247)
             }
         }
 
-        binding = ActivitySharePictureBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
+        //갤러리를 통해 앱에 들어왔을 때
         if(intent.type == "image/*") {
             if (intent.action == Intent.ACTION_SEND){
                 val imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
@@ -126,7 +129,7 @@ class SharePictureActivity: AppCompatActivity(){
                 emitBody?.add(body)
                 apiRequest(emitBody, 1)
             }
-            else if(intent.action == Intent.ACTION_SEND_MULTIPLE){
+            else if(intent.action == Intent.ACTION_SEND_MULTIPLE || intent.action == Intent.ACTION_SEND){
                 val imageUriList = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
 
                 val count: Int? = imageUriList?.toArray()?.size
@@ -214,16 +217,11 @@ class SharePictureActivity: AppCompatActivity(){
             // FriendListActivity에서 종료될 때 finish()를 호출하므로 여기서 호출하지 않습니다.
         }
 
-        // socket 통신 연결
-        mSocket = SocketApplication.get()
-        mSocket.connect()
-        mSocket.emit("join", "room1")
-        mSocket.on("image", onMessage)
-        mSocket.on("join", onRoom)
+
 
 
         //Adapter 초기화
-        pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
+        pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList, selectionIdList)
         samePictureAdapter = SamePictureAdapter(imageList, this)
         blurPictureAdapter = BlurPictureAdapter(imageList, this)
         profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
@@ -334,17 +332,19 @@ class SharePictureActivity: AppCompatActivity(){
         //바텀시트 내 사진선택 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_select_button).setOnClickListener {
             bottomSheetDialog.hide()
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
             // true 이면 false로, flase이면 true로 변경
-            startSelecting = !startSelecting
-            if(startSelecting){
-                // 안내 토스트 띄우기
-                Toast.makeText(this, "마음에 드는 사진을 선택해주세요", Toast.LENGTH_SHORT).show()
-            }else{
-                // 안내 토스트 띄우기
-                Toast.makeText(this, "선택 완료!", Toast.LENGTH_SHORT).show()
-            }
-            // 변경된 startSelecting 값에 따라 리사이클러뷰 어댑터 다시 설정
-            setRecyclerView()
+//            startSelecting = !startSelecting
+//            if(startSelecting){
+//                // 안내 토스트 띄우기
+//                Toast.makeText(this, "마음에 드는 사진을 선택해주세요", Toast.LENGTH_SHORT).show()
+//            }else{
+//                // 안내 토스트 띄우기
+//                Toast.makeText(this, "선택 완료!", Toast.LENGTH_SHORT).show()
+//            }
+//            // 변경된 startSelecting 값에 따라 리사이클러뷰 어댑터 다시 설정
+//            setRecyclerView()
 
         }
 
@@ -510,80 +510,48 @@ class SharePictureActivity: AppCompatActivity(){
         //binding.profileRecyclerview.adapter = profilePictureAdapter
 
         // 나머지 picture recyclerview 설정
-        pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
-        // 롱클릭 시 사진 선택 시작되도록함.
-//        pictureAdapter.setMyItemClickListener(object : PictureAdapter.MyItemClickListener{
-//            override fun onLongItemClicked(position: Int) {
-//                startSelecting = true
-//                setRecyclerView()
-//            }
-//        })
-        binding.pictureRecyclerview.adapter = pictureAdapter
-        binding.pictureRecyclerview.addOnItemTouchListener(
-            RecyclerViewOnItemClickListener(
-                applicationContext,
-                binding.pictureRecyclerview,
-                object : RecyclerViewOnItemClickListener.OnItemClickListener {
-                    override fun onItemClick(v: View?, position: Int) {
-                        val isSelectedButton = v?.findViewById<ImageButton>(R.id.is_selected_imageview)
-                        if (startSelecting){
-                            if (selectionList.contains(position.toString())){
-                                v?.isSelected = false
-                                isSelectedButton?.setImageResource(R.drawable.unselected_icn)
-                                selectionList.remove(position.toString())
-                            }else{
-                                v?.isSelected = true
-                                isSelectedButton?.setImageResource(R.drawable.selected_icn)
-                                selectionList[position.toString()] = imageList[position]
-                            }
-                            pictureAdapter.onItemSelectionChangedListener?.let { it(selectionList) }
-                        }else{
-                            // 선택 완료했을 때
-                            v?.isClickable = false
-                        }
-                    }
-
-                    override fun onItemLongClick(v: View?, position: Int){
-                        Log.d(TAG, "long click")
-                        startSelecting = true
-                        selectionList[position.toString()] = imageList[position]
-                        setRecyclerView()
-                    }
+        pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList, selectionIdList)
+        mDragSelectionProcessor = DragSelectionProcessor(object : ISelectionHandler {
+            override fun getSelection(): HashSet<Int>? {
+                return pictureAdapter.getSelection()
             }
-        ))
 
+            override fun isSelected(index: Int): Boolean {
+                return pictureAdapter.getSelection().contains(index)
+            }
 
-//        binding.pictureRecyclerview.addOnItemTouchListener(
-//            DragSelectionItemTouchListener(
-//                this,
-//                object : PictureAdapter.OnItemInteractionListener {
-//                    override fun onLongItemClicked(
-//                        recyclerView: RecyclerView?,
-//                        mViewHolderTouched: ViewHolder?,
-//                        position: Int
-//                    ) {
-//                        println("롱클릭")
-//                    }
-//
-//                    override fun onItemClicked(
-//                        recyclerView: RecyclerView?,
-//                        mViewHolderTouched: ViewHolder?,
-//                        position: Int
-//                    ) {
-//                        println("클릭")
-//
-//                    }
-//
-//                    override fun onViewHolderHovered(rv: RecyclerView?, viewHolder: ViewHolder?) {}
-//                    override fun onMultipleViewHoldersSelected(
-//                        rv: RecyclerView?,
-//                        selection: List<ViewHolder?>?
-//                    ) {
-//                        println("다중 클릭")
-//
-//                    }
-//                })
-//        )
+            override fun updateSelection(
+                start: Int,
+                end: Int,
+                isSelected: Boolean,
+                calledFromOnStart: Boolean
+            ) {
+                pictureAdapter.selectRange(start, end, isSelected)
+            }
+        }).withMode(mMode)
+        mDragSelectTouchListener = DragSelectTouchListener().withSelectListener(mDragSelectionProcessor)
+        pictureAdapter.setClickListener(object :PictureAdapter.ItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                if (startSelecting){
+                    pictureAdapter.toggleSelection(view, position)
+                }else{
+                    //사진 확대
+                }
+            }
+
+            override fun onItemLongClick(view: View?, position: Int): Boolean {
+                if (!startSelecting) {
+                    startSelecting = true
+                    setRecyclerView()
+                }
+                mDragSelectTouchListener.startDragSelection(position)
+                println("롱클릭 선택 시작")
+                return true
+            }
+
+        })
+        binding.pictureRecyclerview.adapter = pictureAdapter
+        binding.pictureRecyclerview.addOnItemTouchListener(mDragSelectTouchListener)
 
 
         // same recyclerview 설정
@@ -619,12 +587,6 @@ class SharePictureActivity: AppCompatActivity(){
 
     }
 
-    fun refreshRecyclerView(){
-        pictureAdapter.notifyDataSetChanged()
-        samePictureAdapter.notifyDataSetChanged()
-        blurPictureAdapter.notifyDataSetChanged()
-        profilePictureAdapter.notifyDataSetChanged()
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
