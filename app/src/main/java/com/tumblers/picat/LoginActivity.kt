@@ -174,7 +174,7 @@ class LoginActivity : AppCompatActivity() {
     private fun apiRequest(requestData :JsonObject) {
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("http://43.200.93.112:5000/")
+            .baseUrl(getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

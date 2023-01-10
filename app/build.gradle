@@ -69,5 +69,6 @@ dependencies {
     implementation "com.kakao.sdk:v2-talk:2.12.0"
     implementation group: 'com.kakao.sdk', name: 'usermgmt', version: '1.27.0'
 
+    // 드래그 선택 모듈
     implementation 'com.github.MFlisar:DragSelectRecyclerView:0.3'
 }
