@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- 권한 설정 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -40,7 +41,8 @@
             android:name=".service.ForegroundService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="location|camera" />
+            android:foregroundServiceType="location|camera">
+        </service>
 
         <!-- LoginActivity -->
         <activity
@@ -77,7 +79,8 @@
 
                 <data android:mimeType="image/*" />
             </intent-filter>
-        </activity> <!-- 카카오톡 로그인 implement -->
+        </activity>
+        <!-- 카카오톡 로그인 implement -->
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true"

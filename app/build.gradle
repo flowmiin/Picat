@@ -71,4 +71,10 @@ dependencies {
 
     // 드래그 선택 모듈
     implementation 'com.github.MFlisar:DragSelectRecyclerView:0.3'
+
+    // 로컬 저장소 room 추가
+    implementation("androidx.room:room-runtime:2.4.3")
+    annotationProcessor("androidx.room:room-compiler:2.4.3")
+    kapt("androidx.room:room-compiler:2.4.3")
+    implementation("androidx.room:room-ktx:2.4.3")
 }
