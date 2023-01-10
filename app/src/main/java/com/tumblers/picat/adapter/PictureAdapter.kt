@@ -79,7 +79,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     fun toggleSelection(view: View?, pos: Int) {
         val isSelectedButton = view?.findViewById<ImageButton>(R.id.is_selected_imagebutton)
 
-        if (selectionList.contains(pos.toString())) {
+        if (selectionIdList.contains(pos)) {
             view?.isSelected = false
             isSelectedButton?.setImageResource(R.drawable.unselected_icn)
             selectionList.remove(pos.toString())
@@ -90,7 +90,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             selectionList[pos.toString()] = imageList[pos]
             selectionIdList.add(pos)
         }
-        onItemSelectionChangedListener?.let { it(selectionList) }
+        notifyItemChanged(pos)
     }
 
     fun select(pos: Int, selected: Boolean) {
@@ -114,8 +114,8 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
                 selectionIdList.add(i)
             }
         }
-        onItemSelectionChangedListener?.let { it(selectionList) }
-//        notifyItemRangeChanged(start, end - start + 1)
+//        onItemSelectionChangedListener?.let { it(selectionList) }
+        notifyItemRangeChanged(start, end - start + 1)
     }
 
 //    fun deselectAll() {

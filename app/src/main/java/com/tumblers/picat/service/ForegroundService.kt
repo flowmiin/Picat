@@ -118,6 +118,7 @@ class ForegroundService : Service() {
         if (mThread != null) {
             mThread!!.interrupt()
             mThread = null
+            mSocket.disconnect()
 
 //            val showIntent = Intent(this, SharePictureActivity::class.java)
 //            showIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -187,7 +188,7 @@ class ForegroundService : Service() {
     }
 
     // 서버로 post 요청보내기
-    private fun apiRequest(body: MutableList<MultipartBody.Part>?, img_cnt: Int) {
+    private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl("http://43.200.93.112:5000/")
@@ -196,7 +197,7 @@ class ForegroundService : Service() {
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(body!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
+        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
 
             override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
@@ -205,10 +206,6 @@ class ForegroundService : Service() {
 
                     for (i in 0..response.body()?.img_cnt!! - 1) {
                         val jsonObject = JSONObject()
-                        val getImage = response.body()?.url?.toList()?.get(i)
-                        CoroutineScope(Dispatchers.IO).launch {
-                            imageDb!!.imageDao().insert(ImageTable(getImage!!))
-                        }
                         jsonObject.put("url", response.body()?.url?.toList()?.get(i))
                         jsonArray.put(jsonObject)
                     }
