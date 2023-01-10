@@ -13,12 +13,18 @@ import android.os.IBinder
 import android.provider.MediaStore
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
 import com.tumblers.picat.R
 import com.tumblers.picat.SharePictureActivity
 import com.tumblers.picat.SocketApplication
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.RequestInterface
+import com.tumblers.picat.room.AppDatabase
+import com.tumblers.picat.room.ImageTable
 import io.socket.client.Socket
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -40,6 +46,10 @@ class ForegroundService : Service() {
 
     var imageList: ArrayList<String> = ArrayList()
 
+    var myKakaoId: Long? = null
+
+    lateinit var imageDb : AppDatabase
+
     override fun onBind(intent: Intent?): IBinder? {
         throw UnsupportedOperationException("Not yet implemented")
     }
@@ -47,6 +57,7 @@ class ForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotification()
+        imageDb = AppDatabase.getInstance(applicationContext)!!
         mSocket = SocketApplication.get()
         mThread!!.start()
     }
@@ -55,6 +66,7 @@ class ForegroundService : Service() {
         // 액티비티에서 서비스로 넘어 올 때 갤러리에서 가장 최근의 이미지를 저장
         // 나중에 새로운 이미지가 들어오면 비교해야한다.
         lastImage = getTheLastImage()
+        myKakaoId = intent.getLongExtra("myKakaoId", -1)
 
         return super.onStartCommand(intent, flags, startId)
     }
@@ -107,13 +119,13 @@ class ForegroundService : Service() {
             mThread!!.interrupt()
             mThread = null
 
-            val showIntent = Intent(this, SharePictureActivity::class.java)
-            showIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            showIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            showIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            println("imageList : ${imageList}")
-            showIntent.putExtra("imageList", imageList)
-            startActivity(showIntent)
+//            val showIntent = Intent(this, SharePictureActivity::class.java)
+//            showIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            showIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+//            showIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//            println("imageList : ${imageList}")
+//            showIntent.putExtra("imageList", imageList)
+//            startActivity(showIntent)
         }
         Log.d(TAG, "onDestroy")
     }
@@ -156,7 +168,9 @@ class ForegroundService : Service() {
             var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
             var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
             emitBody?.add(body)
-            apiRequest(emitBody, 1)
+            if (myKakaoId != -1 as Long) {
+                apiRequest(emitBody, 1)
+            }
         }
     }
 
@@ -182,7 +196,7 @@ class ForegroundService : Service() {
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(body!!, img_cnt).enqueue(object : Callback<ImageData> {
+        server.postImg(body!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
 
             override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
@@ -191,7 +205,10 @@ class ForegroundService : Service() {
 
                     for (i in 0..response.body()?.img_cnt!! - 1) {
                         val jsonObject = JSONObject()
-                        imageList.add(response.body()?.url?.toList()?.get(i)!!)
+                        val getImage = response.body()?.url?.toList()?.get(i)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            imageDb!!.imageDao().insert(ImageTable(getImage!!))
+                        }
                         jsonObject.put("url", response.body()?.url?.toList()?.get(i))
                         jsonArray.put(jsonObject)
                     }
@@ -199,6 +216,7 @@ class ForegroundService : Service() {
                     val jsonObject = JSONObject()
                     jsonObject.put("img_list", jsonArray)
                     jsonObject.put("img_cnt", response.body()?.img_cnt)
+                    jsonObject.put("id", myKakaoId)
 
                     mSocket.emit("image", jsonObject)
                 }

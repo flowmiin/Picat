@@ -47,6 +47,8 @@ import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
+import com.tumblers.picat.room.AppDatabase
+import com.tumblers.picat.room.ImageTable
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -86,12 +88,36 @@ class SharePictureActivity: AppCompatActivity(){
     var profileImageList: ArrayList<Uri> = ArrayList()
     val selectionList: MutableMap<String, Uri> = mutableMapOf<String, Uri>()
 
+    var myKakaoId : Long? = null
+
+//    private lateinit var db : AppDatabase
+    private lateinit var imageDb : AppDatabase
+
     //뒤로가기 타이머
     var backKeyPressedTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // db 초기화
+//        db = AppDatabase.getInstance(applicationContext)!!
+        imageDb = AppDatabase.getInstance(applicationContext)!!
+
+//        val userId = db!!.idDao().get()
+//        if (userId != null) {
+//            myKakaoId = userId
+//        }
+//        else {
+//            UserApiClient.instance.me { user, error ->
+//                if (error != null) {
+//                    Log.e(TAG, "사용자 정보 요청 실패", error)
+//                } else if (user != null) {
+//                    Log.e(TAG, "사용자 정보 요청 성공")
+//                    myKakaoId = user.id
+//                    db.idDao().insert(MyId(user.id!!))
+//                }
+//            }
+//        }
 
         // 토큰 정보 보기
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
@@ -102,6 +128,20 @@ class SharePictureActivity: AppCompatActivity(){
             }
             else if (tokenInfo != null) {
 //                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
+            }
+        }
+        UserApiClient.instance.me { user, error ->
+            if (error != null) {
+                Log.e(TAG, "사용자 정보 요청 실패", error)
+            } else if (user != null) {
+                Log.e(TAG, "사용자 정보 요청 성공")
+                myKakaoId = user.id
+                // socket 통신 연결
+                mSocket = SocketApplication.get()
+                mSocket.connect()
+                mSocket.emit("join", myKakaoId)
+                mSocket.on("image", onMessage)
+                mSocket.on("join", onRoom)
             }
         }
 
@@ -129,9 +169,6 @@ class SharePictureActivity: AppCompatActivity(){
                     var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                     var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                     emitBody?.add(body)
-                }
-                if (emitBody == null) {
-                    println("emitBody가 null")
                 }
                 apiRequest(emitBody, count)
             }
@@ -205,12 +242,6 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-        // socket 통신 연결
-        mSocket = SocketApplication.get()
-        mSocket.connect()
-        mSocket.emit("join")
-        mSocket.on("image", onMessage)
-        mSocket.on("join", onRoom)
 
 
         //Adapter 초기화
@@ -226,6 +257,24 @@ class SharePictureActivity: AppCompatActivity(){
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
 
         setRecyclerView()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val getImage = imageDb!!.imageDao().getAll()
+            if (getImage.isNotEmpty()) {
+                for (i in getImage) {
+                    imageList.add(i.toString().toUri())
+                }
+                for (i in getImage) {
+                    println("데이터 삭제")
+                    imageDb?.imageDao()?.delete(ImageTable(i.toString()))
+                }
+
+
+                println("imageList : ${imageList}")
+                setRecyclerView()
+
+            }
+        }
 
 
         //바텀시트 초기화
@@ -259,6 +308,7 @@ class SharePictureActivity: AppCompatActivity(){
                 if (status == PackageManager.PERMISSION_GRANTED) {
                     // 포어그라운드 실행
                     val serviceIntent = Intent(this, ForegroundService::class.java)
+                    serviceIntent.putExtra("myKakaoId", myKakaoId)
                     ContextCompat.startForegroundService(this, serviceIntent)
                     Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
                 }
@@ -271,7 +321,6 @@ class SharePictureActivity: AppCompatActivity(){
                 // 포어그라운드 종료
                 val serviceIntent = Intent(this, ForegroundService::class.java)
                 stopService(serviceIntent)
-                println("Foreground service stop")
                 Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
         }
@@ -361,17 +410,17 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     // 포어그라운드 서비스에서 이미지 데이터 받는다.
-    override fun onNewIntent(intent: Intent?) {
-        if(intent != null) {
-            val newImageList : ArrayList<String>? = intent.getStringArrayListExtra("imageList")
-
-            for (image in newImageList!!) {
-                imageList.add(image.toUri())
-            }
-            setRecyclerView()
-        }
-        super.onNewIntent(intent)
-    }
+//    override fun onNewIntent(intent: Intent?) {
+//        if(intent != null) {
+//            val newImageList : ArrayList<String>? = intent.getStringArrayListExtra("imageList")
+//
+//            for (image in newImageList!!) {
+//                imageList.add(image.toUri())
+//            }
+//            setRecyclerView()
+//        }
+//        super.onNewIntent(intent)
+//    }
 
     fun getFileNameInUrl(imgUrl: String): String{
         val ary = imgUrl.split("/")
@@ -475,7 +524,8 @@ class SharePictureActivity: AppCompatActivity(){
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(body!!, img_cnt).enqueue(object : Callback<ImageData> {
+        println("내 아이디 : ${myKakaoId}")
+        server.postImg(body!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
 
             override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
@@ -491,6 +541,7 @@ class SharePictureActivity: AppCompatActivity(){
                     val jsonObject = JSONObject()
                     jsonObject.put("img_list", jsonArray)
                     jsonObject.put("img_cnt", response.body()?.img_cnt)
+                    jsonObject.put("id", myKakaoId)
 
                     mSocket.emit("image", jsonObject)
                 }

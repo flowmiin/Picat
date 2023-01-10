@@ -14,7 +14,8 @@ interface RequestInterface {
     @POST("image/")
     fun postImg(
         @Part arrayImage: MutableList<MultipartBody.Part>,
-        @Part ("img_cnt") img_cnt: Int
+        @Part ("img_cnt") img_cnt: Int,
+        @Part ("id") id: Long
     ): Call<ImageData>
 
     @POST("app/users/kakao/")
