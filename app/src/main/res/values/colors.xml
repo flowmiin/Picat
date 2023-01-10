@@ -18,6 +18,7 @@
     <color name="picat_light_blue">#CFDEFF</color>
     <color name="picat_dark_blue">#4563A5</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="white_overlay">#76FFFFFF</color>
     <color name="picat_font_color">#3C263B</color>
     <color name="picat_boundary_line_color">#D9D9D9</color>
 
