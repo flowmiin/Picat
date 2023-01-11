@@ -3,6 +3,7 @@ package com.tumblers.picat
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
@@ -30,6 +31,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +50,7 @@ import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.room.AppDatabase
+import com.tumblers.picat.room.ImageTable
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -94,6 +97,9 @@ class SharePictureActivity: AppCompatActivity(){
 
     //뒤로가기 타이머
     var backKeyPressedTime: Long = 0
+
+    // switch 상태 저장
+    lateinit var pref : SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -174,31 +180,8 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        // 갤러리에서 사진 선택 후 공유 버튼을 눌러 picat앱에 들어왔을 때
-//        if(intent.type == "image/*") {
-//            if (intent.action == Intent.ACTION_SEND){
-//                val imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-//                var file = File(getAbsolutePath(imageUri, this))
-//                var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
-//                var emitBody: MutableList<MultipartBody.Part>? = mutableListOf()
-//                var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-//                emitBody?.add(body)
-//                apiRequest(emitBody, 1)
-//            }
-//            else if(intent.action == Intent.ACTION_SEND_MULTIPLE){
-//                val imageUriList = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
-//
-//                val count: Int? = imageUriList?.toArray()?.size
-//                var emitBody: MutableList<MultipartBody.Part>? = mutableListOf()
-//                for (index in 0 until count!!) {
-//                    var file = File(getAbsolutePath(imageUriList[index], this))
-//                    var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
-//                    var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-//                    emitBody?.add(body)
-//                }
-//                apiRequest(emitBody, count)
-//            }
-//        }
+        // switch 버튼 체크 유무 저장
+        pref = getPreferences(Context.MODE_PRIVATE)
 
         //임시 코드. 추후 기능 생성후 삭제예정
         val firstFace = binding.faceItemImageview
@@ -283,24 +266,6 @@ class SharePictureActivity: AppCompatActivity(){
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
 
         setRecyclerView()
-//
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val getImage = imageDb!!.imageDao().getAll()
-//            if (getImage.isNotEmpty()) {
-//                for (i in getImage) {
-//                    imageList.add(i.toString().toUri())
-//                }
-//                for (i in getImage) {
-//                    println("데이터 삭제")
-//                    imageDb?.imageDao()?.delete(ImageTable(i.toString()))
-//                }
-//
-//
-//                println("imageList : ${imageList}")
-//                setRecyclerView()
-//
-//            }
-//        }
 
 
         //바텀시트 초기화
@@ -327,7 +292,11 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-        // 자동 업로드 스위치 버튼
+        // 자동 업로드 스위치 버튼 저장값 불러오기
+        if(pref.getBoolean("store_check", false)) {
+            binding.autoUploadSwitch.isChecked = true
+        }
+
         binding.autoUploadSwitch.setOnCheckedChangeListener { p0, isChecked ->
             if (isChecked) {
                 val status = ContextCompat.checkSelfPermission(this, "android.permission.CAMERA")
@@ -335,6 +304,7 @@ class SharePictureActivity: AppCompatActivity(){
                     // 포어그라운드 실행
                     val serviceIntent = Intent(this, ForegroundService::class.java)
                     serviceIntent.putExtra("myKakaoId", myKakaoId)
+                    pref.edit().putBoolean("store_check", true).apply()
                     ContextCompat.startForegroundService(this, serviceIntent)
                     Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
                 }
@@ -347,6 +317,7 @@ class SharePictureActivity: AppCompatActivity(){
                 // 포어그라운드 종료
                 val serviceIntent = Intent(this, ForegroundService::class.java)
                 stopService(serviceIntent)
+                pref.edit().putBoolean("store_check", false).apply()
                 Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
         }
@@ -448,6 +419,24 @@ class SharePictureActivity: AppCompatActivity(){
 //        super.onNewIntent(intent)
 //    }
 
+    override fun onResume() {
+        super.onResume()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val getImage = imageDb!!.imageDao().getAll()
+            if (getImage.isNotEmpty()) {
+                for (i in getImage) {
+                    if (!imageList.contains(i.imageUri.toUri())){
+                        imageList.add(i.imageUri.toUri())
+                    }
+                }
+                imageDb!!.imageDao().deleteAll()
+                println("===OnResume===")
+                setRecyclerView()
+            }
+        }
+    }
+
     fun getFileNameInUrl(imgUrl: String): String{
         val ary = imgUrl.split("/")
         println(ary)
@@ -499,10 +488,10 @@ class SharePictureActivity: AppCompatActivity(){
     ) {
         if (it.resultCode == RESULT_OK) {
             // 이미지가 선택된 경우
-            if(it.data!!.clipData != null) {
+            if (it.data!!.clipData != null) {
                 val count = it.data!!.clipData!!.itemCount
 
-                var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
+                var emitBody: MutableList<MultipartBody.Part>? = mutableListOf()
                 for (index in 0 until count) {
                     val imageUri = it.data!!.clipData!!.getItemAt(index).uri
 
@@ -687,7 +676,9 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                imageList.add(imgObj.toString().toUri())
+                if (!imageList.contains(imgObj.toString().toUri())){
+                    imageList.add(imgObj.toString().toUri())
+                }
             }
         }.invokeOnCompletion {
             setRecyclerView()
