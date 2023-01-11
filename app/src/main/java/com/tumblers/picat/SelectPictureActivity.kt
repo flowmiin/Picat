@@ -55,8 +55,6 @@ class SelectPictureActivity : AppCompatActivity() {
 
         selectionIdList = intent.getSerializableExtra("selectonIdList") as HashSet<Int>
         var myKakaoId = intent.getLongExtra("myKakaoId", 0)
-        println(myKakaoId)
-
 
         // socket 통신 연결
         var mSocket = SocketApplication.get()
@@ -74,7 +72,6 @@ class SelectPictureActivity : AppCompatActivity() {
     // ---------------------
     private fun updateSelectionListener() {
         mDragSelectionProcessor.withMode(mMode)
-//        Toast.makeText(this,"Mode: " + mMode.name, Toast.LENGTH_SHORT).show()
     }
 
     var onJoin = Emitter.Listener { args->
@@ -147,10 +144,12 @@ class SelectPictureActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         when (id){
+            //뒤로가기
             android.R.id.home -> {
                 finish()
                 return true
             }
+            //완료버튼
             R.id.complete_button -> {
                 // 선택한 사진들 가지고 공유방으로 돌아가기
                 val intent = Intent(this, SharePictureActivity::class.java)

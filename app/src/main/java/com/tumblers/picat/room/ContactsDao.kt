@@ -26,6 +26,6 @@ interface ImageDao {
     @Insert
     fun insert(image: ImageTable)
 
-    @Delete
-    fun delete(image: ImageTable)
+    @Query("DELETE FROM image_table")
+    fun deleteAll()
 }

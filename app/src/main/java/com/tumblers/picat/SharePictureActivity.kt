@@ -3,6 +3,7 @@ package com.tumblers.picat
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
@@ -30,6 +31,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +50,7 @@ import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.room.AppDatabase
+import com.tumblers.picat.room.ImageTable
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -89,6 +92,9 @@ class SharePictureActivity: AppCompatActivity(){
 
     //뒤로가기 타이머
     var backKeyPressedTime: Long = 0
+
+    // switch 상태 저장
+    lateinit var pref : SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,6 +159,10 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
+        
+
+        // switch 버튼 체크 유무 저장
+        pref = getPreferences(Context.MODE_PRIVATE)
 
         //임시 코드. 추후 기능 생성후 삭제예정
         val firstFace = binding.faceItemImageview
@@ -260,7 +270,11 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-        // 자동 업로드 스위치 버튼
+        // 자동 업로드 스위치 버튼 저장값 불러오기
+        if(pref.getBoolean("store_check", false)) {
+            binding.autoUploadSwitch.isChecked = true
+        }
+
         binding.autoUploadSwitch.setOnCheckedChangeListener { p0, isChecked ->
             if (isChecked) {
                 val status = ContextCompat.checkSelfPermission(this, "android.permission.CAMERA")
@@ -268,6 +282,7 @@ class SharePictureActivity: AppCompatActivity(){
                     // 포어그라운드 실행
                     val serviceIntent = Intent(this, ForegroundService::class.java)
                     serviceIntent.putExtra("myKakaoId", myKakaoId)
+                    pref.edit().putBoolean("store_check", true).apply()
                     ContextCompat.startForegroundService(this, serviceIntent)
                     Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
                 }
@@ -280,6 +295,7 @@ class SharePictureActivity: AppCompatActivity(){
                 // 포어그라운드 종료
                 val serviceIntent = Intent(this, ForegroundService::class.java)
                 stopService(serviceIntent)
+                pref.edit().putBoolean("store_check", false).apply()
                 Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
         }
@@ -361,8 +377,27 @@ class SharePictureActivity: AppCompatActivity(){
             transaction.commit()
         }
     }
+    
 
-    private fun getFileNameInUrl(imgUrl: String): String{
+    override fun onResume() {
+        super.onResume()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val getImage = imageDb!!.imageDao().getAll()
+            if (getImage.isNotEmpty()) {
+                for (i in getImage) {
+                    if (!imageList.contains(i.imageUri.toUri())){
+                        imageList.add(i.imageUri.toUri())
+                    }
+                }
+                imageDb!!.imageDao().deleteAll()
+                println("===OnResume===")
+                setRecyclerView()
+            }
+        }
+    }
+
+    fun getFileNameInUrl(imgUrl: String): String{
         val ary = imgUrl.split("/")
         println(ary)
         return ary[3]
@@ -412,13 +447,11 @@ class SharePictureActivity: AppCompatActivity(){
         ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == RESULT_OK) {
-            // 이미지가 선택된 경우
-            if(it.data!!.clipData != null) {
-                println("----------${it.data}")
-                println("----------${it.data!!.clipData}")
+            // 갤러리에서 이미지가 선택 후 돌아온 경우
+            if (it.data!!.clipData != null) {
                 val count = it.data!!.clipData!!.itemCount
 
-                var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
+                var emitBody: MutableList<MultipartBody.Part>? = mutableListOf()
                 for (index in 0 until count) {
                     val imageUri = it.data!!.clipData!!.getItemAt(index).uri
 
@@ -432,9 +465,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         }
         else if (it.resultCode == 1){
-            //이미지 선택해서 돌아온 경우
-            println("----------${it.data}")
-            println("----------${it.data!!.clipData}")
+            //사진선택을 통해 이미지 선택해서 돌아온 경우
             if (it.data!!.hasExtra("selectonIdList")){
                 var tmp = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
                 println("추가로 선택된 이미지: ${tmp}")
@@ -497,6 +528,7 @@ class SharePictureActivity: AppCompatActivity(){
             }
         })
     }
+
     private fun setProfileRecyclerview(){
         // profile picture recyclerview 설정
         profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
@@ -516,9 +548,9 @@ class SharePictureActivity: AppCompatActivity(){
         return true
     }
 
-    // 나가기 버튼
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
+            // 나가기 버튼
             R.id.out_button -> {
                 //카톡 로그인 사용자 동의 및 회원가입 테스트용
                 UserApiClient.instance.unlink { error ->
@@ -567,7 +599,9 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                imageList.add(imgObj.toString().toUri())
+                if (!imageList.contains(imgObj.toString().toUri())){
+                    imageList.add(imgObj.toString().toUri())
+                }
             }
             setRecyclerView()
         }

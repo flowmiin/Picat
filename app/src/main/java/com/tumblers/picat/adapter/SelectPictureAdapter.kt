@@ -86,16 +86,16 @@ class SelectPictureAdapter(
         notifyItemRangeChanged(start, end - start + 1)
     }
 
-//    fun deselectAll() {
-//        // this is not beautiful...
-//        mSelected.clear()
-//        notifyDataSetChanged()
-//    }
+    fun deselectAll() {
+        // this is not beautiful...
+        mSelected.clear()
+        notifyDataSetChanged()
+    }
 
-//    fun selectAll() {
-//        for (i in 0 until mDataSize) mSelected.add(i)
-//        notifyDataSetChanged()
-//    }
+    fun selectAll() {
+        for (i in 0 until mDataSize) mSelected.add(i)
+        notifyDataSetChanged()
+    }
 
     fun getCountSelected(): Int {
         return mSelected.size
