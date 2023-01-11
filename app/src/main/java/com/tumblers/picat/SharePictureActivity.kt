@@ -74,7 +74,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     lateinit var pictureAdapter: PictureAdapter
     lateinit var profilePictureAdapter: ProfilePictureAdapter
-    lateinit var mSocket: Socket
+    var mSocket: Socket? = null
     lateinit var bottomSheetDialog: BottomSheetDialog
 
 
@@ -95,9 +95,6 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        // db 초기화
-        imageDb = AppDatabase.getInstance(applicationContext)!!
 
         // kakao 토큰 정보 보기
 
@@ -128,10 +125,10 @@ class SharePictureActivity: AppCompatActivity(){
 
                 // socket 통신 연결
                 mSocket = SocketApplication.get()
-                mSocket.connect()
-                mSocket.emit("join", myKakaoId)
-                mSocket.on("image", onMessage)
-                mSocket.on("join", onRoom)
+                mSocket?.connect()
+                mSocket?.emit("join", myKakaoId)
+                mSocket?.on("image", onMessage)
+                mSocket?.on("join", onRoom)
 
                 // 갤러리에서 사진 선택 후 공유 버튼을 눌러 picat앱에 들어왔을 때
                 if(intent.type == "image/*") {
@@ -398,11 +395,15 @@ class SharePictureActivity: AppCompatActivity(){
         // 자동업로드 설정하고 다른 화면 갔다가 다시 돌아왔을 때
 //        println("저장되었나 : resume ${pref.getLong("myKakaoId", 0)}")
         // socket 통신 연결
-        mSocket = SocketApplication.get()
-        mSocket.connect()
-        mSocket.emit("join", myKakaoId)
-        mSocket.on("image", onMessage)
-        mSocket.on("join", onRoom)
+        if(mSocket == null){
+            println("=============")
+            mSocket = SocketApplication.get()
+            mSocket?.connect()
+            mSocket?.emit("join", myKakaoId)
+            mSocket?.on("image", onMessage)
+            mSocket?.on("join", onRoom)
+        }
+
 
     }
 
@@ -527,7 +528,7 @@ class SharePictureActivity: AppCompatActivity(){
                     jsonObject.put("img_cnt", response.body()?.img_cnt)
                     jsonObject.put("id", myKakaoId)
 
-                    mSocket.emit("image", jsonObject)
+                    mSocket?.emit("image", jsonObject)
                 }
             }
 
