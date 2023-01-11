@@ -18,20 +18,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,13 +40,10 @@ import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
 import com.kakao.sdk.friend.model.ViewAppearance
 import com.kakao.sdk.user.UserApiClient
-import com.tumblers.picat.adapter.BlurPictureAdapter
-import com.tumblers.picat.adapter.PictureAdapter
-import com.tumblers.picat.adapter.ProfilePictureAdapter
-import com.tumblers.picat.adapter.SamePictureAdapter
+import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.ImageData
+import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.room.AppDatabase
 import com.tumblers.picat.room.ImageTable
@@ -70,32 +64,25 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.concurrent.TimeUnit
 
 
 class SharePictureActivity: AppCompatActivity(){
     lateinit var binding: ActivitySharePictureBinding
 
     lateinit var pictureAdapter: PictureAdapter
-    lateinit var samePictureAdapter: SamePictureAdapter
-    lateinit var blurPictureAdapter: BlurPictureAdapter
     lateinit var profilePictureAdapter: ProfilePictureAdapter
-    var startSelecting = false
     lateinit var mSocket: Socket
     lateinit var bottomSheetDialog: BottomSheetDialog
 
 
-    var imageList: ArrayList<Uri> = ArrayList()
     var profileImageList: ArrayList<Uri> = ArrayList()
-    val selectionList: MutableMap<String, Uri> = mutableMapOf<String, Uri>()
+    var imageList: ArrayList<Uri> = ArrayList()
+    val selectionIdList: HashSet<Int> = hashSetOf()
 
     var myKakaoId : Long? = null
-
-    private lateinit var imageDb : AppDatabase
 
     //뒤로가기 타이머
     var backKeyPressedTime: Long = 0
@@ -105,11 +92,18 @@ class SharePictureActivity: AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivitySharePictureBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
 
         // db 초기화
         imageDb = AppDatabase.getInstance(applicationContext)!!
 
         // kakao 토큰 정보 보기
+
+        // 토큰 정보 확인 후
+        // 실패 시 로그인 화면으로 이동
+
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
                 val intent = Intent(this, LoginActivity::class.java)
@@ -120,6 +114,11 @@ class SharePictureActivity: AppCompatActivity(){
 //                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // switch 버튼 체크 유무 저장
+        pref = getPreferences(Context.MODE_PRIVATE)
+
+        // 사용자 정보 요청 및 소켓 연결
         UserApiClient.instance.me { user, error ->
             if (error != null) {
                 Log.e(TAG, "사용자 정보 요청 실패", error)
@@ -162,8 +161,9 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-        binding = ActivitySharePictureBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        
+
+
 
 
         MyFirebaseMessagingService().getFirebaseToken()
@@ -208,10 +208,13 @@ class SharePictureActivity: AppCompatActivity(){
 
 
         // 액션바 제목 설정
-        val actionbar: ActionBar? = supportActionBar
-        actionbar?.title = "공유방"
+        val actionbar = binding.toolbar
+        setSupportActionBar(actionbar) //커스텀한 toolbar를 액션바로 사용
+        supportActionBar?.setDisplayShowTitleEnabled(false) //액션바에 표시되는 제목의 표시유무를 설정합니다. false로 해야 custom한 툴바의 이름이 화면에 보이게 됩니다.
+        actionbar.title = "공유방"
 
-        // 프로필 사진 옆 플러스 버튼 = 수동으로 친구추가
+        // 프로필 사진 옆 플러스 버튼: 카카오 친구 피커 실행
+        // 수동으로 친구추가
         binding.profileItemPlusButton.setOnClickListener {
             val openPickerFriendRequestParams = OpenPickerFriendRequestParams(
                 title = "풀 스크린 멀티 친구 피커", //default "친구 선택"
@@ -244,21 +247,16 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-
-
         //Adapter 초기화
-        pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
-        samePictureAdapter = SamePictureAdapter(imageList, this)
-        blurPictureAdapter = BlurPictureAdapter(imageList, this)
+        pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
         profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
 
-        // profile recyclerview 설정
-        binding.sameRecyclerview.layoutManager = GridLayoutManager(this, 3)
-        binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
+        //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        binding.pictureRecyclerview.adapter = pictureAdapter
+        binding.profileRecyclerview.adapter = profilePictureAdapter
 
-        setRecyclerView()
 
 
         //바텀시트 초기화
@@ -365,17 +363,10 @@ class SharePictureActivity: AppCompatActivity(){
         //바텀시트 내 사진선택 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_select_button).setOnClickListener {
             bottomSheetDialog.hide()
-            // true 이면 false로, flase이면 true로 변경
-            startSelecting = !startSelecting
-            if(startSelecting){
-                // 안내 토스트 띄우기
-                Toast.makeText(this, "마음에 드는 사진을 선택해주세요", Toast.LENGTH_SHORT).show()
-            }else{
-                // 안내 토스트 띄우기
-                Toast.makeText(this, "선택 완료!", Toast.LENGTH_SHORT).show()
-            }
-            // 변경된 startSelecting 값에 따라 리사이클러뷰 어댑터 다시 설정
-            setRecyclerView()
+            val intent = Intent(this, SelectPictureActivity::class.java)
+            intent.putExtra("selectonIdList", selectionIdList)
+            intent.putExtra("myKakaoId", myKakaoId)
+            activityResult.launch(intent)
 
         }
 
@@ -390,44 +381,29 @@ class SharePictureActivity: AppCompatActivity(){
             imageDownload(binding.roomNameEditText.text.toString())
 
             val bundle = Bundle()
+            bundle.putInt("pictureCount", pictureAdapter.mSelected.size)
             bundle.putString("albumName", binding.roomNameEditText.text.toString())
-            bundle.putString("firstPicture", imageList[0].toString())
+            bundle.putString("albumCover", imageList[pictureAdapter.mSelected.first()].toString())
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction().add(R.id.activity_share_picture_layout, downloadAlbumFragment)
             transaction.commit()
         }
     }
-
-    // 포어그라운드 서비스에서 이미지 데이터 받는다.
-//    override fun onNewIntent(intent: Intent?) {
-//        if(intent != null) {
-//            val newImageList : ArrayList<String>? = intent.getStringArrayListExtra("imageList")
-//
-//            for (image in newImageList!!) {
-//                imageList.add(image.toUri())
-//            }
-//            setRecyclerView()
-//        }
-//        super.onNewIntent(intent)
-//    }
+    
 
     override fun onResume() {
         super.onResume()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val getImage = imageDb!!.imageDao().getAll()
-            if (getImage.isNotEmpty()) {
-                for (i in getImage) {
-                    if (!imageList.contains(i.imageUri.toUri())){
-                        imageList.add(i.imageUri.toUri())
-                    }
-                }
-                imageDb!!.imageDao().deleteAll()
-                println("===OnResume===")
-                setRecyclerView()
-            }
-        }
+        // 자동업로드 설정하고 다른 화면 갔다가 다시 돌아왔을 때
+//        println("저장되었나 : resume ${pref.getLong("myKakaoId", 0)}")
+        // socket 통신 연결
+        mSocket = SocketApplication.get()
+        mSocket.connect()
+        mSocket.emit("join", myKakaoId)
+        mSocket.on("image", onMessage)
+        mSocket.on("join", onRoom)
+
     }
 
     fun getFileNameInUrl(imgUrl: String): String{
@@ -440,11 +416,11 @@ class SharePictureActivity: AppCompatActivity(){
         val savePath: String = Environment.getExternalStoragePublicDirectory(DIRECTORY_DCIM).toString() + "/" + albumName
         val dir = File(savePath)
         if (!dir.exists()) {
-            dir.mkdirs();
+            dir.mkdirs()
         }
 
-        for (pic in selectionList){
-            val imgUrl = pic.value
+        for (pos in selectionIdList){
+            val imgUrl = imageList[pos]
             println(imgUrl.toString())
             val fileName = getFileNameInUrl(imgUrl.toString())
             val localPath = "$savePath/$fileName"
@@ -480,7 +456,7 @@ class SharePictureActivity: AppCompatActivity(){
         ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == RESULT_OK) {
-            // 이미지가 선택된 경우
+            // 갤러리에서 이미지가 선택 후 돌아온 경우
             if (it.data!!.clipData != null) {
                 val count = it.data!!.clipData!!.itemCount
 
@@ -496,9 +472,23 @@ class SharePictureActivity: AppCompatActivity(){
                 apiRequest(emitBody, count)
             }
         }
+        else if (it.resultCode == 1){
+            //사진선택을 통해 이미지 선택해서 돌아온 경우
+            if (it.data!!.hasExtra("selectonIdList")){
+                var tmp = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
+                println("추가로 선택된 이미지: ${tmp}")
+                selectionIdList.clear()
+                for (i in tmp){
+                    pictureAdapter.select(i, true)
+                    selectionIdList.add(i)
+                }
+//                binding.pictureRecyclerview.adapter?.notifyDataSetChanged()
+                setRecyclerView()
+            }
+        }
     }
 
-    fun getAbsolutePath(path: Uri?, context : Context): String {
+    private fun getAbsolutePath(path: Uri?, context : Context): String {
         var proj: Array<String> = arrayOf(MediaStore.Images.Media.DATA)
         var c: Cursor? = context.contentResolver.query(path!!, proj, null, null, null)
         var index = c?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
@@ -513,7 +503,7 @@ class SharePictureActivity: AppCompatActivity(){
     private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("http://43.200.93.112:5000/")
+            .baseUrl(getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -546,6 +536,7 @@ class SharePictureActivity: AppCompatActivity(){
             }
         })
     }
+
     private fun setProfileRecyclerview(){
         // profile picture recyclerview 설정
         profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
@@ -553,58 +544,20 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     private fun setRecyclerView(){
-        // 나머지 picture recyclerview 설정
-        pictureAdapter = PictureAdapter(imageList, this, startSelecting, selectionList)
+        // picture recyclerview 설정
+        pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
-
-        // same recyclerview 설정
-        samePictureAdapter = SamePictureAdapter(imageList, this)
-        binding.sameRecyclerview.adapter = samePictureAdapter
-        //중복 사진탭 열기
-        binding.expandSameButton.setOnClickListener {
-            if(binding.sameRecyclerview.visibility == View.VISIBLE) {
-                binding.sameRecyclerview.visibility = View.GONE
-                binding.expandSameButton.setImageResource(R.drawable.unfold_icn)
-            }
-            else {
-                binding.sameRecyclerview.visibility = View.VISIBLE
-                binding.expandSameButton.setImageResource(R.drawable.fold_icn)
-            }
-        }
-
-
-        // blur recyclerview 설정
-        blurPictureAdapter = BlurPictureAdapter(imageList, this)
-        binding.blurRecyclerview.adapter = blurPictureAdapter
-        // 흐린 사진탭 열기
-        binding.expandBlurButton.setOnClickListener {
-            if(binding.blurRecyclerview.visibility == View.VISIBLE) {
-                binding.blurRecyclerview.visibility = View.GONE
-                binding.expandBlurButton.setImageResource(R.drawable.unfold_icn)
-            }
-            else {
-                binding.blurRecyclerview.visibility = View.VISIBLE
-                binding.expandBlurButton.setImageResource(R.drawable.fold_icn)
-            }
-        }
-
     }
 
-    fun refreshRecyclerView(){
-        pictureAdapter.notifyDataSetChanged()
-        samePictureAdapter.notifyDataSetChanged()
-        blurPictureAdapter.notifyDataSetChanged()
-        profilePictureAdapter.notifyDataSetChanged()
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
         return true
     }
 
-    // 나가기 버튼
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
+            // 나가기 버튼
             R.id.out_button -> {
                 //카톡 로그인 사용자 동의 및 회원가입 테스트용
                 UserApiClient.instance.unlink { error ->
@@ -635,8 +588,6 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
 
-
-//    소켓통신 테스트
     var onMessage = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
             val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
@@ -645,7 +596,6 @@ class SharePictureActivity: AppCompatActivity(){
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
                 imageList.add(imgObj.toString().toUri())
             }
-        }.invokeOnCompletion {
             setRecyclerView()
         }
     }
@@ -660,9 +610,11 @@ class SharePictureActivity: AppCompatActivity(){
                     imageList.add(imgObj.toString().toUri())
                 }
             }
-        }.invokeOnCompletion {
             setRecyclerView()
         }
     }
+
 }
+
+
 
