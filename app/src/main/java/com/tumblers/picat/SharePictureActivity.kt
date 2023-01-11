@@ -80,9 +80,6 @@ class SharePictureActivity: AppCompatActivity(){
 
     var myKakaoId : Long? = null
 
-//    private lateinit var db : AppDatabase
-    private lateinit var imageDb : AppDatabase
-
     //뒤로가기 타이머
     var backKeyPressedTime: Long = 0
 
@@ -93,8 +90,6 @@ class SharePictureActivity: AppCompatActivity(){
         super.onCreate(savedInstanceState)
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        imageDb = AppDatabase.getInstance(applicationContext)!!
 
         // 토큰 정보 확인 후
         // 실패 시 로그인 화면으로 이동
@@ -108,6 +103,9 @@ class SharePictureActivity: AppCompatActivity(){
 //                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // switch 버튼 체크 유무 저장
+        pref = getPreferences(Context.MODE_PRIVATE)
 
         // 사용자 정보 요청 및 소켓 연결
         UserApiClient.instance.me { user, error ->
@@ -154,8 +152,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         
 
-        // switch 버튼 체크 유무 저장
-        pref = getPreferences(Context.MODE_PRIVATE)
+
 
         //임시 코드. 추후 기능 생성후 삭제예정
         val firstFace = binding.faceItemImageview
@@ -376,19 +373,15 @@ class SharePictureActivity: AppCompatActivity(){
     override fun onResume() {
         super.onResume()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val getImage = imageDb!!.imageDao().getAll()
-            if (getImage.isNotEmpty()) {
-                for (i in getImage) {
-                    if (!imageList.contains(i.imageUri.toUri())){
-                        imageList.add(i.imageUri.toUri())
-                    }
-                }
-                imageDb!!.imageDao().deleteAll()
-                println("===OnResume===")
-                setRecyclerView()
-            }
-        }
+        // 자동업로드 설정하고 다른 화면 갔다가 다시 돌아왔을 때
+//        println("저장되었나 : resume ${pref.getLong("myKakaoId", 0)}")
+        // socket 통신 연결
+        mSocket = SocketApplication.get()
+        mSocket.connect()
+        mSocket.emit("join", myKakaoId)
+        mSocket.on("image", onMessage)
+        mSocket.on("join", onRoom)
+
     }
 
     fun getFileNameInUrl(imgUrl: String): String{
