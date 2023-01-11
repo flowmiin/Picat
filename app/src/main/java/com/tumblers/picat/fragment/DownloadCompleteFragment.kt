@@ -22,12 +22,14 @@ class DownloadCompleteFragment : Fragment() {
     private var albumCover: String? = null
     private var pictureCount: Int? = null
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             albumName = it.getString("albumName")
             albumCover = it.getString("albumCover")
             pictureCount = it.getInt("pictureCount")
+
         }
     }
 

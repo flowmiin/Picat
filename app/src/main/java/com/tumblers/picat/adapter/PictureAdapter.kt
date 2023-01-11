@@ -18,7 +18,6 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
     private var mClickListener: ItemClickListener? = null
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         val view: View = inflater.inflate(R.layout.item_picture, parent, false)
@@ -45,7 +44,6 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             holder.isSelectedButton.visibility = View.INVISIBLE
         }
         holder.zoomButton.visibility = View.INVISIBLE
-
 
     }
 
@@ -159,5 +157,6 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
                 bindingAdapterPosition
             ) else false
         }
+
     }
 }

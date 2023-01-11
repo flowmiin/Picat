@@ -18,20 +18,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,16 +38,12 @@ import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
 import com.kakao.sdk.friend.model.ViewAppearance
 import com.kakao.sdk.user.UserApiClient
-import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
-import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
-import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor.ISelectionHandler
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.room.AppDatabase
-import com.tumblers.picat.room.ImageTable
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -201,7 +194,7 @@ class SharePictureActivity: AppCompatActivity(){
         supportActionBar?.setDisplayShowTitleEnabled(false) //액션바에 표시되는 제목의 표시유무를 설정합니다. false로 해야 custom한 툴바의 이름이 화면에 보이게 됩니다.
         actionbar.title = "공유방"
 
-       // 프로필 사진 옆 플러스 버튼: 카카오 친구 피커 실행
+        // 프로필 사진 옆 플러스 버튼: 카카오 친구 피커 실행
         // 수동으로 친구추가
         binding.profileItemPlusButton.setOnClickListener {
             val openPickerFriendRequestParams = OpenPickerFriendRequestParams(
@@ -244,6 +237,7 @@ class SharePictureActivity: AppCompatActivity(){
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         binding.pictureRecyclerview.adapter = pictureAdapter
         binding.profileRecyclerview.adapter = profilePictureAdapter
+
 
 
         //바텀시트 초기화
@@ -539,7 +533,6 @@ class SharePictureActivity: AppCompatActivity(){
         // picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
-
     }
 
 
