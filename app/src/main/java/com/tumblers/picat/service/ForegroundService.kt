@@ -3,6 +3,7 @@ package com.tumblers.picat.service
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -44,11 +45,8 @@ class ForegroundService : Service() {
 
     lateinit var mSocket: Socket
 
-    var imageList: ArrayList<String> = ArrayList()
-
     var myKakaoId: Long? = null
 
-    lateinit var imageDb : AppDatabase
 
     override fun onBind(intent: Intent?): IBinder? {
         throw UnsupportedOperationException("Not yet implemented")
@@ -57,7 +55,6 @@ class ForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotification()
-        imageDb = AppDatabase.getInstance(applicationContext)!!
         mThread!!.start()
     }
 
@@ -99,7 +96,7 @@ class ForegroundService : Service() {
         notificationIntent.action = Intent.ACTION_CAMERA_BUTTON
 
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, FLAG_IMMUTABLE)
         builder.setContentIntent(pendingIntent)
 
         val notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -209,9 +206,6 @@ class ForegroundService : Service() {
                     for (i in 0..response.body()?.img_cnt!! - 1) {
                         val jsonObject = JSONObject()
                         jsonObject.put("url", response.body()?.url?.toList()?.get(i))
-                        CoroutineScope(Dispatchers.IO).launch {
-                            imageDb!!.imageDao().insert(ImageTable(response.body()?.url?.toList()?.get(i)!!))
-                        }
                         jsonArray.put(jsonObject)
                     }
 

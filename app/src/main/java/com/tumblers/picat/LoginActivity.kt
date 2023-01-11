@@ -1,7 +1,9 @@
 package com.tumblers.picat
 
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -26,6 +28,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class LoginActivity : AppCompatActivity() {
+
+    lateinit var pref : SharedPreferences
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -37,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
 
         // val keyHash = Utility.getKeyHash(this)
         // println("해시 : ${keyHash}")
+        pref = getPreferences(Context.MODE_PRIVATE)
 
 
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
@@ -174,6 +181,9 @@ class LoginActivity : AppCompatActivity() {
                                 requestData.addProperty("picture", user.kakaoAccount?.profile?.profileImageUrl)
                                 requestData.addProperty("email", user.kakaoAccount?.email)
                                 Log.i(TAG, "결과1 $requestData")
+
+                                pref.edit().putLong("myKakaoId", user.id!!).commit()
+                                println("저장되었나 login: ${pref.getLong("myKakaoId", 0)}")
 
 
                                 // 카카오톡 친구 목록 가져오기 (기본)
