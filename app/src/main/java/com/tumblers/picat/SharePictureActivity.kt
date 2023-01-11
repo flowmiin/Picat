@@ -32,7 +32,9 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
@@ -44,6 +46,8 @@ import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.room.AppDatabase
+import com.tumblers.picat.room.ImageTable
+import com.tumblers.picat.service.MyFirebaseMessagingService
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -91,8 +95,15 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+        // db 초기화
+        imageDb = AppDatabase.getInstance(applicationContext)!!
+
+        // kakao 토큰 정보 보기
+
         // 토큰 정보 확인 후
         // 실패 시 로그인 화면으로 이동
+
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
                 val intent = Intent(this, LoginActivity::class.java)
@@ -153,6 +164,17 @@ class SharePictureActivity: AppCompatActivity(){
         
 
 
+
+
+        MyFirebaseMessagingService().getFirebaseToken()
+        FirebaseMessaging.getInstance().token.addOnCompleteListener{ task ->
+            if(task.isSuccessful) {
+                println("my token = ${task.result}")
+            }
+        }
+
+        // switch 버튼 체크 유무 저장
+        pref = getPreferences(Context.MODE_PRIVATE)
 
         //임시 코드. 추후 기능 생성후 삭제예정
         val firstFace = binding.faceItemImageview
@@ -449,7 +471,6 @@ class SharePictureActivity: AppCompatActivity(){
                 }
                 apiRequest(emitBody, count)
             }
-
         }
         else if (it.resultCode == 1){
             //사진선택을 통해 이미지 선택해서 돌아온 경우

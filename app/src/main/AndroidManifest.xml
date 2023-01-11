@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -43,7 +45,20 @@
             android:name=".service.ForegroundService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="location|camera"></service> <!-- LoginActivity -->
+            android:foregroundServiceType="location|camera">
+        </service>
+
+        <service
+            android:name=".service.MyFirebaseMessagingService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
+        <!-- LoginActivity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
