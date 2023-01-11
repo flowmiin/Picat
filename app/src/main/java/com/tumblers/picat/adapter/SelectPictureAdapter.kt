@@ -1,39 +1,63 @@
-package com.tumblers.picat.notused
+package com.tumblers.picat.adapter
 
 import android.content.Context
-import android.graphics.Color
+import android.media.Image
+import android.net.Uri
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.tumblers.picat.R
 
 
-class TestAdapter(
+class SelectPictureAdapter(
     private val mContext: Context,
     private val mDataSize: Int,
-    var mSelected: HashSet<Int?>
+    var mSelected: HashSet<Int>,
+    var imageList: ArrayList<Uri>
 ) :
-    RecyclerView.Adapter<TestAdapter.TestViewHolder>() {
+    RecyclerView.Adapter<SelectPictureAdapter.TestViewHolder>() {
     private var mClickListener: ItemClickListener? = null
 
-    init {
-        mSelected = HashSet()
-    }
+//    init {
+//        mSelected = HashSet()
+//    }
 
     override fun onCreateViewHolder(parent: ViewGroup,viewType: Int): TestViewHolder {
-        val view: View = LayoutInflater.from(mContext).inflate(R.layout.item_test, parent, false)
+        val view: View = LayoutInflater.from(mContext).inflate(R.layout.item_picture, parent, false)
         return TestViewHolder(view)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: TestViewHolder, position: Int) {
-        holder.tvText.text = position.toString()
+        Glide.with(mContext)
+            .load(imageList[position])
+            .into(holder.imv)
+
         if (mSelected.contains(position)) {
-            holder.tvText.setBackgroundColor(Color.RED)
+            holder.isSelectedButton.setImageResource(R.drawable.selected_icn)
+            holder.imv.foreground = mContext.getDrawable(R.color.black_overlay)
         } else {
-            holder.tvText.setBackgroundColor(Color.WHITE)
+            holder.isSelectedButton.setImageResource(R.drawable.unselected_icn)
+            holder.imv.foreground = mContext.getDrawable(R.color.transparent)
+        }
+
+        holder.zoomButton.setOnClickListener {
+            //확대하기
+            Toast.makeText(mContext, "확대하기", Toast.LENGTH_SHORT).show()
+        }
+
+        holder.isSelectedButton.setOnClickListener {
+            toggleSelection(position)
         }
     }
 
@@ -96,10 +120,14 @@ class TestAdapter(
 
     inner class TestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener, OnLongClickListener {
-        var tvText: TextView
+        var imv: ImageView
+        var isSelectedButton: ImageButton
+        var zoomButton: ImageButton
 
         init {
-            tvText = itemView.findViewById<View>(R.id.tvText) as TextView
+            imv = itemView.findViewById(R.id.imv)
+            isSelectedButton = itemView.findViewById(R.id.is_selected_imagebutton)
+            zoomButton = itemView.findViewById(R.id.zoom_imagebutton)
             itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
         }

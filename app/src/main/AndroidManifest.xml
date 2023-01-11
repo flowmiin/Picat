@@ -20,15 +20,9 @@
         android:theme="@style/Theme.Picat"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
-            android:name=".PictureSelectActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".notused.MainActivity"
+            android:name=".SelectPictureActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Picat.NoActionBar">

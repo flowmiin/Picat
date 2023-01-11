@@ -10,9 +10,9 @@ class SocketApplication {
         fun get(): Socket {
             try {
                 //클라이언트 개발용 서버
-                socket = IO.socket("http://54.180.36.192:5000/")
+//                socket = IO.socket("http://54.180.36.192:5000/")
                 //본 서버
-//                socket = IO.socket("http://43.200.93.112:5000/")
+                socket = IO.socket("http://43.200.93.112:5000/")
 
             } catch (e: URISyntaxException) {
                 e.printStackTrace()

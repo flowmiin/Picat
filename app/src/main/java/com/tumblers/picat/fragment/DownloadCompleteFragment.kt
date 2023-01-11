@@ -20,14 +20,14 @@ import java.util.*
 class DownloadCompleteFragment : Fragment() {
     private var albumName: String? = null
     private var albumCover: String? = null
-    private var pictureCount: String? = null
+    private var pictureCount: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             albumName = it.getString("albumName")
             albumCover = it.getString("albumCover")
-            pictureCount = it.getString("pictureCount")
+            pictureCount = it.getInt("pictureCount")
         }
     }
 

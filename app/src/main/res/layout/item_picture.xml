@@ -9,28 +9,18 @@
     >
 
     <ImageView
-        android:id="@+id/iv_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:id="@+id/imv"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:background="@color/picat_light_blue"
+        android:gravity="center"
         android:scaleType="centerCrop"
         android:foreground="@drawable/picture_selector"
-        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <ImageView
-        android:id="@+id/seleted_bound_imageview"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:scaleType="centerCrop"
-        android:visibility="gone"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageButton
         android:id="@+id/is_selected_imagebutton"
@@ -42,8 +32,7 @@
         android:padding="1dp"
         android:layout_margin="10dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:visibility="gone"/>
+        app:layout_constraintLeft_toLeftOf="parent"/>
 
     <ImageButton
         android:id="@+id/zoom_imagebutton"
@@ -55,8 +44,7 @@
         android:padding="1dp"
         android:layout_margin="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:visibility="gone"/>
+        app:layout_constraintRight_toRightOf="parent"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

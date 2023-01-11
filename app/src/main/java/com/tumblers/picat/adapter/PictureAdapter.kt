@@ -6,20 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
 
 class PictureAdapter(private var imageList: ArrayList<Uri>,
-                     val context: Context,
-                     private var startSelecting: Boolean,
-                     private val selectionList: MutableMap<String, Uri>,
-                     var selectionIdList: HashSet<Int>)
+                     val mContext: Context,
+                     var mSelected: HashSet<Int>)
     : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
     private var mClickListener: ItemClickListener? = null
 
-
-    var onItemSelectionChangedListener : ((MutableMap<String, Uri>) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
@@ -29,35 +27,24 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     }
 
     override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
-        val id = getItemId(position).toString()
-        holder.itemView.tag = id
-        Glide.with(context)
+        Glide.with(mContext)
             .load(imageList[position])
-            .into(holder.itemView.findViewById(R.id.iv_image))
-
-        val isSelectedButton = holder.itemView.findViewById<ImageButton>(R.id.is_selected_imagebutton)
-        val zoomButton = holder.itemView.findViewById<ImageButton>(R.id.zoom_imagebutton)
+            .into(holder.imv)
+        
+        holder.itemView.setOnClickListener { 
+            //확대하기
+            Toast.makeText(mContext, "확대하기", Toast.LENGTH_SHORT).show()
+        }
 
         // 화면 갱신 시 필요
         // 선택된 사진이면
-        if (selectionList.contains(id)){
+        if (mSelected.contains(position)){
             holder.itemView.isSelected = true
-            isSelectedButton.setImageResource(R.drawable.selected_icn)
-            isSelectedButton.visibility = View.VISIBLE
+            holder.isSelectedButton.setImageResource(R.drawable.selected_icn)
+        }else{
+            holder.isSelectedButton.visibility = View.INVISIBLE
         }
-
-        // 선택중일때
-        if (startSelecting){
-            holder.itemView.isClickable = true
-            isSelectedButton.visibility = View.VISIBLE
-            zoomButton.visibility = View.VISIBLE
-        }
-        else{
-            // 선택 완료했을 때
-            holder.itemView.isClickable = false
-            isSelectedButton.visibility = View.INVISIBLE
-            zoomButton.visibility = View.INVISIBLE
-        }
+        holder.zoomButton.visibility = View.INVISIBLE
 
 
     }
@@ -79,42 +66,36 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     fun toggleSelection(view: View?, pos: Int) {
         val isSelectedButton = view?.findViewById<ImageButton>(R.id.is_selected_imagebutton)
 
-        if (selectionIdList.contains(pos)) {
+        if (mSelected.contains(pos)) {
             view?.isSelected = false
             isSelectedButton?.setImageResource(R.drawable.unselected_icn)
-            selectionList.remove(pos.toString())
-            selectionIdList.remove(pos)
+            mSelected.remove(pos)
         } else {
             view?.isSelected = true
             isSelectedButton?.setImageResource(R.drawable.selected_icn)
-            selectionList[pos.toString()] = imageList[pos]
-            selectionIdList.add(pos)
+            mSelected.add(pos)
         }
         notifyItemChanged(pos)
     }
 
     fun select(pos: Int, selected: Boolean) {
         if (selected) {
-            selectionList[pos.toString()] = imageList[pos]
-            selectionIdList.add(pos)
+            mSelected.add(pos)
         } else {
-            selectionList.remove(pos.toString())
-            selectionIdList.remove(pos)
+            mSelected.remove(pos)
         }
         notifyItemChanged(pos)
     }
 
+
     fun selectRange(start: Int, end: Int, selected: Boolean) {
         for (i in start..end) {
             if (selected) {
-                selectionList[i.toString()] = imageList[i]
-                selectionIdList.add(i)
+                mSelected.add(i)
             } else{
-                selectionList.remove(i.toString())
-                selectionIdList.add(i)
+                mSelected.add(i)
             }
         }
-//        onItemSelectionChangedListener?.let { it(selectionList) }
         notifyItemRangeChanged(start, end - start + 1)
     }
 
@@ -130,11 +111,11 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
 //    }
 
     fun getCountSelected(): Int {
-        return selectionList.size
+        return mSelected.size
     }
 
     fun getSelection(): HashSet<Int> {
-        return selectionIdList
+        return mSelected
     }
 
     // ----------------------
@@ -156,8 +137,14 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     inner class PictureViewHolder(itemView: View)
         : RecyclerView.ViewHolder(itemView),
         View.OnClickListener, View.OnLongClickListener {
+        var imv: ImageView
+        var isSelectedButton: ImageButton
+        var zoomButton: ImageButton
 
         init {
+            imv = itemView.findViewById(R.id.imv)
+            isSelectedButton = itemView.findViewById(R.id.is_selected_imagebutton)
+            zoomButton = itemView.findViewById(R.id.zoom_imagebutton)
             itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
         }

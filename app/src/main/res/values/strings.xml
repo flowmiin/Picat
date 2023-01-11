@@ -24,7 +24,7 @@
 
 
     <!--  피캣 클라이언트 서버  -->
-    <string name="picat_server">http://54.180.36.192:5000/</string>
+<!--    <string name="picat_server">http://54.180.36.192:5000/</string>-->
     <!--  피캣 본서버  -->
-    <!--    <string name="picat_server">http://43.200.93.112:5000/</string>-->
+    <string name="picat_server">http://43.200.93.112:5000/</string>
 </resources>
