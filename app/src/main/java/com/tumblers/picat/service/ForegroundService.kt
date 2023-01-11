@@ -58,7 +58,6 @@ class ForegroundService : Service() {
         super.onCreate()
         createNotification()
         imageDb = AppDatabase.getInstance(applicationContext)!!
-        mSocket = SocketApplication.get()
         mThread!!.start()
     }
 
@@ -75,7 +74,8 @@ class ForegroundService : Service() {
     private var mThread: Thread? = object : Thread("My Thread") {
         override fun run() {
             super.run()
-
+            mSocket = SocketApplication.get()
+            mSocket.connect()
             while(currentThread() != null) {
                 try {
                     handlerNewPhotos()
@@ -118,6 +118,7 @@ class ForegroundService : Service() {
         if (mThread != null) {
             mThread!!.interrupt()
             mThread = null
+            mSocket.disconnect()
 
 //            val showIntent = Intent(this, SharePictureActivity::class.java)
 //            showIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -148,7 +149,9 @@ class ForegroundService : Service() {
         }
 
         // 새로운 이미지 날짜와 기존 이미지 날짜를 비교
-        if (lastImageDate != null && newImageDate!! > lastImageDate) {
+        // 또는 갤러리에 이미지가 없는 상태에서 새로운 이미지가 들어왔을떄
+        if ((lastImageDate != null && newImageDate!! > lastImageDate)
+            ||(lastImageDate == null && newImageDate != null)) {
             lastImage = newImage!!
 
             var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
@@ -160,18 +163,18 @@ class ForegroundService : Service() {
 
         }
         // 갤러리에 이미지가 없는 상태에서 새로운 이미지가 들어왔을떄
-        else if(lastImageDate == null && newImageDate != null) {
-            lastImage = newImage!!
-
-            var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
-            var file = File(getAbsolutePath(newImage, this))
-            var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
-            var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-            emitBody?.add(body)
-            if (myKakaoId != -1 as Long) {
-                apiRequest(emitBody, 1)
-            }
-        }
+//        else if(lastImageDate == null && newImageDate != null) {
+//            lastImage = newImage!!
+//
+//            var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
+//            var file = File(getAbsolutePath(newImage, this))
+//            var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
+//            var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+//            emitBody?.add(body)
+//            if (myKakaoId != -1 as Long) {
+//                apiRequest(emitBody, 1)
+//            }
+//        }
     }
 
     // 사진의 절대 경로 가져오기
@@ -187,7 +190,7 @@ class ForegroundService : Service() {
     }
 
     // 서버로 post 요청보내기
-    private fun apiRequest(body: MutableList<MultipartBody.Part>?, img_cnt: Int) {
+    private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl("http://43.200.93.112:5000/")
@@ -196,7 +199,7 @@ class ForegroundService : Service() {
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(body!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
+        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
 
             override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
@@ -205,11 +208,10 @@ class ForegroundService : Service() {
 
                     for (i in 0..response.body()?.img_cnt!! - 1) {
                         val jsonObject = JSONObject()
-                        val getImage = response.body()?.url?.toList()?.get(i)
-                        CoroutineScope(Dispatchers.IO).launch {
-                            imageDb!!.imageDao().insert(ImageTable(getImage!!))
-                        }
                         jsonObject.put("url", response.body()?.url?.toList()?.get(i))
+                        CoroutineScope(Dispatchers.IO).launch {
+                            imageDb!!.imageDao().insert(ImageTable(response.body()?.url?.toList()?.get(i)!!))
+                        }
                         jsonArray.put(jsonObject)
                     }
 

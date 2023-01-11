@@ -106,16 +106,16 @@ class LoginActivity : AppCompatActivity() {
 
                                 val friendList = JsonArray()
                                 if (friends.totalCount > 0){
-                                    val friendObj = JsonObject()
                                     for (friend in friends.elements!!) {
+                                        val friendObj = JsonObject()
                                         friendObj.addProperty("id", friend.id)
                                         friendObj.addProperty("uuid", friend.uuid)
                                         friendObj.addProperty("profile_nickname", friend.profileNickname)
                                         friendObj.addProperty("profile_thumbnail_image", friend.profileThumbnailImage)
                                         friendObj.addProperty("favorite", friend.favorite)
                                         friendObj.addProperty("allowedMsg", friend.allowedMsg)
+                                        friendList.add(friendObj)
                                     }
-                                    friendList.add(friendObj)
                                 }
                                 requestData.add("elements", friendList)
                                 Log.i(TAG, "결과2 $requestData")
@@ -163,15 +163,15 @@ class LoginActivity : AppCompatActivity() {
                                 Log.e(TAG, "사용자 정보 요청 실패", error)
                             }
                             else if (user != null) {
-                                Log.i(TAG, "사용자 정보 요청 성공" +
-                                        "\n회원번호: ${user.id}" +
-                                        "\n이메일: ${user.kakaoAccount?.email}" +
-                                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
-                                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
+//                                Log.i(TAG, "사용자 정보 요청 성공" +
+//                                        "\n회원번호: ${user.id}" +
+//                                        "\n이메일: ${user.kakaoAccount?.email}" +
+//                                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
+//                                        "\n프로필사진: ${user.kakaoAccount?.profile?.profileImageUrl}")
 
                                 requestData.addProperty("id", user.id)
                                 requestData.addProperty("nickname", user.kakaoAccount?.profile?.nickname)
-                                requestData.addProperty("picture", user.kakaoAccount?.profile?.thumbnailImageUrl)
+                                requestData.addProperty("picture", user.kakaoAccount?.profile?.profileImageUrl)
                                 requestData.addProperty("email", user.kakaoAccount?.email)
                                 Log.i(TAG, "결과1 $requestData")
 
@@ -182,22 +182,22 @@ class LoginActivity : AppCompatActivity() {
                                         Log.e(TAG, "카카오톡 친구 목록 가져오기 실패", error)
                                     }
                                     else if (friends != null) {
-                                        Log.i(TAG, "카카오톡 친구 목록 가져오기 성공 \n${friends.elements?.joinToString("\n")}")
-                                        Log.i(TAG, "카카오톡 친구 목록 가져오기 성공2 \n${friends.elements}")
+//                                        Log.i(TAG, "카카오톡 친구 목록 가져오기 성공 \n${friends.elements?.joinToString("\n")}")
+//                                        Log.i(TAG, "카카오톡 친구 목록 가져오기 성공2 \n${friends.elements}")
                                         requestData.addProperty("total_count", friends.elements?.size)
 
                                         val friendList = JsonArray()
                                         if (friends.totalCount > 0){
-                                            val friendObj = JsonObject()
                                             for (friend in friends.elements!!) {
+                                                val friendObj = JsonObject()
                                                 friendObj.addProperty("id", friend.id)
                                                 friendObj.addProperty("uuid", friend.uuid)
                                                 friendObj.addProperty("profile_nickname", friend.profileNickname)
                                                 friendObj.addProperty("profile_thumbnail_image", friend.profileThumbnailImage)
                                                 friendObj.addProperty("favorite", friend.favorite)
                                                 friendObj.addProperty("allowedMsg", friend.allowedMsg)
+                                                friendList.add(friendObj)
                                             }
-                                            friendList.add(friendObj)
                                         }
                                         requestData.add("elements", friendList)
                                         Log.i(TAG, "결과2 $requestData")
@@ -228,7 +228,7 @@ class LoginActivity : AppCompatActivity() {
     private fun apiRequest(requestData :JsonObject) {
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("http://43.200.93.112:5000/")
+            .baseUrl(getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

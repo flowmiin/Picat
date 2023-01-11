@@ -20,4 +20,11 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_main">MainActivity</string>
+
+
+    <!--  피캣 클라이언트 서버  -->
+<!--    <string name="picat_server">http://54.180.36.192:5000/</string>-->
+    <!--  피캣 본서버  -->
+    <string name="picat_server">http://43.200.93.112:5000/</string>
 </resources>
