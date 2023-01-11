@@ -35,7 +35,9 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
@@ -51,6 +53,7 @@ import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.room.AppDatabase
 import com.tumblers.picat.room.ImageTable
+import com.tumblers.picat.service.MyFirebaseMessagingService
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -92,7 +95,6 @@ class SharePictureActivity: AppCompatActivity(){
 
     var myKakaoId : Long? = null
 
-//    private lateinit var db : AppDatabase
     private lateinit var imageDb : AppDatabase
 
     //뒤로가기 타이머
@@ -105,26 +107,9 @@ class SharePictureActivity: AppCompatActivity(){
         super.onCreate(savedInstanceState)
 
         // db 초기화
-//        db = AppDatabase.getInstance(applicationContext)!!
         imageDb = AppDatabase.getInstance(applicationContext)!!
 
-//        val userId = db!!.idDao().get()
-//        if (userId != null) {
-//            myKakaoId = userId
-//        }
-//        else {
-//            UserApiClient.instance.me { user, error ->
-//                if (error != null) {
-//                    Log.e(TAG, "사용자 정보 요청 실패", error)
-//                } else if (user != null) {
-//                    Log.e(TAG, "사용자 정보 요청 성공")
-//                    myKakaoId = user.id
-//                    db.idDao().insert(MyId(user.id!!))
-//                }
-//            }
-//        }
-
-        // 토큰 정보 보기
+        // kakao 토큰 정보 보기
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
                 val intent = Intent(this, LoginActivity::class.java)
@@ -179,6 +164,14 @@ class SharePictureActivity: AppCompatActivity(){
 
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+        MyFirebaseMessagingService().getFirebaseToken()
+        FirebaseMessaging.getInstance().token.addOnCompleteListener{ task ->
+            if(task.isSuccessful) {
+                println("my token = ${task.result}")
+            }
+        }
 
         // switch 버튼 체크 유무 저장
         pref = getPreferences(Context.MODE_PRIVATE)
@@ -502,19 +495,6 @@ class SharePictureActivity: AppCompatActivity(){
                 }
                 apiRequest(emitBody, count)
             }
-            // 단일 이미지 선택한 경우
-//            else {
-//                val imageUri = it.data!!.data
-//
-//                var file = File(getAbsolutePath(imageUri, this))
-//                var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
-//                var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
-//                var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-//                emitBody?.add(body)
-//                println("단일 이미지 선택")
-//
-//                apiRequest(emitBody, 1)
-//            }
         }
     }
 

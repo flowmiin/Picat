@@ -90,7 +90,8 @@ class ForegroundService : Service() {
 
     // notificatoin 알람 설정
     private fun createNotification() {
-        val builder = NotificationCompat.Builder(this, "default")
+        val channelId = "Picat_channel_1"
+        val builder = NotificationCompat.Builder(this, channelId)
         builder.setSmallIcon(R.mipmap.picat_app_icn)
         builder.setContentTitle("Picat Service")
         builder.setContentText("Picat이 최신 사진을 자동 업로드 합니다.")
@@ -105,7 +106,7 @@ class ForegroundService : Service() {
         val notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.createNotificationChannel(
-                NotificationChannel("default", "기본 채널", NotificationManager.IMPORTANCE_DEFAULT)
+                NotificationChannel(channelId, "자동 업로드 채널", NotificationManager.IMPORTANCE_DEFAULT)
             )
         }
         notificationManager.notify(NOTI_ID, builder.build())
