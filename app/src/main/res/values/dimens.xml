@@ -2,6 +2,7 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="picat_layout_padding">20dp</dimen>
+    <dimen name="picat_grid_padding">20dp</dimen>
 
     <dimen name="picat_text_size_small">16sp</dimen>
     <dimen name="picat_text_size_medium">20sp</dimen>

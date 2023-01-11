@@ -1,98 +1,87 @@
 package com.tumblers.picat.adapter
 
 import android.content.Context
+import android.media.Image
 import android.net.Uri
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
 
-class PictureAdapter(private var imageList: ArrayList<Uri>,
-                     val mContext: Context,
-                     var mSelected: HashSet<Int>)
-    : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
+
+class SelectPictureAdapter(
+    private val mContext: Context,
+    private val mDataSize: Int,
+    var mSelected: HashSet<Int>,
+    var imageList: ArrayList<Uri>
+) :
+    RecyclerView.Adapter<SelectPictureAdapter.TestViewHolder>() {
     private var mClickListener: ItemClickListener? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {
-        val inflater: LayoutInflater = LayoutInflater.from(parent.context)
-        val view: View = inflater.inflate(R.layout.item_picture, parent, false)
+//    init {
+//        mSelected = HashSet()
+//    }
 
-        return PictureViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup,viewType: Int): TestViewHolder {
+        val view: View = LayoutInflater.from(mContext).inflate(R.layout.item_picture, parent, false)
+        return TestViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onBindViewHolder(holder: TestViewHolder, position: Int) {
         Glide.with(mContext)
             .load(imageList[position])
             .into(holder.imv)
-        
-        holder.itemView.setOnClickListener { 
+
+        if (mSelected.contains(position)) {
+            holder.isSelectedButton.setImageResource(R.drawable.selected_icn)
+            holder.imv.foreground = mContext.getDrawable(R.color.black_overlay)
+        } else {
+            holder.isSelectedButton.setImageResource(R.drawable.unselected_icn)
+            holder.imv.foreground = mContext.getDrawable(R.color.transparent)
+        }
+
+        holder.zoomButton.setOnClickListener {
             //확대하기
             Toast.makeText(mContext, "확대하기", Toast.LENGTH_SHORT).show()
         }
 
-        // 화면 갱신 시 필요
-        // 선택된 사진이면
-        if (mSelected.contains(position)){
-            holder.itemView.isSelected = true
-            holder.isSelectedButton.setImageResource(R.drawable.selected_icn)
-        }else{
-            holder.isSelectedButton.visibility = View.INVISIBLE
+        holder.isSelectedButton.setOnClickListener {
+            toggleSelection(position)
         }
-        holder.zoomButton.visibility = View.INVISIBLE
-
     }
 
-
-    // 아이템 개수
     override fun getItemCount(): Int {
-        return imageList.size
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
+        return mDataSize
     }
 
     // ----------------------
     // Selection
     // ----------------------
 
-    fun toggleSelection(view: View?, pos: Int) {
-        val isSelectedButton = view?.findViewById<ImageButton>(R.id.is_selected_imagebutton)
-
-        if (mSelected.contains(pos)) {
-            view?.isSelected = false
-            isSelectedButton?.setImageResource(R.drawable.unselected_icn)
-            mSelected.remove(pos)
-        } else {
-            view?.isSelected = true
-            isSelectedButton?.setImageResource(R.drawable.selected_icn)
-            mSelected.add(pos)
-        }
+    fun toggleSelection(pos: Int) {
+        if (mSelected.contains(pos)) mSelected.remove(pos) else mSelected.add(pos)
         notifyItemChanged(pos)
     }
 
     fun select(pos: Int, selected: Boolean) {
-        if (selected) {
-            mSelected.add(pos)
-        } else {
-            mSelected.remove(pos)
-        }
+        if (selected) mSelected.add(pos) else mSelected.remove(pos)
         notifyItemChanged(pos)
     }
 
-
     fun selectRange(start: Int, end: Int, selected: Boolean) {
         for (i in start..end) {
-            if (selected) {
-                mSelected.add(i)
-            } else{
-                mSelected.add(i)
-            }
+            if (selected) mSelected.add(i) else mSelected.remove(i)
         }
         notifyItemRangeChanged(start, end - start + 1)
     }
@@ -104,16 +93,12 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     }
 
     fun selectAll() {
-        for (i in 0 until imageList.size) mSelected.add(i)
+        for (i in 0 until mDataSize) mSelected.add(i)
         notifyDataSetChanged()
     }
 
     fun getCountSelected(): Int {
         return mSelected.size
-    }
-
-    fun getSelection(): HashSet<Int> {
-        return mSelected
     }
 
     // ----------------------
@@ -132,9 +117,9 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     // ----------------------
     // ViewHolder
     // ----------------------
-    inner class PictureViewHolder(itemView: View)
-        : RecyclerView.ViewHolder(itemView),
-        View.OnClickListener, View.OnLongClickListener {
+
+    inner class TestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnClickListener, OnLongClickListener {
         var imv: ImageView
         var isSelectedButton: ImageButton
         var zoomButton: ImageButton
@@ -157,6 +142,5 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
                 bindingAdapterPosition
             ) else false
         }
-
     }
 }
