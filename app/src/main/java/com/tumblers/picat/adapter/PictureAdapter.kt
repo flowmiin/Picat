@@ -1,6 +1,7 @@
 package com.tumblers.picat.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.tumblers.picat.ImageViewPagerActivity
 import com.tumblers.picat.R
 
 class PictureAdapter(private var imageList: ArrayList<Uri>,
@@ -30,9 +32,11 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
             .load(imageList[position])
             .into(holder.imv)
         
-        holder.itemView.setOnClickListener { 
-            //확대하기
-            Toast.makeText(mContext, "확대하기", Toast.LENGTH_SHORT).show()
+        holder.itemView.setOnClickListener {
+            var intent = Intent(mContext, ImageViewPagerActivity::class.java)
+            intent.putExtra("imageList", imageList)
+            intent.putExtra("current", position)
+            mContext.startActivity(intent)
         }
 
         // 화면 갱신 시 필요
@@ -120,7 +124,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     // Click Listener
     // ----------------------
 
-    fun setClickListener(itemClickListener: ItemClickListener?) {
+    fun setClickListener(itemClickListener: SelectPictureAdapter.ItemClickListener) {
         mClickListener = itemClickListener
     }
 

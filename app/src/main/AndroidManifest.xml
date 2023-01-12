@@ -5,8 +5,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -22,19 +22,24 @@
         android:theme="@style/Theme.Picat"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".ImageViewPagerActivity"
+            android:exported="true">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".SelectPictureActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Picat.NoActionBar">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
 
             <meta-data
                 android:name="android.app.lib_name"
@@ -45,9 +50,7 @@
             android:name=".service.ForegroundService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="location|camera">
-        </service>
-
+            android:foregroundServiceType="location|camera"></service>
         <service
             android:name=".service.MyFirebaseMessagingService"
             android:enabled="true"
@@ -56,8 +59,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-
         <!-- LoginActivity -->
         <activity
             android:name=".LoginActivity"
