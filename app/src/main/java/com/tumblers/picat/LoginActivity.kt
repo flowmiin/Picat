@@ -20,7 +20,6 @@ import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.talk.TalkApiClient
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.dataclass.SimpleResponseData
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

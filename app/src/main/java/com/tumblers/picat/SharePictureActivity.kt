@@ -15,6 +15,7 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DCIM
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Display
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -129,6 +130,7 @@ class SharePictureActivity: AppCompatActivity(){
                 mSocket?.emit("join", myKakaoId)
                 mSocket?.on("image", onMessage)
                 mSocket?.on("join", onRoom)
+                mSocket?.on("friends", onFriends)
 
                 // 갤러리에서 사진 선택 후 공유 버튼을 눌러 picat앱에 들어왔을 때
                 if(intent.type == "image/*") {
@@ -310,6 +312,18 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
+        binding.inviteFriendButton.setOnClickListener {
+            val dialog = InviteDialog(this)
+            dialog.setOnOKClickedListener { content ->
+                println("${content}")
+            }
+            var newImageList : ArrayList<Uri> = arrayListOf()
+            for (i in 0..3) {
+                newImageList.add(imageList[i])
+            }
+            dialog.show(newImageList)
+        }
+
         //바텀시트 내 업로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
             // permission 허용 확인
@@ -393,18 +407,15 @@ class SharePictureActivity: AppCompatActivity(){
         super.onResume()
 
         // 자동업로드 설정하고 다른 화면 갔다가 다시 돌아왔을 때
-//        println("저장되었나 : resume ${pref.getLong("myKakaoId", 0)}")
+        // 소켓 연결이 끊어졌을 떄
         // socket 통신 연결
         if(mSocket == null){
-            println("=============")
             mSocket = SocketApplication.get()
             mSocket?.connect()
             mSocket?.emit("join", myKakaoId)
             mSocket?.on("image", onMessage)
             mSocket?.on("join", onRoom)
         }
-
-
     }
 
     fun getFileNameInUrl(imgUrl: String): String{
@@ -615,6 +626,19 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
+    var onFriends = Emitter.Listener { args ->
+        CoroutineScope(Dispatchers.Main).launch {
+            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+            for (i in 0..img_count - 1) {
+                val imgObj = JSONObject(img_list[i].toString()).getString("url")
+                if (!imageList.contains(imgObj.toString().toUri())) {
+                    imageList.add(imgObj.toString().toUri())
+                }
+            }
+            // setRecyclerView()
+        }
+    }
 }
 
 
