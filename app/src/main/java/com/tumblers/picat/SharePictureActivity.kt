@@ -73,15 +73,19 @@ class SharePictureActivity: AppCompatActivity(){
 
     lateinit var pictureAdapter: PictureAdapter
     lateinit var profilePictureAdapter: ProfilePictureAdapter
+    
     var mSocket: Socket? = null
     lateinit var bottomSheetDialog: BottomSheetDialog
-
 
     var profileImageList: ArrayList<Uri> = ArrayList()
     var imageList: ArrayList<Uri> = ArrayList()
     val selectionIdList: HashSet<Int> = hashSetOf()
 
+    // 유저 데이터
     var myKakaoId : Long? = null
+    var myNickname: String? = ""
+    var myPicture: String? = ""
+    var myEmail: String? = ""
 
     //뒤로가기 타이머
     var backKeyPressedTime: Long = 0
@@ -94,12 +98,9 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        // kakao 토큰 정보 보기
-
+        
         // 토큰 정보 확인 후
         // 실패 시 로그인 화면으로 이동
-
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
                 val intent = Intent(this, LoginActivity::class.java)
@@ -107,7 +108,6 @@ class SharePictureActivity: AppCompatActivity(){
                 finish()
             }
             else if (tokenInfo != null) {
-//                Toast.makeText(this, "토큰 정보 보기 성공", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -120,7 +120,14 @@ class SharePictureActivity: AppCompatActivity(){
                 Log.e(TAG, "사용자 정보 요청 실패", error)
             } else if (user != null) {
                 Log.e(TAG, "사용자 정보 요청 성공")
+
                 myKakaoId = user.id
+                myEmail = user.kakaoAccount?.email
+                myPicture = user.kakaoAccount?.profile?.profileImageUrl
+                myNickname = user.kakaoAccount?.profile?.nickname
+
+                profileImageList.add(myPicture.toString().toUri())
+
 
                 // socket 통신 연결
                 mSocket = SocketApplication.get()
@@ -158,50 +165,13 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-        
-
-
-
-
+        // FCM 알림 받기
         MyFirebaseMessagingService().getFirebaseToken()
         FirebaseMessaging.getInstance().token.addOnCompleteListener{ task ->
             if(task.isSuccessful) {
                 println("my token = ${task.result}")
             }
         }
-
-        // switch 버튼 체크 유무 저장
-        pref = getPreferences(Context.MODE_PRIVATE)
-
-        //임시 코드. 추후 기능 생성후 삭제예정
-        val firstFace = binding.faceItemImageview
-        val secFace = binding.faceItemImageview2
-        val thirdFace = binding.faceItemImageview3
-        firstFace.setOnClickListener {
-            firstFace.isSelected = !firstFace.isSelected
-            if(firstFace.isSelected){
-                firstFace.background = this.getDrawable(R.color.picat_blue)
-            }else{
-                firstFace.background = this.getDrawable(R.color.picat_boundary_line_color)
-            }
-        }
-        secFace.setOnClickListener {
-            secFace.isSelected = !secFace.isSelected
-            if(secFace.isSelected){
-                secFace.background = this.getDrawable(R.color.picat_blue)
-            }else{
-                secFace.background = this.getDrawable(R.color.picat_boundary_line_color)
-            }
-        }
-        thirdFace.setOnClickListener {
-            thirdFace.isSelected = !thirdFace.isSelected
-            if(thirdFace.isSelected){
-                thirdFace.background = this.getDrawable(R.color.picat_blue)
-            }else{
-                thirdFace.background = this.getDrawable(R.color.picat_boundary_line_color)
-            }
-        }
-
 
 
         // 액션바 제목 설정
@@ -251,8 +221,12 @@ class SharePictureActivity: AppCompatActivity(){
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+
         binding.pictureRecyclerview.adapter = pictureAdapter
         binding.profileRecyclerview.adapter = profilePictureAdapter
+
+        binding.pictureRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
+
 
 
 
@@ -285,6 +259,7 @@ class SharePictureActivity: AppCompatActivity(){
             binding.autoUploadSwitch.isChecked = true
         }
 
+        // 자동 업로드 스위치 켜기/끄기
         binding.autoUploadSwitch.setOnCheckedChangeListener { p0, isChecked ->
             if (isChecked) {
                 val status = ContextCompat.checkSelfPermission(this, "android.permission.CAMERA")
@@ -310,17 +285,17 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-        binding.inviteFriendButton.setOnClickListener {
-            val dialog = InviteDialog(this)
-            dialog.setOnOKClickedListener { content ->
-                println("${content}")
-            }
-            var newImageList : ArrayList<Uri> = arrayListOf()
-            for (i in 0..3) {
-                newImageList.add(imageList[i])
-            }
-            dialog.show(newImageList)
-        }
+//        binding.inviteFriendButton.setOnClickListener {
+//            val dialog = InviteDialog(this)
+//            dialog.setOnOKClickedListener { content ->
+//                println("${content}")
+//            }
+//            var newImageList : ArrayList<Uri> = arrayListOf()
+//            for (i in 0..3) {
+//                newImageList.add(imageList[i])
+//            }
+//            dialog.show(newImageList)
+//        }
 
         //바텀시트 내 업로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
@@ -557,6 +532,8 @@ class SharePictureActivity: AppCompatActivity(){
         // picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
+
+
     }
 
 

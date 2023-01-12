@@ -37,10 +37,9 @@
                 android:id="@+id/profile_tab"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/picat_light_blue"
                 android:padding="@dimen/picat_layout_padding"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="16dp">
+                tools:layout_editor_absoluteX="0dp">
 
                 <EditText
                     android:id="@+id/room_name_editText"
@@ -57,6 +56,7 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.0" />
+
 
                 <HorizontalScrollView
                     android:id="@+id/profile_horizontal_scrollview"
@@ -112,8 +112,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintLeft_toLeftOf="parent">
-                        </androidx.recyclerview.widget.RecyclerView>
+                            app:layout_constraintLeft_toLeftOf="parent"></androidx.recyclerview.widget.RecyclerView>
 
                         <ImageButton
                             android:id="@+id/profile_item_plus_button"
@@ -132,124 +131,38 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </HorizontalScrollView>
 
-                <Switch
-                    android:id="@+id/auto_upload_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintRight_toRightOf="parent" />
 
-                <Button
-                    android:id="@+id/invite_friend_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="알림 창 오픈"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/below_view_wrapper_layout"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="자동 업로드"
+                app:layout_constraintTop_toTopOf="@+id/auto_upload_switch"
+                app:layout_constraintBottom_toBottomOf="@+id/auto_upload_switch"
+                app:layout_constraintRight_toLeftOf="@+id/auto_upload_switch"/>
+
+            <Switch
+                android:id="@+id/auto_upload_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/profile_tab"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/picture_recyclerview"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"/>
+
+            <!-- 나머지 사진  -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/picture_recyclerview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="@dimen/picat_layout_padding"
-                android:paddingTop="20dp"
-                app:layout_constraintHorizontal_bias="1.0"
+                android:layout_height="wrap_content"
+                app:layout_constrainedHeight="true"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_tab"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/face_sort_tab"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-                    <!--                    app:layout_constraintTop_toBottomOf="@id/automatic_upload_tab">-->
-
-                    <TextView
-                        android:id="@+id/face_sort_textview"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/notosans_bold"
-                        android:includeFontPadding="false"
-                        android:text="인물별 보기"
-                        android:textColor="@color/picat_font_color"
-                        android:textSize="@dimen/picat_text_size_small"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <HorizontalScrollView
-                        android:id="@+id/face_sort_horizontal_scrollview"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/face_sort_textview">
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:clipToPadding="false">
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/face_recyclerview"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintLeft_toLeftOf="parent">
-                            </androidx.recyclerview.widget.RecyclerView>
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-                    </HorizontalScrollView>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <ImageView
-                    android:id="@+id/face_sort_tab_boundary"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@drawable/picat_boundary_line"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/face_sort_tab" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/else_tab"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/face_sort_tab_boundary">
-
-                    <TextView
-                        android:id="@+id/upload_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:fontFamily="@font/notosans_bold"
-                        android:includeFontPadding="false"
-                        android:text="나머지 사진"
-                        android:textColor="@color/picat_font_color"
-                        android:textSize="@dimen/picat_text_size_small"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <!-- 나머지 사진  -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/picture_recyclerview"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        app:layout_constrainedHeight="true"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/upload_text"
-                        android:layout_marginBottom="120dp"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_marginBottom="120dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -267,6 +180,5 @@
         android:layout_margin="@dimen/picat_layout_padding"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 
