@@ -6,8 +6,8 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -20,7 +20,7 @@ class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InviteFriendPictureViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
-        val view: View = inflater.inflate(R.layout.item_picture, parent, false)
+        val view: View = inflater.inflate(R.layout.invite_item_picture, parent, false)
 
         return InviteFriendPictureViewHolder(view)
     }
@@ -29,19 +29,19 @@ class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
     override fun onBindViewHolder(holder: InviteFriendPictureViewHolder, position: Int) {
         Glide.with(mContext)
             .load(imageList[position])
+            .circleCrop()
             .into(holder.imv)
 
         if (mSelected.contains(position)) {
-            holder.isSelectButton.setImageResource(R.drawable.selected_icn)
-            holder.imv.foreground = mContext.getDrawable(R.color.black_overlay)
+            holder.border.background = mContext.getDrawable(R.drawable.check_profile_background)
         }
         else {
-            holder.isSelectButton.setImageResource(R.drawable.unselected_icn)
-            holder.imv.foreground = mContext.getDrawable(R.color.transparent)
+//            holder.isSelectButton.setImageResource(R.drawable.unselected_icn)
+            holder.border.background = mContext.getDrawable(R.drawable.not_check_profile_background)
         }
-        holder.zoomButton.visibility = View.INVISIBLE
+//        holder.zoomButton.visibility = View.INVISIBLE
 
-        holder.isSelectButton.setOnClickListener {
+        holder.imv.setOnClickListener {
             toggleSelection(position)
         }
 
@@ -81,9 +81,10 @@ class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
 
 
     inner class InviteFriendPictureViewHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
-        var imv: ImageView = view.findViewById(R.id.imv)
-        var isSelectButton: ImageButton = view.findViewById(R.id.is_selected_imagebutton)
-        var zoomButton: ImageButton = view.findViewById(R.id.zoom_imagebutton)
+        var imv: ImageView = view.findViewById(R.id.invite_profile_picture)
+        var border: LinearLayout = view.findViewById(R.id.invite_item_linearlayout)
+//        var isSelectButton: ImageButton = view.findViewById(R.id.is_selected_imagebutton)
+//        var zoomButton: ImageButton = view.findViewById(R.id.zoom_imagebutton)
 
         init {
             view.setOnClickListener(this)

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/invite_item_linearlayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:layout_gravity="center"
+    android:background="@drawable/not_check_profile_background"
+    android:layout_margin="10dp">
+
+    <ImageView
+        android:id="@+id/invite_profile_picture"
+        android:scaleType="centerCrop"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:clipToOutline="true"
+        android:clickable="true"/>
+
+</LinearLayout>

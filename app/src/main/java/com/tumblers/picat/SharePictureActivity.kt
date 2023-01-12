@@ -219,7 +219,7 @@ class SharePictureActivity: AppCompatActivity(){
                 orientation = PickerOrientation.AUTO, //default PickerOrientation.AUTO
                 enableSearch = true, //default true
                 enableIndex = true, //default true
-                showMyProfile = true, //default true
+                showMyProfile = false, //default true
                 showFavorite = true, //default true
                 showPickedFriend = null, // default true
                 maxPickableCount = null, // default 30

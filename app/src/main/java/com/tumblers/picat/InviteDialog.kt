@@ -2,6 +2,8 @@ package com.tumblers.picat
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.view.View
 import android.view.Window
@@ -28,6 +30,7 @@ class InviteDialog(private val context : AppCompatActivity) {
 
         dialog.requestWindowFeature((Window.FEATURE_ACTION_BAR)) // 액션 바 제거
         dialog.setContentView(binding.root)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.setCancelable(false) // 다이얼로그으 바깥 화면을 눌렀을 때 다이얼로그가 닫히지 않도록 함
 
         binding.inviteCheckButton.setOnClickListener {
