@@ -1,6 +1,7 @@
 package com.tumblers.picat.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.media.Image
 import android.net.Uri
 import android.os.Build
@@ -16,6 +17,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.tumblers.picat.ImageViewPagerActivity
 import com.tumblers.picat.R
 
 
@@ -52,8 +54,10 @@ class SelectPictureAdapter(
         }
 
         holder.zoomButton.setOnClickListener {
-            //확대하기
-            Toast.makeText(mContext, "확대하기", Toast.LENGTH_SHORT).show()
+            var intent = Intent(mContext, ImageViewPagerActivity::class.java)
+            intent.putExtra("imageList", imageList)
+            intent.putExtra("current", position)
+            mContext.startActivity(intent)
         }
 
         holder.isSelectedButton.setOnClickListener {
@@ -109,9 +113,9 @@ class SelectPictureAdapter(
         mClickListener = itemClickListener
     }
 
-    interface ItemClickListener {
-        fun onItemClick(view: View?, position: Int)
-        fun onItemLongClick(view: View?, position: Int): Boolean
+    interface ItemClickListener : PictureAdapter.ItemClickListener {
+        override fun onItemClick(view: View?, position: Int)
+        override fun onItemLongClick(view: View?, position: Int): Boolean
     }
 
     // ----------------------
