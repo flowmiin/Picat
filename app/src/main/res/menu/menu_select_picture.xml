@@ -5,6 +5,7 @@
 
     <item
         android:id="@+id/complete_button"
+        android:icon="@drawable/complete_icn"
         android:title="완료"
         app:showAsAction="always" />
 

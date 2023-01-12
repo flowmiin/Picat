@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/profile_item_cardview"
+    android:id="@+id/face_recognition_item_cardview"
     android:layout_width="60dp"
     android:layout_height="60dp"
     android:layout_centerVertical="true"
     app:cardCornerRadius="300dp"
-    android:layout_margin="8dp">
+    android:layout_margin="10dp">
 
     <ImageView
-        android:id="@+id/profile_picture"
+        android:id="@+id/face_picture"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="centerCrop"/>
+        android:layout_height="wrap_content" />
 
 </androidx.cardview.widget.CardView>

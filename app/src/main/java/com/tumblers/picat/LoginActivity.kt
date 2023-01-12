@@ -99,8 +99,6 @@ class LoginActivity : AppCompatActivity() {
                         requestData.addProperty("email", user.kakaoAccount?.email)
                         Log.i(TAG, "결과1 $requestData")
 
-                        pref.edit().putLong("myKakaoId", user.id!!).commit()
-
 
                         // 카카오톡 친구 목록 가져오기 (기본)
                         TalkApiClient.instance.friends { friends, error ->
@@ -182,9 +180,6 @@ class LoginActivity : AppCompatActivity() {
                                 requestData.addProperty("picture", user.kakaoAccount?.profile?.profileImageUrl)
                                 requestData.addProperty("email", user.kakaoAccount?.email)
                                 Log.i(TAG, "결과1 $requestData")
-
-                                pref.edit().putLong("myKakaoId", user.id!!).commit()
-                                println("저장되었나 login: ${pref.getLong("myKakaoId", 0)}")
 
 
                                 // 카카오톡 친구 목록 가져오기 (기본)

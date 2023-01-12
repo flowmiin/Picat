@@ -46,13 +46,6 @@ class SelectPictureActivity : AppCompatActivity() {
         binding = ActivityPictureSelectBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        actionbar = binding.toolbar
-        setSupportActionBar(actionbar) //커스텀한 toolbar를 액션바로 사용
-        supportActionBar?.setDisplayShowTitleEnabled(false) //액션바에 표시되는 제목의 표시유무를 설정합니다. false로 해야 custom한 툴바의 이름이 화면에 보이게 됩니다.
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        actionbar.title = "사진 선택"
-
-
         selectionIdList = intent.getSerializableExtra("selectonIdList") as HashSet<Int>
         var myKakaoId = intent.getLongExtra("myKakaoId", 0)
 
@@ -61,6 +54,15 @@ class SelectPictureActivity : AppCompatActivity() {
         mSocket.connect()
         mSocket.emit("join", myKakaoId)
         mSocket.on("join", onJoin)
+
+        actionbar = binding.toolbar
+        setSupportActionBar(actionbar) //커스텀한 toolbar를 액션바로 사용
+        supportActionBar?.setDisplayShowTitleEnabled(false) //액션바에 표시되는 제목의 표시유무를 설정합니다. false로 해야 custom한 툴바의 이름이 화면에 보이게 됩니다.
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//        supportActionBar?.setHomeAsUpIndicator(com.google.android.material.R.drawable.abc_ic_ab_back_material)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.back_icn)
+
+        actionbar.title = "사진 선택"
 
         setRecyclerView()
 
