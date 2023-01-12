@@ -58,18 +58,6 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.0" />
 
-                <ImageButton
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_marginLeft="1dp"
-                    android:background="@color/transparent"
-                    android:padding="1dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/edit_icn"
-                    app:layout_constraintBottom_toBottomOf="@id/room_name_editText"
-                    app:layout_constraintLeft_toRightOf="@+id/room_name_editText"
-                    app:layout_constraintTop_toTopOf="@+id/room_name_editText" />
-
                 <HorizontalScrollView
                     android:id="@+id/profile_horizontal_scrollview"
                     android:layout_width="wrap_content"
@@ -199,77 +187,13 @@
                             android:layout_height="wrap_content"
                             android:clipToPadding="false">
 
-                            <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
-                            <androidx.cardview.widget.CardView
-                                android:id="@+id/face_item_cardview"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
-                                android:layout_centerVertical="true"
-                                android:layout_margin="20dp"
-                                app:cardCornerRadius="300dp"
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/face_recyclerview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintLeft_toLeftOf="parent"
-                                app:layout_constraintTop_toTopOf="parent">
-
-                                <ImageView
-                                    android:id="@+id/face_item_imageview"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@color/picat_boundary_line_color"
-                                    app:srcCompat="@drawable/ic_launcher_foreground" />
-
-                            </androidx.cardview.widget.CardView>
-
-                            <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
-                            <androidx.cardview.widget.CardView
-                                android:id="@+id/face_item_cardview2"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
-                                android:layout_centerVertical="true"
-                                android:layout_margin="20dp"
-                                app:cardCornerRadius="300dp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintLeft_toRightOf="@+id/face_item_cardview"
-                                app:layout_constraintRight_toLeftOf="@id/face_item_cardview3"
-                                app:layout_constraintTop_toTopOf="parent">
-
-                                <ImageView
-                                    android:id="@+id/face_item_imageview2"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@color/picat_boundary_line_color"
-                                    app:srcCompat="@drawable/ic_launcher_foreground" />
-
-                            </androidx.cardview.widget.CardView>
-
-                            <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
-                            <androidx.cardview.widget.CardView
-                                android:id="@+id/face_item_cardview3"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
-                                android:layout_centerVertical="true"
-                                app:cardCornerRadius="300dp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintLeft_toRightOf="@+id/face_item_cardview2"
-                                app:layout_constraintRight_toRightOf="parent"
-                                app:layout_constraintTop_toTopOf="parent">
-
-                                <ImageView
-                                    android:id="@+id/face_item_imageview3"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@color/picat_boundary_line_color"
-                                    app:srcCompat="@drawable/ic_launcher_foreground" />
-
-                            </androidx.cardview.widget.CardView>
-
-                            <!--                        <androidx.recyclerview.widget.RecyclerView-->
-                            <!--                            android:id="@+id/profile_recyclerview"-->
-                            <!--                            android:layout_width="wrap_content"-->
-                            <!--                            android:layout_height="wrap_content"-->
-                            <!--                            app:layout_constraintBottom_toBottomOf="parent"-->
-                            <!--                            app:layout_constraintLeft_toLeftOf="parent">-->
-                            <!--                        </androidx.recyclerview.widget.RecyclerView>-->
+                                app:layout_constraintLeft_toLeftOf="parent">
+                            </androidx.recyclerview.widget.RecyclerView>
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </HorizontalScrollView>
