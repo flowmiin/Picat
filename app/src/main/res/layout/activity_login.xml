@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:padding="@dimen/picat_layout_padding"
-    android:background="@drawable/login_background_small">
+    android:background="@drawable/login_background2">
 
 
 

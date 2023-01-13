@@ -127,6 +127,7 @@ class SharePictureActivity: AppCompatActivity(){
                 myNickname = user.kakaoAccount?.profile?.nickname
 
                 profileImageList.add(myPicture.toString().toUri())
+                setProfileRecyclerview()
 
 
                 // socket 통신 연결
@@ -223,7 +224,6 @@ class SharePictureActivity: AppCompatActivity(){
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
 
         binding.pictureRecyclerview.adapter = pictureAdapter
-        binding.profileRecyclerview.adapter = profilePictureAdapter
 
         binding.pictureRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
 
@@ -499,6 +499,7 @@ class SharePictureActivity: AppCompatActivity(){
             override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
+                    println("이미지 response ${response.body()}")
                     val jsonArray = JSONArray()
 
                     for (i in 0..response.body()?.img_cnt!! - 1) {
