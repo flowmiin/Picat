@@ -124,7 +124,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     // Click Listener
     // ----------------------
 
-    fun setClickListener(itemClickListener: SelectPictureAdapter.ItemClickListener) {
+    fun setClickListener(itemClickListener: ItemClickListener) {
         mClickListener = itemClickListener
     }
 

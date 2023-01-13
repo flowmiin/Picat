@@ -15,11 +15,9 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DCIM
 import android.provider.MediaStore
 import android.util.Log
-import android.view.Display
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -78,6 +76,8 @@ class SharePictureActivity: AppCompatActivity(){
     lateinit var bottomSheetDialog: BottomSheetDialog
 
     var profileImageList: ArrayList<Uri> = ArrayList()
+    var profileKakaoIdList: ArrayList<Long?> = ArrayList()
+
     var imageList: ArrayList<Uri> = ArrayList()
     val selectionIdList: HashSet<Int> = hashSetOf()
 
@@ -127,6 +127,7 @@ class SharePictureActivity: AppCompatActivity(){
                 myNickname = user.kakaoAccount?.profile?.nickname
 
                 profileImageList.add(myPicture.toString().toUri())
+                profileKakaoIdList.add(myKakaoId)
                 setProfileRecyclerview()
 
 
@@ -208,6 +209,7 @@ class SharePictureActivity: AppCompatActivity(){
                     val friend_count = selectedUsers?.totalCount
                     for (i in 0..friend_count!! - 1) {
                         profileImageList.add(selectedUsers?.users?.get(i)?.profileThumbnailImage.toString().toUri())
+                        profileKakaoIdList.add(selectedUsers?.users?.get(i)?.id)
                     }
                     // 친구 프로필을 화면에 띄우기
                     setProfileRecyclerview()
@@ -217,7 +219,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
-        profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
+        profilePictureAdapter = ProfilePictureAdapter(profileImageList, profileKakaoIdList, selectionIdList, this)
 
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
@@ -285,17 +287,6 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-//        binding.inviteFriendButton.setOnClickListener {
-//            val dialog = InviteDialog(this)
-//            dialog.setOnOKClickedListener { content ->
-//                println("${content}")
-//            }
-//            var newImageList : ArrayList<Uri> = arrayListOf()
-//            for (i in 0..3) {
-//                newImageList.add(imageList[i])
-//            }
-//            dialog.show(newImageList)
-//        }
 
         //바텀시트 내 업로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
@@ -525,7 +516,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     private fun setProfileRecyclerview(){
         // profile picture recyclerview 설정
-        profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
+        profilePictureAdapter = ProfilePictureAdapter(profileImageList, profileKakaoIdList, selectionIdList, this)
         binding.profileRecyclerview.adapter = profilePictureAdapter
     }
 
