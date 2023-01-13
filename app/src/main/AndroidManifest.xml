@@ -23,13 +23,22 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".SelectByPeopleActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ImageViewPagerActivity"
             android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
 
             <meta-data
                 android:name="android.app.lib_name"
@@ -40,7 +49,6 @@
             android:exported="true"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Picat.NoActionBar">
-
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -50,7 +58,7 @@
             android:name=".service.ForegroundService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="location|camera"></service>
+            android:foregroundServiceType="location|camera" />
         <service
             android:name=".service.MyFirebaseMessagingService"
             android:enabled="true"
@@ -58,8 +66,7 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
-        <!-- LoginActivity -->
+        </service> <!-- LoginActivity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">

@@ -2,64 +2,68 @@ package com.tumblers.picat
 
 import android.content.Intent
 import android.net.Uri
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.Toast
-import android.widget.Toolbar
-import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
-import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor.ISelectionHandler
-import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.SelectPictureAdapter
 import com.tumblers.picat.databinding.ActivityPictureSelectBinding
-import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.service.ForegroundService
+import com.tumblers.picat.dataclass.ImageData
+import com.tumblers.picat.dataclass.RequestInterface
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import org.json.JSONArray
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-class SelectPictureActivity : AppCompatActivity() {
+class SelectByPeopleActivity : AppCompatActivity() {
 
-    var imageList: ArrayList<Uri> = ArrayList()
+    var indexList: ArrayList<Int> = arrayListOf()
+
+    var imageList: ArrayList<Uri> = arrayListOf()
+    var thisImageList: ArrayList<Uri> = arrayListOf()
     lateinit var selectionIdList: HashSet<Int>
+    lateinit var thisSelectionIdList: HashSet<Int>
+
+
     private var mMode = DragSelectionProcessor.Mode.ToggleAndUndo
     private lateinit var mDragSelectTouchListener: DragSelectTouchListener
     private lateinit var mAdapter: SelectPictureAdapter
     private lateinit var mDragSelectionProcessor: DragSelectionProcessor
+
     lateinit var actionbar: androidx.appcompat.widget.Toolbar
     lateinit var binding: ActivityPictureSelectBinding
-    var myKakaoId: Long = 0
-    var selectedFriendId: Long = 0
 
+    var selectedFriendId: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityPictureSelectBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_select_by_people)
 
-
-        if (intent.hasExtra("myKakaoId")){
-            myKakaoId = intent.getLongExtra("myKakaoId", 0)
+        if (intent.hasExtra("selectedFriendId")){
+            selectedFriendId = intent.getLongExtra("selectedFriendId", 0)
         }
         if (intent.hasExtra("selectonIdList")){
             selectionIdList = intent.getSerializableExtra("selectonIdList") as HashSet<Int>
         }
+        if (intent.hasExtra("imageList")){
+            imageList = intent.getParcelableArrayListExtra<Uri>("imageList") as ArrayList<Uri>
+        }
 
-        // socket 통신 연결
-        var mSocket = SocketApplication.get()
-        mSocket.connect()
-        mSocket.emit("join", myKakaoId)
-        mSocket.on("join", onJoin)
+        // api 호출
+        apiRequest(selectedFriendId)
 
         actionbar = binding.toolbar
         setSupportActionBar(actionbar)
@@ -70,9 +74,40 @@ class SelectPictureActivity : AppCompatActivity() {
         actionbar.title = "사진 선택"
 
         setRecyclerView()
-
     }
 
+    private fun apiRequest(selectedFriendId: Long) {
+        // retrofit 객체 생성
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl(getString(R.string.picat_server))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        // APIInterface 객체 생성
+        var server: RequestInterface = retrofit.create(RequestInterface::class.java)
+        server.postSelectedFriend(selectedFriendId).enqueue(object :
+            Callback<ImageData> {
+
+            override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
+                println("인물별 필터 req ${response.isSuccessful}")
+                if (response.isSuccessful){
+                    println("인물별 필터 res ${response.body()}")
+                    // response 받아서 indexList 만들기
+                    for (i in response.body()?.url!!){
+                        indexList.add(imageList.indexOf(i.toUri()))
+                        thisImageList.add(i.toUri())
+                        thisSelectionIdList.add(imageList.indexOf(i.toUri()))
+                    }
+
+                    setRecyclerView()
+                }
+            }
+
+            override fun onFailure(call: Call<ImageData>, t: Throwable) {
+                println("이미지 업로드 실패")
+            }
+        })
+    }
 
     // ---------------------
     // Selection Listener
@@ -81,29 +116,16 @@ class SelectPictureActivity : AppCompatActivity() {
         mDragSelectionProcessor.withMode(mMode)
     }
 
-    var onJoin = Emitter.Listener { args->
-        CoroutineScope(Dispatchers.Main).launch {
-            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-            for (i in 0..img_count - 1) {
-                val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                imageList.add(imgObj.toString().toUri())
-            }
-
-            setRecyclerView()
-        }
-    }
-
     private fun setRecyclerView(){
         var gridLayoutManager = GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false)
         binding.testRecyclerview.layoutManager = gridLayoutManager
-        mAdapter = SelectPictureAdapter(this, imageList.size, selectionIdList, imageList)
+        mAdapter = SelectPictureAdapter(this, indexList.size, selectionIdList, thisImageList)
         binding.testRecyclerview.adapter = mAdapter
 
         mAdapter.setClickListener(object : SelectPictureAdapter.ItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 mAdapter.toggleSelection(position)
-                actionbar.title = "${mAdapter.getCountSelected()} / ${imageList.size} "
+                actionbar.title = "${mAdapter.getCountSelected()} / ${indexList.size} "
 
             }
 
@@ -114,7 +136,8 @@ class SelectPictureActivity : AppCompatActivity() {
 
         })
 
-        mDragSelectionProcessor = DragSelectionProcessor(object : ISelectionHandler {
+        mDragSelectionProcessor = DragSelectionProcessor(object :
+            DragSelectionProcessor.ISelectionHandler {
             override fun getSelection(): HashSet<Int> {
                 return mAdapter.mSelected
             }
@@ -130,7 +153,7 @@ class SelectPictureActivity : AppCompatActivity() {
                 calledFromOnStart: Boolean
             ) {
                 mAdapter.selectRange(start, end, isSelected)
-                actionbar.title = "${mAdapter.getCountSelected()} / ${imageList.size} "
+                actionbar.title = "${mAdapter.getCountSelected()} / ${indexList.size} "
             }
 
         }).withMode(mMode)
