@@ -26,4 +26,9 @@ interface RequestInterface {
         @Field ("friends") friendList: ArrayList<Long>,
         @Field ("id")myKakaoId: Long
     ) :Call<SimpleResponseData>
+
+    @POST("app/users/kakao/")
+    fun postSelectedFriend(
+        @Field ("id") id: Long
+    ) : Call<ImageData>
 }
