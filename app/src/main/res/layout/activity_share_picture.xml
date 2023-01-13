@@ -37,20 +37,29 @@
                 android:id="@+id/profile_tab"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/picat_layout_padding"
+                android:paddingHorizontal="30dp"
+                android:paddingVertical="50dp"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="0dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/picat_text_size_large"
+                    android:src="@drawable/cat_paw_icn"
+                    app:layout_constraintTop_toTopOf="@id/room_name_editText"
+                    app:layout_constraintBottom_toBottomOf="@id/room_name_editText"
+                    app:layout_constraintRight_toLeftOf="@id/room_name_editText"/>
 
                 <EditText
                     android:id="@+id/room_name_editText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/notosans_bold"
-                    android:gravity="center"
-                    android:hint="앨범 이름을 입력하세요"
+                    android:fontFamily="@font/notosans_regular"
+                    android:hint="앨범 이름"
                     android:includeFontPadding="false"
                     android:textColor="@color/picat_font_color"
-                    android:textSize="@dimen/picat_text_size_medium"
+                    android:textSize="@dimen/picat_text_size_large"
+                    android:background="@null"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
@@ -62,8 +71,8 @@
                     android:id="@+id/profile_horizontal_scrollview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    app:layout_constraintHorizontal_bias="0.498"
+                    android:layout_marginTop="40dp"
+                    app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/room_name_editText">
@@ -73,39 +82,6 @@
                         android:layout_height="wrap_content"
                         android:clipToPadding="false">
 
-                        <!-- 임시로 넣어놓은 CardView. 발표 후 삭제-->
-                        <!--                        <androidx.cardview.widget.CardView-->
-                        <!--                            android:id="@+id/profile_item_cardview"-->
-                        <!--                            android:layout_width="50dp"-->
-                        <!--                            android:layout_height="50dp"-->
-                        <!--                            android:layout_centerVertical="true"-->
-                        <!--                            android:layout_marginRight="40dp"-->
-                        <!--                            app:cardCornerRadius="300dp"-->
-                        <!--                            app:layout_constraintLeft_toLeftOf="parent"-->
-                        <!--                            app:layout_constraintTop_toTopOf="parent">-->
-
-                        <!--                            <ImageView-->
-                        <!--                                android:id="@+id/profile_item_imageview"-->
-                        <!--                                android:layout_width="wrap_content"-->
-                        <!--                                android:layout_height="wrap_content"-->
-                        <!--                                android:background="@color/picat_boundary_line_color"-->
-                        <!--                                app:srcCompat="@drawable/ic_launcher_foreground" />-->
-
-                        <!--                        </androidx.cardview.widget.CardView>-->
-
-                        <!--                        <ImageButton-->
-                        <!--                            android:id="@+id/profile_item_plus_button"-->
-                        <!--                            android:layout_width="20dp"-->
-                        <!--                            android:layout_height="20dp"-->
-                        <!--                            android:layout_marginLeft="10dp"-->
-                        <!--                            android:background="@drawable/round_button_shape_blue"-->
-                        <!--                            android:padding="5dp"-->
-                        <!--                            android:scaleType="fitCenter"-->
-                        <!--                            android:src="@drawable/plus_fab"-->
-                        <!--                            app:layout_constraintBottom_toBottomOf="parent"-->
-                        <!--                            app:layout_constraintLeft_toRightOf="@id/profile_item_cardview"-->
-                        <!--                            app:layout_constraintRight_toRightOf="parent"-->
-                        <!--                            app:layout_constraintTop_toTopOf="parent" />-->
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/profile_recyclerview"
@@ -119,7 +95,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginLeft="10dp"
-                            android:background="@drawable/round_button_shape_blue"
+                            android:background="@drawable/round_button_shape_light_blue"
                             android:padding="5dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/plus_fab"
@@ -138,6 +114,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="자동 업로드"
+                android:layout_marginRight="4dp"
                 app:layout_constraintTop_toTopOf="@+id/auto_upload_switch"
                 app:layout_constraintBottom_toBottomOf="@+id/auto_upload_switch"
                 app:layout_constraintRight_toLeftOf="@+id/auto_upload_switch"/>
@@ -149,9 +126,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/profile_tab"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/picture_recyclerview"
-                android:layout_marginTop="30dp"
                 android:layout_marginBottom="10dp"
-                android:layout_marginLeft="10dp"/>
+                android:layout_marginRight="10dp"/>
 
             <!-- 나머지 사진  -->
             <androidx.recyclerview.widget.RecyclerView
@@ -180,5 +156,4 @@
         android:layout_margin="@dimen/picat_layout_padding"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 
