@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.view.View
 import android.view.Window
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,20 +26,25 @@ class InviteDialog(private val context : AppCompatActivity) {
 
     var selectionIdList: HashSet<Int> = hashSetOf()
 
-    fun show(imageList : ArrayList<Uri>) {
+    fun show(imageList : ArrayList<Uri>, nameList: ArrayList<String>) {
         binding = FriendInviteDialogBinding.inflate(context.layoutInflater)
 
         dialog.requestWindowFeature((Window.FEATURE_ACTION_BAR)) // 액션 바 제거
         dialog.setContentView(binding.root)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.attributes?.width = WindowManager.LayoutParams.MATCH_PARENT
+        dialog.window?.attributes?.height = WindowManager.LayoutParams.WRAP_CONTENT
         dialog.setCancelable(false) // 다이얼로그으 바깥 화면을 눌렀을 때 다이얼로그가 닫히지 않도록 함
 
         binding.inviteCheckButton.setOnClickListener {
             listener.onClicked(inviteFriendPictureAdapter.mSelected)
             dialog.dismiss()
         }
+        binding.cancelCheckButton.setOnClickListener{
+            dialog.dismiss()
+        }
 
-        inviteFriendPictureAdapter = InviteFriendPictureAdapter(imageList, context, selectionIdList)
+        inviteFriendPictureAdapter = InviteFriendPictureAdapter(imageList, nameList, context, selectionIdList)
         binding.inviteRecyclerview.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         binding.inviteRecyclerview.adapter = inviteFriendPictureAdapter
 
