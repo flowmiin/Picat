@@ -15,11 +15,9 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DCIM
 import android.provider.MediaStore
 import android.util.Log
-import android.view.Display
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -35,7 +33,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
@@ -45,8 +42,8 @@ import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.RequestInterface
+import com.tumblers.picat.dataclass.SimpleResponseData
 import com.tumblers.picat.fragment.DownloadCompleteFragment
-import com.tumblers.picat.service.MyFirebaseMessagingService
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -135,7 +132,6 @@ class SharePictureActivity: AppCompatActivity(){
                 mSocket?.emit("join", myKakaoId)
                 mSocket?.on("image", onMessage)
                 mSocket?.on("join", onRoom)
-                mSocket?.on("friends", onFriends)
 
                 // 갤러리에서 사진 선택 후 공유 버튼을 눌러 picat앱에 들어왔을 때
                 if(intent.type == "image/*") {
@@ -166,12 +162,12 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         // FCM 알림 받기
-        MyFirebaseMessagingService().getFirebaseToken()
-        FirebaseMessaging.getInstance().token.addOnCompleteListener{ task ->
-            if(task.isSuccessful) {
-                println("my token = ${task.result}")
-            }
-        }
+//        MyFirebaseMessagingService().getFirebaseToken()
+//        FirebaseMessaging.getInstance().token.addOnCompleteListener{ task ->
+//            if(task.isSuccessful) {
+//                println("my token2 = ${task.result}")
+//            }
+//        }
 
 
         // 액션바 제목 설정
@@ -285,17 +281,6 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-//        binding.inviteFriendButton.setOnClickListener {
-//            val dialog = InviteDialog(this)
-//            dialog.setOnOKClickedListener { content ->
-//                println("${content}")
-//            }
-//            var newImageList : ArrayList<Uri> = arrayListOf()
-//            for (i in 0..3) {
-//                newImageList.add(imageList[i])
-//            }
-//            dialog.show(newImageList)
-//        }
 
         //바텀시트 내 업로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_upload_button).setOnClickListener {
@@ -453,8 +438,14 @@ class SharePictureActivity: AppCompatActivity(){
                     var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                     var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                     emitBody?.add(body)
+                    if (index % 20 == 0) {
+                        apiRequest(emitBody, 20)
+                        emitBody?.clear()
+                    }
                 }
-                apiRequest(emitBody, count)
+                if(emitBody?.size!! > 0) {
+                    apiRequest(emitBody, count)
+                }
             }
         }
         else if (it.resultCode == 1){
@@ -505,6 +496,20 @@ class SharePictureActivity: AppCompatActivity(){
                         val jsonObject = JSONObject()
                         jsonObject.put("url", response.body()?.url?.toList()?.get(i))
                         jsonArray.put(jsonObject)
+                    }
+
+                    var friendJSON = JSONArray(response.body()?.friends.toString())
+                    println("친구 수 : ${friendJSON.length()}")
+                    var nameList : ArrayList<String> = arrayListOf()
+                    var idList : ArrayList<Long> = arrayListOf()
+                    var profileList : ArrayList<Uri> = arrayListOf()
+                    for (i in 0..friendJSON.length() - 1) {
+                        nameList.add(friendJSON.getJSONObject(i).getString("nickname"))
+                        idList.add(friendJSON.getJSONObject(i).getLong("id"))
+                        profileList.add(friendJSON.getJSONObject(i).getString("picture").toUri())
+                    }
+                    if (friendJSON.length() > 0) {
+                        openInviteDialog(profileList, idList, nameList)
                     }
 
                     val jsonObject = JSONObject()
@@ -601,19 +606,45 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
-    var onFriends = Emitter.Listener { args ->
-        CoroutineScope(Dispatchers.Main).launch {
-            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-            for (i in 0..img_count - 1) {
-                val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                if (!imageList.contains(imgObj.toString().toUri())) {
-                    imageList.add(imgObj.toString().toUri())
+
+    fun openInviteDialog(inviteImageList : ArrayList<Uri>, idList : ArrayList<Long>, nameList : ArrayList<String>) {
+        val dialog = InviteDialog(this)
+        dialog.setOnOKClickedListener { content ->
+            println("${content}")
+            if(content != null) {
+                var sendFriendId : ArrayList<Long> = arrayListOf()
+                for (i in content) {
+                    sendFriendId.add(idList[i])
+                }
+                println("${sendFriendId}")
+                inviteRequest(sendFriendId)
+            }
+        }
+        dialog.show(inviteImageList, nameList)
+    }
+
+    private fun inviteRequest(friendsId: ArrayList<Long>) {
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl(getString(R.string.picat_server))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        // APIInterface 객체 생성
+        var server: RequestInterface = retrofit.create(RequestInterface::class.java)
+        server.postFriends(friendsId!!, myKakaoId!!).enqueue(object : Callback<SimpleResponseData> {
+
+            override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
+                if (response.body()?.isSuccess!!) {
+                    println("친구 초대 성공")
                 }
             }
-            // setRecyclerView()
-        }
+
+            override fun onFailure(call: Call<SimpleResponseData>, t: Throwable) {
+                println("친구 초대 실패")
+            }
+        })
     }
+
 }
 
 
