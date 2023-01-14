@@ -13,6 +13,7 @@ import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
 import com.tumblers.picat.adapter.SelectPictureAdapter
 import com.tumblers.picat.databinding.ActivityPictureSelectBinding
+import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.ImageResponseData
 import com.tumblers.picat.dataclass.RequestInterface
 import org.json.JSONObject
@@ -27,7 +28,7 @@ class SelectByPeopleActivity : AppCompatActivity() {
     var indexList: ArrayList<Int> = arrayListOf()
 
     var imageList: ArrayList<Uri> = arrayListOf()
-    var thisImageList: ArrayList<Uri> = arrayListOf()
+    var thisImageList: ArrayList<ImageData> = arrayListOf()
     lateinit var selectionIdList: HashSet<Int>
     lateinit var thisSelectionIdList: HashSet<Int>
 
@@ -88,9 +89,9 @@ class SelectByPeopleActivity : AppCompatActivity() {
                     println("인물별 필터 res ${response.body()}")
                     // response 받아서 indexList 만들기
                     for (i in response.body()?.url!!){
-                        indexList.add(imageList.indexOf(i.toUri()))
-                        thisImageList.add(i.toUri())
-                        thisSelectionIdList.add(imageList.indexOf(i.toUri()))
+//                        indexList.add(imageList.indexOf(i.toUri()))
+//                        thisImageList.add(i.toUri())
+//                        thisSelectionIdList.add(imageList.indexOf(i.toUri()))
                     }
 
                     setRecyclerView()

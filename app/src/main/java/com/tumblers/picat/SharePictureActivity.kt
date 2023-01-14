@@ -78,7 +78,7 @@ class SharePictureActivity: AppCompatActivity(){
     var profileImageList: ArrayList<Uri> = ArrayList()
     var profileKakaoIdList: ArrayList<Long?> = ArrayList()
 
-    var imageList: ArrayList<Uri> = ArrayList()
+//    var imageList: ArrayList<Uri> = ArrayList()
     var imageDataList: ArrayList<ImageData> = ArrayList()
     val selectionIdList: HashSet<Int> = hashSetOf()
 
