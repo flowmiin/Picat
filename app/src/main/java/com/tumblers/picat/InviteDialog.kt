@@ -35,8 +35,6 @@ class InviteDialog(private val context : AppCompatActivity) {
         dialog.requestWindowFeature((Window.FEATURE_ACTION_BAR)) // 액션 바 제거
         dialog.setContentView(binding.root)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.attributes?.width = WindowManager.LayoutParams.MATCH_PARENT
-        dialog.window?.attributes?.height = WindowManager.LayoutParams.WRAP_CONTENT
         dialog.setCancelable(false) // 다이얼로그으 바깥 화면을 눌렀을 때 다이얼로그가 닫히지 않도록 함
 
         binding.inviteCheckButton.setOnClickListener {
