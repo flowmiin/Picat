@@ -40,10 +40,7 @@ import com.kakao.sdk.friend.model.ViewAppearance
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.dataclass.ImageData
-import com.tumblers.picat.dataclass.ImageResponseData
-import com.tumblers.picat.dataclass.RequestInterface
-import com.tumblers.picat.dataclass.SimpleResponseData
+import com.tumblers.picat.dataclass.*
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
@@ -78,7 +75,7 @@ class SharePictureActivity: AppCompatActivity(){
     var profileImageList: ArrayList<Uri> = ArrayList()
     var profileKakaoIdList: ArrayList<Long?> = ArrayList()
 
-//    var imageList: ArrayList<Uri> = ArrayList()
+    var joinFriendList: ArrayList<FriendData> = ArrayList()
     var imageDataList: ArrayList<ImageData> = ArrayList()
     val selectionIdList: HashSet<Int> = hashSetOf()
 
@@ -219,7 +216,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
-        profilePictureAdapter = ProfilePictureAdapter(profileImageList, profileKakaoIdList, selectionIdList, this)
+        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
 
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
@@ -506,16 +503,19 @@ class SharePictureActivity: AppCompatActivity(){
 
                     var friendJSON = JSONArray(response.body()?.friends.toString())
                     println("친구 수 : ${friendJSON.length()}")
-                    var nameList : ArrayList<String> = arrayListOf()
-                    var idList : ArrayList<Long> = arrayListOf()
-                    var profileList : ArrayList<Uri> = arrayListOf()
+
+                    var friendDataList : ArrayList<FriendData> = ArrayList()
+
                     for (i in 0..friendJSON.length() - 1) {
-                        nameList.add(friendJSON.getJSONObject(i).getString("nickname"))
-                        idList.add(friendJSON.getJSONObject(i).getLong("id"))
-                        profileList.add(friendJSON.getJSONObject(i).getString("picture").toUri())
+                        var nickName = (friendJSON.getJSONObject(i).getString("nickname"))
+                        var id = (friendJSON.getJSONObject(i).getLong("id"))
+                        var imgObj = (friendJSON.getJSONObject(i).getString("picture").toUri())
+                        var imgData = ImageData(i, imgObj)
+                        var friendData = FriendData(id, imgData, nickName)
+                        friendDataList.add(friendData)
                     }
                     if (friendJSON.length() > 0) {
-                        openInviteDialog(profileList, idList, nameList)
+                        openInviteDialog(friendDataList)
                     }
 
                     val jsonObject = JSONObject()
@@ -535,7 +535,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     private fun setProfileRecyclerview(){
         // profile picture recyclerview 설정
-        profilePictureAdapter = ProfilePictureAdapter(profileImageList, profileKakaoIdList, selectionIdList, this)
+        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
         binding.profileRecyclerview.adapter = profilePictureAdapter
     }
 
@@ -618,21 +618,19 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
 
-    fun openInviteDialog(inviteImageList : ArrayList<Uri>, idList : ArrayList<Long>, nameList : ArrayList<String>) {
+    fun openInviteDialog(friendDataList : ArrayList<FriendData>) {
         val dialog = InviteDialog(this)
         dialog.setOnOKClickedListener { content ->
-            println("${content}")
             if(content != null) {
                 var sendFriendId : ArrayList<Long> = arrayListOf()
                 for (i in content) {
-                    sendFriendId.add(idList[i])
+                    sendFriendId.add(friendDataList[i].id!!)
                 }
                 println("${sendFriendId}")
                 inviteRequest(sendFriendId)
-
             }
         }
-        dialog.show(inviteImageList, nameList)
+        dialog.show(friendDataList)
     }
 
     private fun inviteRequest(friendsId: ArrayList<Long>) {
