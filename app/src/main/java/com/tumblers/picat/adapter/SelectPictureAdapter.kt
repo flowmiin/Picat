@@ -26,14 +26,10 @@ class SelectPictureAdapter(
     private val mContext: Context,
     private val mDataSize: Int,
     var mSelected: HashSet<Int>,
-    var imageList: ArrayList<Uri>
+    var imageList: ArrayList<ImageData>
 ) :
     RecyclerView.Adapter<SelectPictureAdapter.TestViewHolder>() {
     private var mClickListener: ItemClickListener? = null
-
-//    init {
-//        mSelected = HashSet()
-//    }
 
     override fun onCreateViewHolder(parent: ViewGroup,viewType: Int): TestViewHolder {
         val view: View = LayoutInflater.from(mContext).inflate(R.layout.item_picture, parent, false)
@@ -43,7 +39,7 @@ class SelectPictureAdapter(
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: TestViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position])
+            .load(imageList[position].uri)
             .into(holder.imv)
 
         if (mSelected.contains(position)) {
