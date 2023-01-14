@@ -511,6 +511,7 @@ class SharePictureActivity: AppCompatActivity(){
                         var imgData = ImageData(i, imgObj.toString())
                         var friendData = FriendData(id, imgData, nickName)
                         friendDataList.add(friendData)
+                        friendDataList.distinct()
                     }
                     if (friendJSON.length() > 0) {
                         openInviteDialog(friendDataList)
@@ -636,8 +637,10 @@ class SharePictureActivity: AppCompatActivity(){
                 for (i in content) {
                     sendFriendId.add(friendDataList[i].id!!)
                 }
-                println("${sendFriendId}")
-                inviteRequest(sendFriendId)
+                if (sendFriendId.isNotEmpty()){
+                    println("${sendFriendId}")
+                    inviteRequest(sendFriendId)
+                }
             }
         }
         dialog.show(friendDataList)
