@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tumblers.picat.adapter.InviteFriendPictureAdapter
 import com.tumblers.picat.databinding.FriendInviteDialogBinding
+import com.tumblers.picat.dataclass.ImageData
 import kotlinx.coroutines.selects.select
 
 class InviteDialog(private val context : AppCompatActivity) {
@@ -25,7 +26,7 @@ class InviteDialog(private val context : AppCompatActivity) {
 
     var selectionIdList: HashSet<Int> = hashSetOf()
 
-    fun show(imageList : ArrayList<Uri>) {
+    fun show(imageList : ArrayList<ImageData>) {
         binding = FriendInviteDialogBinding.inflate(context.layoutInflater)
 
         dialog.requestWindowFeature((Window.FEATURE_ACTION_BAR)) // 액션 바 제거

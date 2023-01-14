@@ -42,6 +42,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.dataclass.ImageData
+import com.tumblers.picat.dataclass.ImageResponseData
 import com.tumblers.picat.dataclass.RequestInterface
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.service.MyFirebaseMessagingService
@@ -79,6 +80,7 @@ class SharePictureActivity: AppCompatActivity(){
     var profileKakaoIdList: ArrayList<Long?> = ArrayList()
 
     var imageList: ArrayList<Uri> = ArrayList()
+    var imageDataList: ArrayList<ImageData> = ArrayList()
     val selectionIdList: HashSet<Int> = hashSetOf()
 
     // 유저 데이터
@@ -218,7 +220,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         //Adapter 초기화
-        pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
+        pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
         profilePictureAdapter = ProfilePictureAdapter(profileImageList, profileKakaoIdList, selectionIdList, this)
 
         //recyclerview 레이아웃 설정
@@ -358,7 +360,7 @@ class SharePictureActivity: AppCompatActivity(){
             val bundle = Bundle()
             bundle.putInt("pictureCount", pictureAdapter.mSelected.size)
             bundle.putString("albumName", binding.roomNameEditText.text.toString())
-            bundle.putString("albumCover", imageList[pictureAdapter.mSelected.first()].toString())
+            bundle.putString("albumCover", imageDataList[pictureAdapter.mSelected.first()].uri.toString())
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction().add(R.id.activity_share_picture_layout, downloadAlbumFragment)
@@ -396,15 +398,14 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         for (pos in selectionIdList){
-            val imgUrl = imageList[pos]
-            println(imgUrl.toString())
-            val fileName = getFileNameInUrl(imgUrl.toString())
+            val imgUrl = imageDataList[pos].uri.toString()
+            val fileName = getFileNameInUrl(imgUrl)
             val localPath = "$savePath/$fileName"
 
             val imgDownloadCoroutine = CoroutineScope(Dispatchers.IO)
             imgDownloadCoroutine.launch {
                 //url로 서버와 접속해서 이미지를 다운받기
-                val conn: HttpURLConnection = URL(imgUrl.toString()).openConnection() as HttpURLConnection
+                val conn: HttpURLConnection = URL(imgUrl).openConnection() as HttpURLConnection
                 val len: Int = conn.contentLength
                 val tmpByte = ByteArray(len)
                 val inputStream : InputStream = conn.inputStream
@@ -485,9 +486,9 @@ class SharePictureActivity: AppCompatActivity(){
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
+        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
 
-            override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
+            override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
                     println("이미지 response ${response.body()}")
@@ -508,7 +509,7 @@ class SharePictureActivity: AppCompatActivity(){
                 }
             }
 
-            override fun onFailure(call: Call<ImageData>, t: Throwable) {
+            override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
                 println("이미지 업로드 실패")
             }
         })
@@ -522,7 +523,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     private fun setRecyclerView(){
         // picture recyclerview 설정
-        pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
+        pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
 
 
@@ -573,7 +574,8 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                imageList.add(imgObj.toString().toUri())
+                val imgData = ImageData(imageDataList.size, imgObj.toString().toUri())
+                imageDataList.add(imgData)
             }
             setRecyclerView()
         }
@@ -585,9 +587,13 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                if (!imageList.contains(imgObj.toString().toUri())){
-                    imageList.add(imgObj.toString().toUri())
-                }
+//                if (!imageList.contains(imgObj.toString().toUri())){
+//                    imageList.add(imgObj.toString().toUri())
+//                }
+                val imgData = ImageData(imageDataList.size, imgObj.toString().toUri())
+                imageDataList.add(imgData)
+                // 데이터 중복 제거
+                imageDataList.distinct()
             }
             setRecyclerView()
         }
@@ -599,9 +605,13 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                if (!imageList.contains(imgObj.toString().toUri())) {
-                    imageList.add(imgObj.toString().toUri())
-                }
+//                if (!imageList.contains(imgObj.toString().toUri())) {
+//                    imageList.add(imgObj.toString().toUri())
+//                }
+                val imgData = ImageData(imageDataList.size, imgObj.toString().toUri())
+                imageDataList.add(imgData)
+                // 데이터 중복 제거
+                imageDataList.distinct()
             }
             // setRecyclerView()
         }

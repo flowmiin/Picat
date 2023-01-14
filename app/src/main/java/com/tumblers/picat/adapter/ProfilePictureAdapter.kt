@@ -13,6 +13,7 @@ import com.tumblers.picat.ImageViewPagerActivity
 import com.tumblers.picat.R
 import com.tumblers.picat.SelectByPeopleActivity
 import com.tumblers.picat.SelectPictureActivity
+import com.tumblers.picat.dataclass.ImageData
 
 class ProfilePictureAdapter(var imageList: ArrayList<Uri>,
                             var kakaoIdList: ArrayList<Long?>,
@@ -38,7 +39,7 @@ class ProfilePictureAdapter(var imageList: ArrayList<Uri>,
         holder.profilePicture.setOnClickListener {
             // 클릭 시 selectPictureActivity로 넘어가며 -> 넘어간 이후 api 호출
             var intent = Intent(context, SelectByPeopleActivity::class.java)
-            intent.putParcelableArrayListExtra("imageList", imageList)
+            intent.putExtra("imageList", imageList)
             intent.putExtra("selectedFriendId", kakaoIdList[position])
             intent.putExtra("selectionIdList", selectionIdList)
             context.startActivity(intent)

@@ -1,10 +1,8 @@
 package com.tumblers.picat.dataclass
 
-
-import com.google.gson.JsonArray
+import android.net.Uri
 
 data class ImageData(
-    val friends: JsonArray?,
-    val url: List<String>,
-    val img_cnt: Int
+    val idx: Int,
+    val uri: Uri
 )

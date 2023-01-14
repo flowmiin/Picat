@@ -12,8 +12,9 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
+import com.tumblers.picat.dataclass.ImageData
 
-class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
+class InviteFriendPictureAdapter (private var imageList: ArrayList<ImageData>,
                                   val mContext: Context,
                                   var mSelected: HashSet<Int>)
     : RecyclerView.Adapter<InviteFriendPictureAdapter.InviteFriendPictureViewHolder>() {
@@ -28,7 +29,7 @@ class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: InviteFriendPictureViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position])
+            .load(imageList[position].uri)
             .circleCrop()
             .into(holder.imv)
 

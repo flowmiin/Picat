@@ -17,7 +17,7 @@ import androidx.core.app.NotificationCompat
 import com.tumblers.picat.R
 import com.tumblers.picat.SharePictureActivity
 import com.tumblers.picat.SocketApplication
-import com.tumblers.picat.dataclass.ImageData
+import com.tumblers.picat.dataclass.ImageResponseData
 import com.tumblers.picat.dataclass.RequestInterface
 import io.socket.client.Socket
 import okhttp3.MediaType
@@ -191,9 +191,9 @@ class ForegroundService : Service() {
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
+        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
 
-            override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
+            override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
                     val jsonArray = JSONArray()
@@ -213,7 +213,7 @@ class ForegroundService : Service() {
                 }
             }
 
-            override fun onFailure(call: Call<ImageData>, t: Throwable) {
+            override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
                 println("이미지 업로드 실패")
             }
         })

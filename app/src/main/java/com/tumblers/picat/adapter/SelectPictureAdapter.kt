@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.ImageViewPagerActivity
 import com.tumblers.picat.R
+import com.tumblers.picat.dataclass.ImageData
 
 
 class SelectPictureAdapter(

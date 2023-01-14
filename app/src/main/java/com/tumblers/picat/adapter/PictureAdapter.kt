@@ -2,19 +2,18 @@ package com.tumblers.picat.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.ImageViewPagerActivity
 import com.tumblers.picat.R
+import com.tumblers.picat.dataclass.ImageData
 
-class PictureAdapter(private var imageList: ArrayList<Uri>,
+class PictureAdapter(private var imageList: ArrayList<ImageData>,
                      val mContext: Context,
                      var mSelected: HashSet<Int>)
     : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
@@ -29,7 +28,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
 
     override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position])
+            .load(imageList[position].uri)
             .into(holder.imv)
         
         holder.itemView.setOnClickListener {

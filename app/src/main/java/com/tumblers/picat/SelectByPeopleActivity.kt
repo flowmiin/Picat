@@ -13,14 +13,8 @@ import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
 import com.tumblers.picat.adapter.SelectPictureAdapter
 import com.tumblers.picat.databinding.ActivityPictureSelectBinding
-import com.tumblers.picat.dataclass.ImageData
+import com.tumblers.picat.dataclass.ImageResponseData
 import com.tumblers.picat.dataclass.RequestInterface
-import io.socket.emitter.Emitter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
-import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -86,9 +80,9 @@ class SelectByPeopleActivity : AppCompatActivity() {
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
         server.postSelectedFriend(selectedFriendId).enqueue(object :
-            Callback<ImageData> {
+            Callback<ImageResponseData> {
 
-            override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
+            override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
                 println("인물별 필터 req ${response.isSuccessful}")
                 if (response.isSuccessful){
                     println("인물별 필터 res ${response.body()}")
@@ -103,7 +97,7 @@ class SelectByPeopleActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<ImageData>, t: Throwable) {
+            override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
                 println("이미지 업로드 실패")
             }
         })
