@@ -25,6 +25,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -32,6 +33,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
@@ -40,6 +42,7 @@ import com.kakao.sdk.friend.model.ViewAppearance
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
+import com.tumblers.picat.databinding.LoadingDialogBinding
 import com.tumblers.picat.dataclass.*
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.service.ForegroundService
@@ -87,6 +90,8 @@ class SharePictureActivity: AppCompatActivity(){
 
     // switch 상태 저장
     lateinit var pref : SharedPreferences
+
+    private lateinit var progressDialog: AppCompatDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -477,9 +482,12 @@ class SharePictureActivity: AppCompatActivity(){
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
 
+        progressOn()
+
+        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
             override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
+                progressOff()
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
                     println("이미지 response ${response.body()}")
@@ -655,6 +663,22 @@ class SharePictureActivity: AppCompatActivity(){
                 println("친구 초대 실패")
             }
         })
+    }
+
+    fun progressOn() {
+        val binding = LoadingDialogBinding.inflate(layoutInflater)
+        progressDialog = AppCompatDialog(this)
+        progressDialog.setCancelable(false)
+        progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        progressDialog.setContentView(binding.root)
+        Glide.with(this).load(R.raw.loading_cat).into(binding.loadingImageview)
+        progressDialog.show()
+    }
+
+    fun progressOff() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss()
+        }
     }
 
 }
