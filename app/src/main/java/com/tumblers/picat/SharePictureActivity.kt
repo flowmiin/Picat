@@ -72,9 +72,6 @@ class SharePictureActivity: AppCompatActivity(){
     var mSocket: Socket? = null
     lateinit var bottomSheetDialog: BottomSheetDialog
 
-    var profileImageList: ArrayList<Uri> = ArrayList()
-    var profileKakaoIdList: ArrayList<Long?> = ArrayList()
-
     var joinFriendList: ArrayList<FriendData> = ArrayList()
     var imageDataList: ArrayList<ImageData> = ArrayList()
     val selectionIdList: HashSet<Int> = hashSetOf()
@@ -124,17 +121,18 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
-                profileImageList.add(myPicture.toString().toUri())
-                profileKakaoIdList.add(myKakaoId)
+                joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
+                joinFriendList.distinct()
                 setProfileRecyclerview()
-
 
                 // socket 통신 연결
                 mSocket = SocketApplication.get()
                 mSocket?.connect()
                 mSocket?.emit("join", myKakaoId)
+                mSocket?.emit("participate", FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
                 mSocket?.on("image", onMessage)
                 mSocket?.on("join", onRoom)
+                mSocket?.on("participate", onParticipate)
 
                 // 갤러리에서 사진 선택 후 공유 버튼을 눌러 picat앱에 들어왔을 때
                 if(intent.type == "image/*") {
@@ -204,12 +202,11 @@ class SharePictureActivity: AppCompatActivity(){
                 } else {
                     Log.d(TAG, "친구 선택 성공 $selectedUsers")
                     val friend_count = selectedUsers?.totalCount
+                    var inviteFriendsId : ArrayList<Long> = arrayListOf()
                     for (i in 0..friend_count!! - 1) {
-                        profileImageList.add(selectedUsers?.users?.get(i)?.profileThumbnailImage.toString().toUri())
-                        profileKakaoIdList.add(selectedUsers?.users?.get(i)?.id)
+                        inviteFriendsId.add(selectedUsers?.users?.get(i)?.id!!)
                     }
-                    // 친구 프로필을 화면에 띄우기
-                    setProfileRecyclerview()
+                    inviteRequest(inviteFriendsId)
                 }
             }
         }
@@ -440,14 +437,8 @@ class SharePictureActivity: AppCompatActivity(){
                     var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                     var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                     emitBody?.add(body)
-                    if (index % 20 == 0) {
-                        apiRequest(emitBody, 20)
-                        emitBody?.clear()
-                    }
                 }
-                if(emitBody?.size!! > 0) {
-                    apiRequest(emitBody, count)
-                }
+                apiRequest(emitBody, count)
             }
         }
         else if (it.resultCode == 1){
@@ -610,6 +601,21 @@ class SharePictureActivity: AppCompatActivity(){
                 imageDataList.distinct()
             }
             setRecyclerView()
+        }
+    }
+
+    var onParticipate = Emitter.Listener { args ->
+        CoroutineScope(Dispatchers.Main).launch {
+            val friend_list = JSONObject(args[0].toString()).getJSONArray("friend_list")
+            var imgData: ImageData
+            for (i in 0..friend_list.length() - 1) {
+                val profile = JSONObject(friend_list[i].toString()).getString("url")
+                val id = JSONObject(friend_list[i].toString()).getLong("id")
+                val nickName = JSONObject(friend_list[i].toString()).getString("name")
+                imgData = ImageData(joinFriendList.size, profile)
+                joinFriendList.add(FriendData(id, imgData, nickName))
+            }
+            setProfileRecyclerview()
         }
     }
 

@@ -27,8 +27,8 @@ interface RequestInterface {
         @Field ("id")myKakaoId: Long
     ) :Call<SimpleResponseData>
 
-    @POST("app/users/kakao/")
+    @GET("filter/")
     fun postSelectedFriend(
-        @Field ("id") id: Long
+        @Query ("id") id: Long
     ) : Call<ImageResponseData>
 }

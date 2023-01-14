@@ -13,6 +13,7 @@ import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
 import com.tumblers.picat.adapter.SelectPictureAdapter
 import com.tumblers.picat.databinding.ActivityPictureSelectBinding
+import com.tumblers.picat.databinding.ActivitySelectByPeopleBinding
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.ImageResponseData
 import com.tumblers.picat.dataclass.RequestInterface
@@ -26,7 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class SelectByPeopleActivity : AppCompatActivity() {
 
     var imageDataList: ArrayList<ImageData> = arrayListOf()
-    lateinit var selectionIdList: HashSet<Int>
+    var selectionIdList: HashSet<Int> = hashSetOf()
     var selectedFriendId: Long = 0
     var selectedFriendImageList: ArrayList<ImageData> = arrayListOf()
 
@@ -40,7 +41,8 @@ class SelectByPeopleActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_select_by_people)
+        binding = ActivityPictureSelectBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // TODO: 여기 데이터 타입 맞는지 잘 확인하기
         if (intent.hasExtra("friendId")){
