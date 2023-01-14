@@ -25,13 +25,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class SelectByPeopleActivity : AppCompatActivity() {
 
-    var indexList: ArrayList<Int> = arrayListOf()
-
-    var imageList: ArrayList<Uri> = arrayListOf()
-    var thisImageList: ArrayList<ImageData> = arrayListOf()
+    var imageDataList: ArrayList<ImageData> = arrayListOf()
     lateinit var selectionIdList: HashSet<Int>
-    lateinit var thisSelectionIdList: HashSet<Int>
-
+    var selectedFriendId: Long = 0
+    var selectedFriendImageList: ArrayList<ImageData> = arrayListOf()
 
     private var mMode = DragSelectionProcessor.Mode.ToggleAndUndo
     private lateinit var mDragSelectTouchListener: DragSelectTouchListener
@@ -41,20 +38,19 @@ class SelectByPeopleActivity : AppCompatActivity() {
     lateinit var actionbar: androidx.appcompat.widget.Toolbar
     lateinit var binding: ActivityPictureSelectBinding
 
-    var selectedFriendId: Long = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_select_by_people)
 
-        if (intent.hasExtra("selectedFriendId")){
-            selectedFriendId = intent.getLongExtra("selectedFriendId", 0)
+        // TODO: 여기 데이터 타입 맞는지 잘 확인하기
+        if (intent.hasExtra("friendId")){
+            selectedFriendId = intent.getLongExtra("friendId", 0)
         }
         if (intent.hasExtra("selectonIdList")){
             selectionIdList = intent.getSerializableExtra("selectonIdList") as HashSet<Int>
         }
-        if (intent.hasExtra("imageList")){
-            imageList = intent.getParcelableArrayListExtra<Uri>("imageList") as ArrayList<Uri>
+        if (intent.hasExtra("imageDataList")){
+            imageDataList = intent.getParcelableArrayListExtra<Uri>("imageDataList") as ArrayList<ImageData>
         }
 
         // api 호출
@@ -87,11 +83,13 @@ class SelectByPeopleActivity : AppCompatActivity() {
                 println("인물별 필터 req ${response.isSuccessful}")
                 if (response.isSuccessful){
                     println("인물별 필터 res ${response.body()}")
-                    // response 받아서 indexList 만들기
-                    for (i in response.body()?.url!!){
-//                        indexList.add(imageList.indexOf(i.toUri()))
-//                        thisImageList.add(i.toUri())
-//                        thisSelectionIdList.add(imageList.indexOf(i.toUri()))
+                    // response 받아서 imageDataList의 객체의 uri값과 비교해서 같은것만 담기
+                    for (imgData in imageDataList){
+                        for ( url in response.body()?.url!!){
+                            if (imgData.uri.equals(url)){
+                                selectedFriendImageList.add(imgData)
+                            }
+                        }
                     }
 
                     setRecyclerView()
@@ -114,13 +112,13 @@ class SelectByPeopleActivity : AppCompatActivity() {
     private fun setRecyclerView(){
         var gridLayoutManager = GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false)
         binding.testRecyclerview.layoutManager = gridLayoutManager
-        mAdapter = SelectPictureAdapter(this, indexList.size, selectionIdList, thisImageList)
+        mAdapter = SelectPictureAdapter(this, selectionIdList, selectedFriendImageList)
         binding.testRecyclerview.adapter = mAdapter
 
         mAdapter.setClickListener(object : SelectPictureAdapter.ItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 mAdapter.toggleSelection(position)
-                actionbar.title = "${mAdapter.getCountSelected()} / ${indexList.size} "
+                actionbar.title = "${mAdapter.getCountSelected()} / ${selectedFriendImageList.size} "
 
             }
 
@@ -148,7 +146,7 @@ class SelectByPeopleActivity : AppCompatActivity() {
                 calledFromOnStart: Boolean
             ) {
                 mAdapter.selectRange(start, end, isSelected)
-                actionbar.title = "${mAdapter.getCountSelected()} / ${indexList.size} "
+                actionbar.title = "${mAdapter.getCountSelected()} / ${selectedFriendImageList.size} "
             }
 
         }).withMode(mMode)

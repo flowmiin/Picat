@@ -2,8 +2,6 @@ package com.tumblers.picat.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.media.Image
-import android.net.Uri
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +9,7 @@ import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.ImageViewPagerActivity
@@ -24,9 +19,8 @@ import com.tumblers.picat.dataclass.ImageData
 
 class SelectPictureAdapter(
     private val mContext: Context,
-    private val mDataSize: Int,
     var mSelected: HashSet<Int>,
-    var imageList: ArrayList<ImageData>
+    var imageDataList: ArrayList<ImageData>
 ) :
     RecyclerView.Adapter<SelectPictureAdapter.TestViewHolder>() {
     private var mClickListener: ItemClickListener? = null
@@ -39,7 +33,7 @@ class SelectPictureAdapter(
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: TestViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position].uri)
+            .load(imageDataList[position].uri)
             .into(holder.imv)
 
         if (mSelected.contains(position)) {
@@ -52,7 +46,7 @@ class SelectPictureAdapter(
 
         holder.zoomButton.setOnClickListener {
             var intent = Intent(mContext, ImageViewPagerActivity::class.java)
-            intent.putExtra("imageList", imageList)
+            intent.putExtra("imageList", imageDataList)
             intent.putExtra("current", position)
             mContext.startActivity(intent)
         }
@@ -63,7 +57,7 @@ class SelectPictureAdapter(
     }
 
     override fun getItemCount(): Int {
-        return mDataSize
+        return imageDataList.size
     }
 
     // ----------------------
@@ -94,7 +88,7 @@ class SelectPictureAdapter(
     }
 
     fun selectAll() {
-        for (i in 0 until mDataSize) mSelected.add(i)
+        for (i in 0 until imageDataList.size) mSelected.add(i)
         notifyDataSetChanged()
     }
 

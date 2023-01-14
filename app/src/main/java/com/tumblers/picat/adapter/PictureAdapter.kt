@@ -16,7 +16,7 @@ import com.tumblers.picat.dataclass.ImageData
 class PictureAdapter(private var imageList: ArrayList<ImageData>,
                      val mContext: Context,
                      var mSelected: HashSet<Int>)
-    : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
+    : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>(){
     private var mClickListener: ItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {

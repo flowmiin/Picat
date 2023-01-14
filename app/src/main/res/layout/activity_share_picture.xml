@@ -56,6 +56,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/notosans_regular"
                     android:hint="앨범 이름"
+                    android:gravity="center"
                     android:includeFontPadding="false"
                     android:textColor="@color/picat_font_color"
                     android:textSize="@dimen/picat_text_size_large"

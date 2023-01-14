@@ -16,7 +16,7 @@ class ImageViewPagerActivity : AppCompatActivity() {
 
         var imageList = ArrayList<ImageData>()
         var current = 0
-        if(intent.getSerializableExtra("imageList") != null){
+        if(intent.hasExtra("imageList") != null){
             imageList = intent.getSerializableExtra("imageList") as ArrayList<ImageData>
             current = intent.getIntExtra("current", 0)
         }

@@ -1,8 +1,8 @@
 package com.tumblers.picat.dataclass
 
-import android.net.Uri
+import java.io.Serializable
 
 data class ImageData(
     val idx: Int,
-    val uri: Uri
-)
+    val uri: String
+): Serializable

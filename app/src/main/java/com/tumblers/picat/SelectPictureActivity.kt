@@ -31,7 +31,6 @@ class SelectPictureActivity : AppCompatActivity() {
     lateinit var actionbar: androidx.appcompat.widget.Toolbar
     lateinit var binding: ActivityPictureSelectBinding
     var myKakaoId: Long = 0
-    var selectedFriendId: Long = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +78,7 @@ class SelectPictureActivity : AppCompatActivity() {
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                val imgData = ImageData(imageDataList.size, imgObj.toString().toUri())
+                val imgData = ImageData(imageDataList.size, imgObj)
                 imageDataList.add(imgData)
                 // 데이터 중복 제거
                 imageDataList.distinct()
@@ -92,7 +91,7 @@ class SelectPictureActivity : AppCompatActivity() {
     private fun setRecyclerView(){
         var gridLayoutManager = GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false)
         binding.testRecyclerview.layoutManager = gridLayoutManager
-        mAdapter = SelectPictureAdapter(this, imageDataList.size, selectionIdList, imageDataList)
+        mAdapter = SelectPictureAdapter(this, selectionIdList, imageDataList)
         binding.testRecyclerview.adapter = mAdapter
 
         mAdapter.setClickListener(object : SelectPictureAdapter.ItemClickListener {

@@ -216,7 +216,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
-        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
+        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this, selectionIdList, imageDataList)
 
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
@@ -460,7 +460,6 @@ class SharePictureActivity: AppCompatActivity(){
                     pictureAdapter.select(i, true)
                     selectionIdList.add(i)
                 }
-//                binding.pictureRecyclerview.adapter?.notifyDataSetChanged()
                 setRecyclerView()
             }
         }
@@ -510,7 +509,7 @@ class SharePictureActivity: AppCompatActivity(){
                         var nickName = (friendJSON.getJSONObject(i).getString("nickname"))
                         var id = (friendJSON.getJSONObject(i).getLong("id"))
                         var imgObj = (friendJSON.getJSONObject(i).getString("picture").toUri())
-                        var imgData = ImageData(i, imgObj)
+                        var imgData = ImageData(i, imgObj.toString())
                         var friendData = FriendData(id, imgData, nickName)
                         friendDataList.add(friendData)
                     }
@@ -535,7 +534,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     private fun setProfileRecyclerview(){
         // profile picture recyclerview 설정
-        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
+        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this, selectionIdList, imageDataList)
         binding.profileRecyclerview.adapter = profilePictureAdapter
     }
 
@@ -592,7 +591,7 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                val imgData = ImageData(imageDataList.size, imgObj.toString().toUri())
+                val imgData = ImageData(imageDataList.size, imgObj)
                 imageDataList.add(imgData)
             }
             setRecyclerView()
@@ -605,10 +604,7 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-//                if (!imageList.contains(imgObj.toString().toUri())){
-//                    imageList.add(imgObj.toString().toUri())
-//                }
-                val imgData = ImageData(imageDataList.size, imgObj.toString().toUri())
+                val imgData = ImageData(imageDataList.size, imgObj)
                 imageDataList.add(imgData)
                 // 데이터 중복 제거
                 imageDataList.distinct()
