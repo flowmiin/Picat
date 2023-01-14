@@ -8,13 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
 import com.tumblers.picat.dataclass.ImageData
 
-class InviteFriendPictureAdapter (private var imageList: ArrayList<ImageData>,
+class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
+                                  var nameList: ArrayList<String>,
                                   val mContext: Context,
                                   var mSelected: HashSet<Int>)
     : RecyclerView.Adapter<InviteFriendPictureAdapter.InviteFriendPictureViewHolder>() {
@@ -29,9 +32,11 @@ class InviteFriendPictureAdapter (private var imageList: ArrayList<ImageData>,
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: InviteFriendPictureViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position].uri)
+            .load(imageList[position])
             .circleCrop()
             .into(holder.imv)
+
+        holder.name.text = nameList[position]
 
         if (mSelected.contains(position)) {
             holder.border.background = mContext.getDrawable(R.drawable.check_profile_background)
@@ -83,9 +88,10 @@ class InviteFriendPictureAdapter (private var imageList: ArrayList<ImageData>,
 
     inner class InviteFriendPictureViewHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
         var imv: ImageView = view.findViewById(R.id.invite_profile_picture)
-        var border: LinearLayout = view.findViewById(R.id.invite_item_linearlayout)
+        var border: ConstraintLayout = view.findViewById(R.id.invite_item_constraintlayout)
 //        var isSelectButton: ImageButton = view.findViewById(R.id.is_selected_imagebutton)
 //        var zoomButton: ImageButton = view.findViewById(R.id.zoom_imagebutton)
+        var name: TextView = view.findViewById(R.id.kakao_nick_name)
 
         init {
             view.setOnClickListener(this)

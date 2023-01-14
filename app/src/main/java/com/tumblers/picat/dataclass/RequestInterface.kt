@@ -3,12 +3,7 @@ package com.tumblers.picat.dataclass
 import com.google.gson.JsonObject
 import okhttp3.MultipartBody
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
+import retrofit2.http.*
 
 
 interface RequestInterface {
@@ -26,6 +21,12 @@ interface RequestInterface {
     ) : Call<SimpleResponseData>
 
     @FormUrlEncoded
+    @POST("friends/")
+    fun postFriends(
+        @Field ("friends") friendList: ArrayList<Long>,
+        @Field ("id")myKakaoId: Long
+    ) :Call<SimpleResponseData>
+
     @POST("app/users/kakao/")
     fun postSelectedFriend(
         @Field ("id") id: Long
