@@ -7,17 +7,14 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
 import com.tumblers.picat.adapter.SelectPictureAdapter
 import com.tumblers.picat.databinding.ActivityPictureSelectBinding
-import com.tumblers.picat.databinding.ActivitySelectByPeopleBinding
 import com.tumblers.picat.dataclass.ImageData
 import com.tumblers.picat.dataclass.ImageResponseData
 import com.tumblers.picat.dataclass.RequestInterface
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -48,8 +45,9 @@ class SelectByPeopleActivity : AppCompatActivity() {
         if (intent.hasExtra("friendId")){
             selectedFriendId = intent.getLongExtra("friendId", 0)
         }
-        if (intent.hasExtra("selectonIdList")){
-            selectionIdList = intent.getSerializableExtra("selectonIdList") as HashSet<Int>
+        if (intent.hasExtra("selectionIdList")){
+            selectionIdList = intent.getSerializableExtra("selectionIdList") as HashSet<Int>
+            println("인텐트 테스트 $selectionIdList")
         }
         if (intent.hasExtra("imageDataList")){
             imageDataList = intent.getParcelableArrayListExtra<Uri>("imageDataList") as ArrayList<ImageData>

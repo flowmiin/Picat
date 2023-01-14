@@ -42,14 +42,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="0dp">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/picat_text_size_large"
-                    android:src="@drawable/cat_paw_icn"
-                    app:layout_constraintTop_toTopOf="@id/room_name_editText"
-                    app:layout_constraintBottom_toBottomOf="@id/room_name_editText"
-                    app:layout_constraintRight_toLeftOf="@id/room_name_editText"/>
-
                 <EditText
                     android:id="@+id/room_name_editText"
                     android:layout_width="wrap_content"
@@ -96,7 +88,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginLeft="10dp"
-                            android:background="@drawable/round_button_shape_light_blue"
+                            android:background="@drawable/round_button_shape_blue"
                             android:padding="5dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/plus_fab"
@@ -149,8 +141,10 @@
         android:id="@+id/open_bottomsheet_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/plus_fab"
-        android:backgroundTint="@color/picat_blue"
+        android:src="@drawable/paw_icn_subtract"
+        app:fabSize="normal"
+        app:borderWidth="0dp"
+        android:backgroundTint="@color/picat_orange"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:visibility="visible"

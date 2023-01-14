@@ -19,17 +19,15 @@ import com.tumblers.picat.dataclass.FriendData
 import com.tumblers.picat.dataclass.ImageData
 
 class ProfilePictureAdapter(var friendDataList : ArrayList<FriendData>,
-                            var context: Context,
-                            var selectionIdList: HashSet<Int>,
-                            var imageDataList: ArrayList<ImageData>
+                            var context: Context
                             ): RecyclerView.Adapter<ProfilePictureAdapter.ProfilePictureViewHolder>() {
+
+    private var mClickListener: ItemClickListener? = null
 
     // 화면 설정
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfilePictureViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
-
         val view: View = inflater.inflate(R.layout.profile_item_picture, parent, false)
-
         return ProfilePictureViewHolder(view)
     }
 
@@ -42,14 +40,6 @@ class ProfilePictureAdapter(var friendDataList : ArrayList<FriendData>,
 
         holder.nickName.text = friendDataList[position].nickName
 
-        holder.profilePicture.setOnClickListener {
-            // 클릭 시 selectPictureActivity로 넘어가며 -> 넘어간 이후 api 호출
-            var intent = Intent(context, SelectByPeopleActivity::class.java)
-            intent.putExtra("friendId", friendDataList[position].id)
-            intent.putExtra("selectionIdList", selectionIdList)
-            intent.putExtra("imageDataList", imageDataList)
-            context.startActivity(intent)
-        }
     }
 
     // 아이템 개수
@@ -57,8 +47,32 @@ class ProfilePictureAdapter(var friendDataList : ArrayList<FriendData>,
         return friendDataList.size
     }
 
-    inner class ProfilePictureViewHolder(view: View): RecyclerView.ViewHolder(view){
+    // ----------------------
+    // Click Listener
+    // ----------------------
+
+    fun setClickListener(itemClickListener: ItemClickListener?) {
+        mClickListener = itemClickListener
+    }
+
+    interface ItemClickListener{
+        fun onItemClick(view: View?, position: Int)
+    }
+
+    inner class ProfilePictureViewHolder(view: View)
+        : RecyclerView.ViewHolder(view), View.OnClickListener {
+
         val profilePicture: ImageView = view.findViewById(R.id.profile_picture)
         val nickName : TextView = view.findViewById(R.id.kakao_nick_name)
+
+        init {
+            view.setOnClickListener(this)
+            profilePicture.setOnClickListener(this)
+        }
+
+        override fun onClick(view: View) {
+            if (mClickListener != null) mClickListener!!.onItemClick(view.rootView, bindingAdapterPosition)
+        }
+
     }
 }

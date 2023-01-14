@@ -36,7 +36,7 @@ class SelectPictureAdapter(
             .load(imageDataList[position].uri)
             .into(holder.imv)
 
-        if (mSelected.contains(position)) {
+        if (mSelected.contains(imageDataList[position].idx)) {
             holder.isSelectedButton.setImageResource(R.drawable.selected_icn)
             holder.imv.foreground = mContext.getDrawable(R.color.black_overlay)
         } else {
@@ -65,18 +65,30 @@ class SelectPictureAdapter(
     // ----------------------
 
     fun toggleSelection(pos: Int) {
-        if (mSelected.contains(pos)) mSelected.remove(pos) else mSelected.add(pos)
+        if (mSelected.contains(imageDataList[pos].idx)){
+            mSelected.remove(imageDataList[pos].idx)
+        } else {
+            mSelected.add(imageDataList[pos].idx)
+        }
         notifyItemChanged(pos)
     }
 
     fun select(pos: Int, selected: Boolean) {
-        if (selected) mSelected.add(pos) else mSelected.remove(pos)
-        notifyItemChanged(pos)
+        if (selected) {
+            mSelected.add(imageDataList[pos].idx)
+        } else {
+            mSelected.remove(imageDataList[pos].idx)
+        }
+        notifyItemChanged(imageDataList[pos].idx)
     }
 
     fun selectRange(start: Int, end: Int, selected: Boolean) {
         for (i in start..end) {
-            if (selected) mSelected.add(i) else mSelected.remove(i)
+            if (selected) {
+                mSelected.add(imageDataList[i].idx)
+            } else {
+                mSelected.remove(imageDataList[i].idx)
+            }
         }
         notifyItemRangeChanged(start, end - start + 1)
     }
@@ -104,9 +116,9 @@ class SelectPictureAdapter(
         mClickListener = itemClickListener
     }
 
-    interface ItemClickListener : PictureAdapter.ItemClickListener {
-        override fun onItemClick(view: View?, position: Int)
-        override fun onItemLongClick(view: View?, position: Int): Boolean
+    interface ItemClickListener {
+        fun onItemClick(view: View?, position: Int)
+        fun onItemLongClick(view: View?, position: Int): Boolean
     }
 
     // ----------------------
@@ -115,14 +127,11 @@ class SelectPictureAdapter(
 
     inner class TestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener, OnLongClickListener {
-        var imv: ImageView
-        var isSelectedButton: ImageButton
-        var zoomButton: ImageButton
+        var imv: ImageView = itemView.findViewById(R.id.imv)
+        var isSelectedButton: ImageButton = itemView.findViewById(R.id.is_selected_imagebutton)
+        var zoomButton: ImageButton = itemView.findViewById(R.id.zoom_imagebutton)
 
         init {
-            imv = itemView.findViewById(R.id.imv)
-            isSelectedButton = itemView.findViewById(R.id.is_selected_imagebutton)
-            zoomButton = itemView.findViewById(R.id.zoom_imagebutton)
             itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
         }

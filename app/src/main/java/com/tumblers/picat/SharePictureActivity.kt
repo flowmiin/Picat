@@ -18,6 +18,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -87,6 +88,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     // switch 상태 저장
     lateinit var pref : SharedPreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -213,7 +215,20 @@ class SharePictureActivity: AppCompatActivity(){
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
-        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this, selectionIdList, imageDataList)
+        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
+        profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
+            override fun onItemClick(view: View?, position: Int) {
+                // 클릭 시 selectPictureActivity로 넘어가며 -> 넘어간 이후 api 호출
+//                var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
+//                intent.putExtra("friendId", joinFriendList[position].id)
+//                intent.putExtra("selectionIdList", selectionIdList)
+//                intent.putExtra("imageDataList", imageDataList)
+//                setResult(1)
+//                activityResult.launch(intent)
+                gotoFaceFilter(position)
+            }
+
+        })
 
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
@@ -446,7 +461,7 @@ class SharePictureActivity: AppCompatActivity(){
             if (it.data!!.hasExtra("selectonIdList")){
                 var tmp = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
                 println("추가로 선택된 이미지: ${tmp}")
-                selectionIdList.clear()
+//                selectionIdList.clear()
                 for (i in tmp){
                     pictureAdapter.select(i, true)
                     selectionIdList.add(i)
@@ -525,7 +540,20 @@ class SharePictureActivity: AppCompatActivity(){
 
     private fun setProfileRecyclerview(){
         // profile picture recyclerview 설정
-        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this, selectionIdList, imageDataList)
+        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
+        profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
+            override fun onItemClick(view: View?, position: Int) {
+                // 클릭 시 selectPictureActivity로 넘어가며 -> 넘어간 이후 api 호출
+                var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
+                intent.putExtra("friendId", joinFriendList[position].id)
+                intent.putExtra("selectionIdList", selectionIdList)
+                intent.putExtra("imageDataList", imageDataList)
+                setResult(1)
+                activityResult.launch(intent)
+//                gotoFaceFilter(position)
+            }
+
+        })
         binding.profileRecyclerview.adapter = profilePictureAdapter
     }
 
@@ -655,6 +683,15 @@ class SharePictureActivity: AppCompatActivity(){
                 println("친구 초대 실패")
             }
         })
+    }
+
+    fun gotoFaceFilter(position: Int){
+        var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
+        intent.putExtra("friendId", joinFriendList[position].id)
+        intent.putExtra("selectionIdList", selectionIdList)
+        intent.putExtra("imageDataList", imageDataList)
+        setResult(1)
+        activityResult.launch(intent)
     }
 
 }
