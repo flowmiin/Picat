@@ -26,6 +26,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -33,6 +34,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
@@ -41,6 +43,7 @@ import com.kakao.sdk.friend.model.ViewAppearance
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
+import com.tumblers.picat.databinding.LoadingDialogBinding
 import com.tumblers.picat.dataclass.*
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.service.ForegroundService
@@ -75,7 +78,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     var joinFriendList: ArrayList<FriendData> = ArrayList()
     var imageDataList: ArrayList<ImageData> = ArrayList()
-    val selectionIdList: HashSet<Int> = hashSetOf()
+    var selectionIdList: HashSet<Int> = hashSetOf()
 
     // 유저 데이터
     var myKakaoId : Long? = null
@@ -89,6 +92,7 @@ class SharePictureActivity: AppCompatActivity(){
     // switch 상태 저장
     lateinit var pref : SharedPreferences
 
+    private lateinit var progressDialog: AppCompatDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -218,13 +222,6 @@ class SharePictureActivity: AppCompatActivity(){
         profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
         profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
             override fun onItemClick(view: View?, position: Int) {
-                // 클릭 시 selectPictureActivity로 넘어가며 -> 넘어간 이후 api 호출
-//                var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
-//                intent.putExtra("friendId", joinFriendList[position].id)
-//                intent.putExtra("selectionIdList", selectionIdList)
-//                intent.putExtra("imageDataList", imageDataList)
-//                setResult(1)
-//                activityResult.launch(intent)
                 gotoFaceFilter(position)
             }
 
@@ -459,13 +456,7 @@ class SharePictureActivity: AppCompatActivity(){
         else if (it.resultCode == 1){
             //사진선택을 통해 이미지 선택해서 돌아온 경우
             if (it.data!!.hasExtra("selectonIdList")){
-                var tmp = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
-                println("추가로 선택된 이미지: ${tmp}")
-//                selectionIdList.clear()
-                for (i in tmp){
-                    pictureAdapter.select(i, true)
-                    selectionIdList.add(i)
-                }
+                selectionIdList = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
                 setRecyclerView()
             }
         }
@@ -492,9 +483,12 @@ class SharePictureActivity: AppCompatActivity(){
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
 
+        progressOn()
+
+        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
             override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
+                progressOff()
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
                     println("이미지 response ${response.body()}")
@@ -518,6 +512,7 @@ class SharePictureActivity: AppCompatActivity(){
                         var imgData = ImageData(i, imgObj.toString())
                         var friendData = FriendData(id, imgData, nickName)
                         friendDataList.add(friendData)
+                        friendDataList.distinct()
                     }
                     if (friendJSON.length() > 0) {
                         openInviteDialog(friendDataList)
@@ -544,13 +539,13 @@ class SharePictureActivity: AppCompatActivity(){
         profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
             override fun onItemClick(view: View?, position: Int) {
                 // 클릭 시 selectPictureActivity로 넘어가며 -> 넘어간 이후 api 호출
-                var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
-                intent.putExtra("friendId", joinFriendList[position].id)
-                intent.putExtra("selectionIdList", selectionIdList)
-                intent.putExtra("imageDataList", imageDataList)
-                setResult(1)
-                activityResult.launch(intent)
-//                gotoFaceFilter(position)
+//                var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
+//                intent.putExtra("friendId", joinFriendList[position].id)
+//                intent.putExtra("selectionIdList", selectionIdList)
+//                intent.putExtra("imageDataList", imageDataList)
+//                setResult(1)
+//                activityResult.launch(intent)
+                gotoFaceFilter(position)
             }
 
         })
@@ -656,8 +651,10 @@ class SharePictureActivity: AppCompatActivity(){
                 for (i in content) {
                     sendFriendId.add(friendDataList[i].id!!)
                 }
-                println("${sendFriendId}")
-                inviteRequest(sendFriendId)
+                if (sendFriendId.isNotEmpty()){
+                    println("${sendFriendId}")
+                    inviteRequest(sendFriendId)
+                }
             }
         }
         dialog.show(friendDataList)
@@ -685,13 +682,30 @@ class SharePictureActivity: AppCompatActivity(){
         })
     }
 
-    fun gotoFaceFilter(position: Int){
+
+    fun gotoFaceFilter(position: Int) {
         var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
         intent.putExtra("friendId", joinFriendList[position].id)
         intent.putExtra("selectionIdList", selectionIdList)
         intent.putExtra("imageDataList", imageDataList)
         setResult(1)
         activityResult.launch(intent)
+    }
+
+    fun progressOn() {
+        val binding = LoadingDialogBinding.inflate(layoutInflater)
+        progressDialog = AppCompatDialog(this)
+        progressDialog.setCancelable(false)
+        progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        progressDialog.setContentView(binding.root)
+        Glide.with(this).load(R.raw.loading_cat).into(binding.loadingImageview)
+        progressDialog.show()
+    }
+
+    fun progressOff() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss()
+        }
     }
 
 }

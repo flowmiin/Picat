@@ -13,7 +13,7 @@ import com.tumblers.picat.ImageViewPagerActivity
 import com.tumblers.picat.R
 import com.tumblers.picat.dataclass.ImageData
 
-class PictureAdapter(private var imageList: ArrayList<ImageData>,
+class PictureAdapter(private var imageDataList: ArrayList<ImageData>,
                      val mContext: Context,
                      var mSelected: HashSet<Int>)
     : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>(){
@@ -28,12 +28,12 @@ class PictureAdapter(private var imageList: ArrayList<ImageData>,
 
     override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position].uri)
+            .load(imageDataList[position].uri)
             .into(holder.imv)
         
         holder.itemView.setOnClickListener {
             var intent = Intent(mContext, ImageViewPagerActivity::class.java)
-            intent.putExtra("imageList", imageList)
+            intent.putExtra("imageList", imageDataList)
             intent.putExtra("current", position)
             mContext.startActivity(intent)
         }
@@ -53,7 +53,7 @@ class PictureAdapter(private var imageList: ArrayList<ImageData>,
 
     // 아이템 개수
     override fun getItemCount(): Int {
-        return imageList.size
+        return imageDataList.size
     }
 
     override fun getItemId(position: Int): Long {
@@ -107,7 +107,7 @@ class PictureAdapter(private var imageList: ArrayList<ImageData>,
     }
 
     fun selectAll() {
-        for (i in 0 until imageList.size) mSelected.add(i)
+        for (i in 0 until imageDataList.size) mSelected.add(i)
         notifyDataSetChanged()
     }
 

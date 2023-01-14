@@ -47,7 +47,6 @@ class SelectByPeopleActivity : AppCompatActivity() {
         }
         if (intent.hasExtra("selectionIdList")){
             selectionIdList = intent.getSerializableExtra("selectionIdList") as HashSet<Int>
-            println("인텐트 테스트 $selectionIdList")
         }
         if (intent.hasExtra("imageDataList")){
             imageDataList = intent.getParcelableArrayListExtra<Uri>("imageDataList") as ArrayList<ImageData>

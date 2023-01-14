@@ -67,19 +67,11 @@ class SelectPictureAdapter(
     fun toggleSelection(pos: Int) {
         if (mSelected.contains(imageDataList[pos].idx)){
             mSelected.remove(imageDataList[pos].idx)
+            println("pos: $pos idx: ${imageDataList[pos].idx}")
         } else {
             mSelected.add(imageDataList[pos].idx)
         }
         notifyItemChanged(pos)
-    }
-
-    fun select(pos: Int, selected: Boolean) {
-        if (selected) {
-            mSelected.add(imageDataList[pos].idx)
-        } else {
-            mSelected.remove(imageDataList[pos].idx)
-        }
-        notifyItemChanged(imageDataList[pos].idx)
     }
 
     fun selectRange(start: Int, end: Int, selected: Boolean) {
