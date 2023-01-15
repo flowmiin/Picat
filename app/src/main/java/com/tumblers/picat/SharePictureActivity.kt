@@ -69,6 +69,7 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 
 class SharePictureActivity: AppCompatActivity(){
@@ -506,10 +507,14 @@ class SharePictureActivity: AppCompatActivity(){
 
 
     private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
+        val okHttpClient = OkHttpClient.Builder()
+            .readTimeout(20, TimeUnit.SECONDS)
+            .build()
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
 
         // APIInterface 객체 생성
@@ -652,16 +657,14 @@ class SharePictureActivity: AppCompatActivity(){
 
     var onParticipate = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            val friend_list = JSONObject(args[0].toString()).getJSONArray("friend_list")
-            var imgData: ImageData
-            for (i in 0..friend_list.length() - 1) {
-                val profile = JSONObject(friend_list[i].toString()).getString("url")
-                val id = JSONObject(friend_list[i].toString()).getLong("id")
-                val nickName = JSONObject(friend_list[i].toString()).getString("name")
-                imgData = ImageData(joinFriendList.size, profile)
-                joinFriendList.add(FriendData(id, imgData, nickName))
-                joinFriendList.distinct()
-            }
+
+            val profile = JSONObject(args[0].toString()).getString("picture")
+            val id = JSONObject(args[0].toString()).getLong("id")
+            val nickName = JSONObject(args[0].toString()).getString("nickname")
+
+            joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
+            joinFriendList.distinct()
+
             setProfileRecyclerview()
         }
     }
@@ -675,6 +678,7 @@ class SharePictureActivity: AppCompatActivity(){
                     joinFriendList.removeAt(i)
                 }
             }
+            println("joinFriendList onExit: ${joinFriendList}")
         }
         setProfileRecyclerview()
     }
@@ -698,9 +702,14 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     private fun inviteRequest(friendsId: MutableSet<Long>) {
+        val okHttpClient = OkHttpClient.Builder()
+            .readTimeout(20, TimeUnit.SECONDS)
+            .build()
+
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
 
         // APIInterface 객체 생성
