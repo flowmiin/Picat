@@ -133,9 +133,9 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
-                joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
-                joinFriendList.distinct()
-                setProfileRecyclerview()
+//                joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
+//                joinFriendList.distinct()
+//                setProfileRecyclerview()
 
                 var requestData = JSONObject()
                 requestData.put("id", myKakaoId)
@@ -658,9 +658,9 @@ class SharePictureActivity: AppCompatActivity(){
     // 방에 친구가 참여했을 때
     var onParticipate = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            var joinFriendList: ArrayList<FriendData> = arrayListOf()
-
-            var friendList = JSONObject(args[0].toString()).getJSONArray("friend_list")
+            println("친구 방에 입장")
+            joinFriendList?.clear()
+            var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
             for (i in 0..friendList.length() - 1) {
                 val jsonObject = JSONObject(friendList[i].toString())
 
@@ -677,15 +677,15 @@ class SharePictureActivity: AppCompatActivity(){
 
     var onExit = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            val id = JSONObject(args[0].toString()).getLong("id")
+            val id = args[0].toString().toLong()
 
             for (i in 0 until joinFriendList.size) {
                 if (joinFriendList[i].id == id) {
                     joinFriendList.removeAt(i)
                 }
             }
+            setProfileRecyclerview()
         }
-        setProfileRecyclerview()
     }
 
     // 친구 초대 다이얼로그 열기
