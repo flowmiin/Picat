@@ -139,6 +139,7 @@ class SharePictureActivity: AppCompatActivity(){
                 mSocket?.on("image", onMessage)
                 mSocket?.on("join", onRoom)
                 mSocket?.on("participate", onParticipate)
+                mSocket?.on("exit", onExit)
 
                 // 갤러리에서 사진 선택 후 공유 버튼을 눌러 picat앱에 들어왔을 때
                 if(intent.type == "image/*") {
@@ -167,15 +168,6 @@ class SharePictureActivity: AppCompatActivity(){
                 }
             }
         }
-
-        // FCM 알림 받기
-//        MyFirebaseMessagingService().getFirebaseToken()
-//        FirebaseMessaging.getInstance().token.addOnCompleteListener{ task ->
-//            if(task.isSuccessful) {
-//                println("my token2 = ${task.result}")
-//            }
-//        }
-
 
         // 액션바 제목 설정
         val actionbar = binding.toolbar
@@ -383,8 +375,11 @@ class SharePictureActivity: AppCompatActivity(){
             mSocket = SocketApplication.get()
             mSocket?.connect()
             mSocket?.emit("join", myKakaoId)
+            mSocket?.emit("participate", FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
             mSocket?.on("image", onMessage)
             mSocket?.on("join", onRoom)
+            mSocket?.on("participate", onParticipate)
+            mSocket?.on("exit", onExit)
         }
     }
 
@@ -539,12 +534,6 @@ class SharePictureActivity: AppCompatActivity(){
         profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
             override fun onItemClick(view: View?, position: Int) {
                 // 클릭 시 selectPictureActivity로 넘어가며 -> 넘어간 이후 api 호출
-//                var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
-//                intent.putExtra("friendId", joinFriendList[position].id)
-//                intent.putExtra("selectionIdList", selectionIdList)
-//                intent.putExtra("imageDataList", imageDataList)
-//                setResult(1)
-//                activityResult.launch(intent)
                 gotoFaceFilter(position)
             }
 
@@ -556,8 +545,6 @@ class SharePictureActivity: AppCompatActivity(){
         // picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
-
-
     }
 
 
@@ -570,17 +557,9 @@ class SharePictureActivity: AppCompatActivity(){
         when(item.itemId) {
             // 나가기 버튼
             R.id.out_button -> {
-                //카톡 로그인 사용자 동의 및 회원가입 테스트용
-                UserApiClient.instance.unlink { error ->
-                    if (error != null) {
-                        println("연결 끊기 실패.")
-                    }
-                    else {
-                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
-                    }
-                }
+                mSocket?.emit("exit", myKakaoId)
                 bottomSheetDialog.dismiss()
-                finish()
+                onRestart()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -641,6 +620,22 @@ class SharePictureActivity: AppCompatActivity(){
             }
             setProfileRecyclerview()
         }
+    }
+
+    var onExit = Emitter.Listener { args ->
+        CoroutineScope(Dispatchers.Main).launch {
+            val friend_list = JSONObject(args[0].toString()).getJSONArray("friend_list")
+            var imgData: ImageData
+
+            val profile = JSONObject(friend_list.toString()).getString("url")
+            val id = JSONObject(friend_list.toString()).getLong("id")
+            val nickName = JSONObject(friend_list.toString()).getString("name")
+
+            imgData = ImageData(joinFriendList.size, profile)
+            joinFriendList.remove(FriendData(id, imgData, nickName))
+            joinFriendList.distinct()
+        }
+        setProfileRecyclerview()
     }
 
 
