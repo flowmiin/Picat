@@ -69,6 +69,7 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 
 class SharePictureActivity: AppCompatActivity(){
@@ -143,7 +144,13 @@ class SharePictureActivity: AppCompatActivity(){
                 mSocket = SocketApplication.get()
                 mSocket?.connect()
 //                mSocket?.emit("join", myKakaoId)
-                mSocket?.emit("participate", FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
+                val jsonObject = JSONObject()
+                jsonObject.put("id", myKakaoId)
+                jsonObject.put("nickname", myNickname)
+                jsonObject.put("picture", myPicture)
+                mSocket?.emit("participate", jsonObject)
+                println("소켓 participate emit: $jsonObject")
+
                 mSocket?.on("image", onMessage)
                 mSocket?.on("join", onRoom)
                 mSocket?.on("participate", onParticipate)
@@ -157,6 +164,7 @@ class SharePictureActivity: AppCompatActivity(){
                     else if (friends != null) {
 
                         val friendList = JSONArray()
+                        println("friendCnt: ${friends.totalCount}")
                         if (friends.totalCount > 0){
                             for (friend in friends.elements!!) {
                                 val friendObj = JSONObject()
@@ -407,16 +415,21 @@ class SharePictureActivity: AppCompatActivity(){
         // 자동업로드 설정하고 다른 화면 갔다가 다시 돌아왔을 때
         // 소켓 연결이 끊어졌을 떄
         // socket 통신 연결
-        if(mSocket == null){
-            mSocket = SocketApplication.get()
-            mSocket?.connect()
-            mSocket?.emit("join", myKakaoId)
-            mSocket?.emit("participate", FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
-            mSocket?.on("image", onMessage)
-            mSocket?.on("join", onRoom)
-            mSocket?.on("participate", onParticipate)
-            mSocket?.on("exit", onExit)
-        }
+//        if(mSocket == null){
+//            mSocket = SocketApplication.get()
+//            mSocket?.connect()
+//            mSocket?.emit("join", myKakaoId)
+////            val jsonObject = JSONObject()
+////            jsonObject.put("id", myKakaoId)
+////            jsonObject.put("nickname", myNickname)
+////            jsonObject.put("picture", myPicture)
+////            mSocket?.emit("participate", jsonObject)
+////            println("소켓 resume participate emit: $jsonObject")
+//            mSocket?.on("image", onMessage)
+//            mSocket?.on("join", onRoom)
+//            mSocket?.on("participate", onParticipate)
+//            mSocket?.on("exit", onExit)
+//        }
     }
 
     fun getFileNameInUrl(imgUrl: String): String{
@@ -506,10 +519,14 @@ class SharePictureActivity: AppCompatActivity(){
 
 
     private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
+        val okHttpClient = OkHttpClient.Builder()
+            .readTimeout(20, TimeUnit.SECONDS)
+            .build()
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
 
         // APIInterface 객체 생성
@@ -595,7 +612,16 @@ class SharePictureActivity: AppCompatActivity(){
             R.id.out_button -> {
                 mSocket?.emit("exit", myKakaoId)
                 bottomSheetDialog.dismiss()
-                onRestart()
+
+                UserApiClient.instance.unlink { error ->
+                    if (error != null) {
+                        println("연결 끊기 실패.")
+                    }
+                    else {
+                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+                    }
+                }
+                finish()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -644,29 +670,30 @@ class SharePictureActivity: AppCompatActivity(){
 
     var onParticipate = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            val friend_list = JSONObject(args[0].toString()).getJSONArray("friend_list")
-            var imgData: ImageData
-            for (i in 0..friend_list.length() - 1) {
-                val profile = JSONObject(friend_list[i].toString()).getString("url")
-                val id = JSONObject(friend_list[i].toString()).getLong("id")
-                val nickName = JSONObject(friend_list[i].toString()).getString("name")
-                imgData = ImageData(joinFriendList.size, profile)
-                joinFriendList.add(FriendData(id, imgData, nickName))
-                joinFriendList.distinct()
-            }
+
+            var jsonObj = JSONObject(args[0].toString())
+            val profile = jsonObj.getString("picture")
+            val id = jsonObj.getLong("id")
+            val nickName = jsonObj.getString("nickname")
+
+            joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
+            joinFriendList.distinct()
+
             setProfileRecyclerview()
         }
     }
+
 
     var onExit = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
             val id = JSONObject(args[0].toString()).getLong("id")
 
-            for (i in 0 .. joinFriendList.size - 1) {
+            for (i in 0 until joinFriendList.size) {
                 if (joinFriendList[i].id == id) {
                     joinFriendList.removeAt(i)
                 }
             }
+            println("joinFriendList onExit: ${joinFriendList}")
         }
         setProfileRecyclerview()
     }
@@ -690,9 +717,14 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     private fun inviteRequest(friendsId: MutableSet<Long>) {
+        val okHttpClient = OkHttpClient.Builder()
+            .readTimeout(20, TimeUnit.SECONDS)
+            .build()
+
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
 
         // APIInterface 객체 생성
