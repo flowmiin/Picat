@@ -101,6 +101,14 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // socket 통신 연결
+        mSocket = SocketApplication.get()
+        mSocket?.connect()
+        mSocket?.on("image", onImage)
+        mSocket?.on("join", onJoin)
+        mSocket?.on("participate", onParticipate)
+        mSocket?.on("exit", onExit)
+
         
         // 토큰 정보 확인 후
         // 실패 시 로그인 화면으로 이동
@@ -130,30 +138,23 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
-                if (joinFriendList.isEmpty()) {
-                    joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
-                }
-                setProfileRecyclerview()
+//                if (joinFriendList.isEmpty()) {
+//                    joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
+//                }
+//                setProfileRecyclerview()
 
                 var requestData = JSONObject()
                 requestData.put("id", myKakaoId)
 
-                // socket 통신 연결
-                mSocket = SocketApplication.get()
-                mSocket?.connect()
-//                mSocket?.emit("join", myKakaoId)
+
+                
                 val jsonObject = JSONObject()
                 jsonObject.put("id", myKakaoId)
                 jsonObject.put("nickname", myNickname)
                 jsonObject.put("picture", myPicture)
                 mSocket?.emit("participate", jsonObject)
-                println("소켓 participate emit: $jsonObject")
-
-                mSocket?.on("image", onImage)
-                mSocket?.on("join", onJoin)
-                mSocket?.on("participate", onParticipate)
-                mSocket?.on("exit", onExit)
-
+                println("oncreate 소켓 participate emit: $jsonObject")
+                
                 // 카카오톡 친구 목록 가져오기 (기본)
                 TalkApiClient.instance.friends { friends, error ->
                     if (error != null) {
@@ -177,6 +178,8 @@ class SharePictureActivity: AppCompatActivity(){
                         }
                         requestData.put("elements", friendList)
                         mSocket?.emit("join", requestData)
+                        println("oncreate 소켓 join emit")
+
                     }
                 }
 
@@ -410,6 +413,9 @@ class SharePictureActivity: AppCompatActivity(){
 
         if (mSocket != null && !mSocket?.isActive!!) {
             mSocket?.connect()
+            mSocket?.emit("participate", myKakaoId)
+            println("onreume 소켓 participate emit: $myKakaoId")
+            mSocket?.on("participate", onParticipate)
         }
     }
 
@@ -668,7 +674,9 @@ class SharePictureActivity: AppCompatActivity(){
 
                 joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
             }
-            Toast.makeText(applicationContext, "소켓 받음 ${joinFriendList}", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(applicationContext, "소켓 받음 ${joinFriendList}", Toast.LENGTH_SHORT).show()
+            println("onparticipate 소켓 받음: $joinFriendList")
+
             setProfileRecyclerview()
         }
     }
