@@ -134,8 +134,9 @@ class ForegroundService : Service() {
 
         // 새로운 이미지 날짜와 기존 이미지 날짜를 비교
         // 또는 갤러리에 이미지가 없는 상태에서 새로운 이미지가 들어왔을떄
-        if ((lastImageDate != null && newImageDate!! > lastImageDate)
-            ||(lastImageDate == null && newImageDate != null)) {
+//        print("새 이미지: $newImageDate")
+//        println("기존 이미지: $lastImageDate")
+        if (((lastImageDate != null) && (newImageDate!! > lastImageDate)) || ((lastImageDate == null) && (newImageDate != null))) {
             lastImage = newImage!!
 
             var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
@@ -171,7 +172,7 @@ class ForegroundService : Service() {
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
+        server.postImg(myKakaoId!!, image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
 
             override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
                 println("이미지 업로드 ${response.isSuccessful}")

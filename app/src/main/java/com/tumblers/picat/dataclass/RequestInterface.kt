@@ -10,6 +10,7 @@ interface RequestInterface {
     @Multipart
     @POST("image/")
     fun postImg(
+        @Header ("kid") header_id: Long,
         @Part arrayImage: MutableList<MultipartBody.Part>,
         @Part ("img_cnt") img_cnt: Int,
         @Part ("id") id: Long
