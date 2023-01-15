@@ -138,13 +138,12 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
-//                if (joinFriendList.isEmpty()) {
-//                    joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
-//                }
+
                 setProfileRecyclerview()
 
                 var requestData = JSONObject()
                 requestData.put("id", myKakaoId)
+
 
                 // 카카오톡 친구 목록 가져오기 (기본)
                 TalkApiClient.instance.friends { friends, error ->
@@ -169,14 +168,13 @@ class SharePictureActivity: AppCompatActivity(){
                         }
                         requestData.put("elements", friendList)
                         mSocket?.emit("join", requestData)
+                        
                         val jsonObject = JSONObject()
                         jsonObject.put("id", myKakaoId)
                         jsonObject.put("nickname", myNickname)
                         jsonObject.put("picture", myPicture)
                         mSocket?.emit("participate", jsonObject)
-                        println("oncreate 소켓 participate emit: $jsonObject")
-                        println("oncreate 소켓 join emit")
-
+                        
                     }
                 }
 
@@ -661,7 +659,6 @@ class SharePictureActivity: AppCompatActivity(){
     // 방에 친구가 참여했을 때
     var onParticipate = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            println("친구 방에 입장")
             joinFriendList?.clear()
             var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
             for (i in 0..friendList.length() - 1) {
@@ -673,8 +670,6 @@ class SharePictureActivity: AppCompatActivity(){
 
                 joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
             }
-//            Toast.makeText(applicationContext, "소켓 받음 ${joinFriendList}", Toast.LENGTH_SHORT).show()
-            println("onparticipate 소켓 받음: $joinFriendList")
 
             setProfileRecyclerview()
         }
@@ -684,7 +679,6 @@ class SharePictureActivity: AppCompatActivity(){
     var onExit = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
             val id = args[0].toString().toLong()
-            println("나간 친구 id : ${id}")
 
             for ( friend in joinFriendList){
                 if (friend.id == id){
