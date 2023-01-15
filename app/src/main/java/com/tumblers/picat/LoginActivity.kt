@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.kakao.sdk.auth.model.OAuthToken
@@ -80,62 +81,7 @@ class LoginActivity : AppCompatActivity() {
             else if (token != null) {
                 Toast.makeText(this, "로그인에 성공하였습니다.", Toast.LENGTH_SHORT).show()
 
-                var requestData = JsonObject()
-                // 사용자 정보 요청 (기본)
-                UserApiClient.instance.me { user, error ->
-                    if (error != null) {
-                        Log.e(TAG, "사용자 정보 요청 실패", error)
-                    }
-                    else if (user != null) {
-                        Log.i(TAG, "사용자 정보 요청 성공" +
-                                "\n회원번호: ${user.id}" +
-                                "\n이메일: ${user.kakaoAccount?.email}" +
-                                "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
-                                "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
-
-                        requestData.addProperty("id", user.id)
-                        requestData.addProperty("nickname", user.kakaoAccount?.profile?.nickname)
-                        requestData.addProperty("picture", user.kakaoAccount?.profile?.profileImageUrl)
-                        requestData.addProperty("email", user.kakaoAccount?.email)
-                        Log.i(TAG, "결과1 $requestData")
-
-
-                        // 카카오톡 친구 목록 가져오기 (기본)
-                        TalkApiClient.instance.friends { friends, error ->
-                            if (error != null) {
-                                Log.e(TAG, "카카오톡 친구 목록 가져오기 실패", error)
-                            }
-                            else if (friends != null) {
-                                Log.i(TAG, "카카오톡 친구 목록 가져오기 성공 \n${friends.elements?.joinToString("\n")}")
-                                Log.i(TAG, "카카오톡 친구 목록 가져오기 성공2 \n${friends.elements}")
-                                requestData.addProperty("total_count", friends.elements?.size)
-
-                                val friendList = JsonArray()
-                                if (friends.totalCount > 0){
-                                    for (friend in friends.elements!!) {
-                                        val friendObj = JsonObject()
-                                        friendObj.addProperty("id", friend.id)
-                                        friendObj.addProperty("uuid", friend.uuid)
-                                        friendObj.addProperty("profile_nickname", friend.profileNickname)
-                                        friendObj.addProperty("profile_thumbnail_image", friend.profileThumbnailImage)
-                                        friendObj.addProperty("favorite", friend.favorite)
-                                        friendObj.addProperty("allowedMsg", friend.allowedMsg)
-                                        friendList.add(friendObj)
-                                    }
-                                }
-                                requestData.add("elements", friendList)
-                                Log.i(TAG, "결과2 $requestData")
-
-                                apiRequest(requestData)
-
-                            }
-
-                        }
-                    }
-
-                }
-
-
+                push_data()
 
                 val intent = Intent(this, SharePictureActivity::class.java)
                 startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
@@ -162,60 +108,8 @@ class LoginActivity : AppCompatActivity() {
 
                     } else if (token != null) {
                         Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
-                        var requestData = JsonObject()
-                        // 사용자 정보 요청 (기본)
-                        UserApiClient.instance.me { user, error ->
-                            if (error != null) {
-                                Log.e(TAG, "사용자 정보 요청 실패", error)
-                            }
-                            else if (user != null) {
-//                                Log.i(TAG, "사용자 정보 요청 성공" +
-//                                        "\n회원번호: ${user.id}" +
-//                                        "\n이메일: ${user.kakaoAccount?.email}" +
-//                                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
-//                                        "\n프로필사진: ${user.kakaoAccount?.profile?.profileImageUrl}")
 
-                                requestData.addProperty("id", user.id)
-                                requestData.addProperty("nickname", user.kakaoAccount?.profile?.nickname)
-                                requestData.addProperty("picture", user.kakaoAccount?.profile?.profileImageUrl)
-                                requestData.addProperty("email", user.kakaoAccount?.email)
-                                Log.i(TAG, "결과1 $requestData")
-
-
-                                // 카카오톡 친구 목록 가져오기 (기본)
-                                TalkApiClient.instance.friends { friends, error ->
-                                    if (error != null) {
-                                        Log.e(TAG, "카카오톡 친구 목록 가져오기 실패", error)
-                                    }
-                                    else if (friends != null) {
-//                                        Log.i(TAG, "카카오톡 친구 목록 가져오기 성공 \n${friends.elements?.joinToString("\n")}")
-//                                        Log.i(TAG, "카카오톡 친구 목록 가져오기 성공2 \n${friends.elements}")
-                                        requestData.addProperty("total_count", friends.elements?.size)
-
-                                        val friendList = JsonArray()
-                                        if (friends.totalCount > 0){
-                                            for (friend in friends.elements!!) {
-                                                val friendObj = JsonObject()
-                                                friendObj.addProperty("id", friend.id)
-                                                friendObj.addProperty("uuid", friend.uuid)
-                                                friendObj.addProperty("profile_nickname", friend.profileNickname)
-                                                friendObj.addProperty("profile_thumbnail_image", friend.profileThumbnailImage)
-                                                friendObj.addProperty("favorite", friend.favorite)
-                                                friendObj.addProperty("allowedMsg", friend.allowedMsg)
-                                                friendList.add(friendObj)
-                                            }
-                                        }
-                                        requestData.add("elements", friendList)
-                                        Log.i(TAG, "결과2 $requestData")
-
-                                        apiRequest(requestData)
-
-                                    }
-
-                                }
-                            }
-
-                        }
+                        push_data()
 
                         val intent = Intent(this, SharePictureActivity::class.java)
                         startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
@@ -226,6 +120,55 @@ class LoginActivity : AppCompatActivity() {
                 UserApiClient.instance.loginWithKakaoAccount(this, callback = callback)
             }
 
+        }
+    }
+
+    fun push_data() {
+        var requestData = JsonObject()
+        // 사용자 정보 요청 (기본)
+        UserApiClient.instance.me { user, error ->
+            if (error != null) {
+                Log.e(TAG, "사용자 정보 요청 실패", error)
+            }
+            else if (user != null) {
+                requestData.addProperty("id", user.id)
+                requestData.addProperty("nickname", user.kakaoAccount?.profile?.nickname)
+                requestData.addProperty("picture", user.kakaoAccount?.profile?.profileImageUrl)
+                requestData.addProperty("email", user.kakaoAccount?.email)
+
+                FirebaseMessaging.getInstance().token.addOnCompleteListener{ task ->
+                    if(task.isSuccessful) {
+                        println("my token = ${task.result}")
+                        requestData.addProperty("my_device_id", task.result)
+                    }
+                }
+
+                // 카카오톡 친구 목록 가져오기 (기본)
+                TalkApiClient.instance.friends { friends, error ->
+                    if (error != null) {
+                        Log.e(TAG, "카카오톡 친구 목록 가져오기 실패", error)
+                    }
+                    else if (friends != null) {
+                        requestData.addProperty("total_count", friends.elements?.size)
+
+                        val friendList = JsonArray()
+                        if (friends.totalCount > 0){
+                            for (friend in friends.elements!!) {
+                                val friendObj = JsonObject()
+                                friendObj.addProperty("id", friend.id)
+                                friendObj.addProperty("uuid", friend.uuid)
+                                friendObj.addProperty("profile_nickname", friend.profileNickname)
+                                friendObj.addProperty("profile_thumbnail_image", friend.profileThumbnailImage)
+                                friendObj.addProperty("favorite", friend.favorite)
+                                friendObj.addProperty("allowedMsg", friend.allowedMsg)
+                                friendList.add(friendObj)
+                            }
+                        }
+                        requestData.add("elements", friendList)
+                        apiRequest(requestData)
+                    }
+                }
+            }
         }
     }
 

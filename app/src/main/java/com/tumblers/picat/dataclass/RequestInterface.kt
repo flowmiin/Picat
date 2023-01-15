@@ -3,12 +3,7 @@ package com.tumblers.picat.dataclass
 import com.google.gson.JsonObject
 import okhttp3.MultipartBody
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
+import retrofit2.http.*
 
 
 interface RequestInterface {
@@ -18,7 +13,7 @@ interface RequestInterface {
         @Part arrayImage: MutableList<MultipartBody.Part>,
         @Part ("img_cnt") img_cnt: Int,
         @Part ("id") id: Long
-    ): Call<ImageData>
+    ): Call<ImageResponseData>
 
     @POST("app/users/kakao/")
     fun postUser(
@@ -26,8 +21,14 @@ interface RequestInterface {
     ) : Call<SimpleResponseData>
 
     @FormUrlEncoded
-    @POST("app/users/kakao/")
+    @POST("friends/")
+    fun postFriends(
+        @Field ("friends") friendList: MutableSet<Long>,
+        @Field ("id")myKakaoId: Long
+    ) :Call<SimpleResponseData>
+
+    @GET("filter/")
     fun postSelectedFriend(
-        @Field ("id") id: Long
-    ) : Call<ImageData>
+        @Query ("id") id: Long
+    ) : Call<ImageResponseData>
 }

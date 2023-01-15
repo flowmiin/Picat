@@ -1,16 +1,16 @@
 package com.tumblers.picat.adapter
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
+import com.tumblers.picat.dataclass.ImageData
 
 class ViewPagerAdapter( val mContext: Context,
-                        var imageList: ArrayList<Uri>)
+                        var imageList: ArrayList<ImageData>)
                         : RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PagerViewHolder((parent))
@@ -19,7 +19,7 @@ class ViewPagerAdapter( val mContext: Context,
 
     override fun onBindViewHolder(holder: PagerViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position])
+            .load(imageList[position].uri)
             .into(holder.pictureView)
     }
 

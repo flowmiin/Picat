@@ -1,27 +1,19 @@
 package com.tumblers.picat
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.Toast
-import android.widget.Toolbar
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor.ISelectionHandler
-import com.tumblers.picat.adapter.PictureAdapter
 import com.tumblers.picat.adapter.SelectPictureAdapter
 import com.tumblers.picat.databinding.ActivityPictureSelectBinding
-import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.service.ForegroundService
+import com.tumblers.picat.dataclass.ImageData
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +22,7 @@ import org.json.JSONObject
 
 class SelectPictureActivity : AppCompatActivity() {
 
-    var imageList: ArrayList<Uri> = ArrayList()
+    var imageDataList: ArrayList<ImageData> = ArrayList()
     lateinit var selectionIdList: HashSet<Int>
     private var mMode = DragSelectionProcessor.Mode.ToggleAndUndo
     private lateinit var mDragSelectTouchListener: DragSelectTouchListener
@@ -39,7 +31,6 @@ class SelectPictureActivity : AppCompatActivity() {
     lateinit var actionbar: androidx.appcompat.widget.Toolbar
     lateinit var binding: ActivityPictureSelectBinding
     var myKakaoId: Long = 0
-    var selectedFriendId: Long = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,7 +78,10 @@ class SelectPictureActivity : AppCompatActivity() {
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                imageList.add(imgObj.toString().toUri())
+                val imgData = ImageData(imageDataList.size, imgObj)
+                imageDataList.add(imgData)
+                // 데이터 중복 제거
+                imageDataList.distinct()
             }
 
             setRecyclerView()
@@ -97,13 +91,13 @@ class SelectPictureActivity : AppCompatActivity() {
     private fun setRecyclerView(){
         var gridLayoutManager = GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false)
         binding.testRecyclerview.layoutManager = gridLayoutManager
-        mAdapter = SelectPictureAdapter(this, imageList.size, selectionIdList, imageList)
+        mAdapter = SelectPictureAdapter(this, selectionIdList, imageDataList)
         binding.testRecyclerview.adapter = mAdapter
 
         mAdapter.setClickListener(object : SelectPictureAdapter.ItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 mAdapter.toggleSelection(position)
-                actionbar.title = "${mAdapter.getCountSelected()} / ${imageList.size} "
+                actionbar.title = "${mAdapter.getCountSelected()} / ${imageDataList.size} "
 
             }
 
@@ -130,7 +124,7 @@ class SelectPictureActivity : AppCompatActivity() {
                 calledFromOnStart: Boolean
             ) {
                 mAdapter.selectRange(start, end, isSelected)
-                actionbar.title = "${mAdapter.getCountSelected()} / ${imageList.size} "
+                actionbar.title = "${mAdapter.getCountSelected()} / ${imageDataList.size} "
             }
 
         }).withMode(mMode)
