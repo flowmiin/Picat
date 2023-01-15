@@ -47,12 +47,10 @@ class SelectPictureActivity : AppCompatActivity() {
         if (intent.hasExtra("selectonIdList")){
             selectionIdList = intent.getSerializableExtra("selectonIdList") as HashSet<Int>
         }
+        if (intent.hasExtra("imageDataList")){
+            imageDataList = intent.getSerializableExtra("imageDataList") as ArrayList<ImageData>
+        }
 
-        // socket 통신 연결
-        mSocket = SocketApplication.get()
-        mSocket.connect()
-        mSocket.emit("join", myKakaoId)
-        mSocket.on("join", onJoin)
 
         actionbar = binding.toolbar
         setSupportActionBar(actionbar)
@@ -72,21 +70,6 @@ class SelectPictureActivity : AppCompatActivity() {
     // ---------------------
     private fun updateSelectionListener() {
         mDragSelectionProcessor.withMode(mMode)
-    }
-
-    var onJoin = Emitter.Listener { args->
-        CoroutineScope(Dispatchers.Main).launch {
-            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-            for (i in 0..img_count - 1) {
-                val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                val imgData = ImageData(imageDataList.size, imgObj)
-                imageDataList.add(imgData)
-                // 데이터 중복 제거
-            }
-
-            setRecyclerView()
-        }
     }
 
     private fun setRecyclerView(){
@@ -158,8 +141,6 @@ class SelectPictureActivity : AppCompatActivity() {
                 val intent = Intent(this, SharePictureActivity::class.java)
                 intent.putExtra("selectonIdList", mAdapter.mSelected)
                 setResult(1, intent)
-                mSocket.disconnect()
-                mSocket.close()
                 finish()
             }
         }

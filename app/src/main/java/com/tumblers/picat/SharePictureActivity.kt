@@ -138,18 +138,13 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
+
                 setProfileRecyclerview()
 
                 var requestData = JSONObject()
                 requestData.put("id", myKakaoId)
 
 
-                
-                val jsonObject = JSONObject()
-                jsonObject.put("id", myKakaoId)
-                jsonObject.put("nickname", myNickname)
-                jsonObject.put("picture", myPicture)
-                
                 // 카카오톡 친구 목록 가져오기 (기본)
                 TalkApiClient.instance.friends { friends, error ->
                     if (error != null) {
@@ -173,7 +168,13 @@ class SharePictureActivity: AppCompatActivity(){
                         }
                         requestData.put("elements", friendList)
                         mSocket?.emit("join", requestData)
+                        
+                        val jsonObject = JSONObject()
+                        jsonObject.put("id", myKakaoId)
+                        jsonObject.put("nickname", myNickname)
+                        jsonObject.put("picture", myPicture)
                         mSocket?.emit("participate", jsonObject)
+                        
                     }
                 }
 
@@ -376,6 +377,7 @@ class SharePictureActivity: AppCompatActivity(){
             val intent = Intent(this, SelectPictureActivity::class.java)
             intent.putExtra("selectonIdList", selectionIdList)
             intent.putExtra("myKakaoId", myKakaoId)
+            intent.putExtra("imageDataList", imageDataList)
             activityResult.launch(intent)
 
         }
