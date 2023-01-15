@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.location.Geocoder.isPresent
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
@@ -37,8 +36,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
@@ -152,7 +149,7 @@ class SharePictureActivity: AppCompatActivity(){
                 println("소켓 participate emit: $jsonObject")
 
                 mSocket?.on("image", onMessage)
-                mSocket?.on("join", onRoom)
+                mSocket?.on("join", onJoin)
                 mSocket?.on("participate", onParticipate)
                 mSocket?.on("exit", onExit)
 
@@ -642,11 +639,11 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     // 방에 입장했을 떄
-    var onRoom = Emitter.Listener { args->
+    var onJoin = Emitter.Listener { args->
         CoroutineScope(Dispatchers.Main).launch {
             val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-            for (i in 0..img_count - 1) {
+            for (i in 0 until img_count) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
                 val imgData = ImageData(imageDataList.size, imgObj)
                 imageDataList.add(imgData)
@@ -660,8 +657,8 @@ class SharePictureActivity: AppCompatActivity(){
         CoroutineScope(Dispatchers.Main).launch {
             var joinFriendList: ArrayList<FriendData> = arrayListOf()
 
-            var friendList = JSONObject(args[0].toString()).getJSONArray("friend_list")
-            for (i in 0..friendList.length() - 1) {
+            var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
+            for (i in 0 until friendList.length()) {
                 val jsonObject = JSONObject(friendList[i].toString())
 
                 val profile = jsonObject.getString("picture")
@@ -670,6 +667,7 @@ class SharePictureActivity: AppCompatActivity(){
 
                 joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
             }
+            Toast.makeText(applicationContext, "소켓 받음 ${joinFriendList}", Toast.LENGTH_SHORT).show()
             setProfileRecyclerview()
         }
     }
