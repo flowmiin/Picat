@@ -1,0 +1,19 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="45dp"/>
+
+            <solid android:color="@color/picat_blue"/>
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="45dp"/>
+
+            <solid android:color="@color/picat_boundary_line_color"/>
+
+            <stroke android:width="0.1dp" android:color="@color/picat_boundary_line_color"/>
+        </shape>
+    </item>
+</selector>

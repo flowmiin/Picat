@@ -5,7 +5,7 @@
 
     <item
         android:id="@+id/out_button"
-        android:icon="@drawable/exit_room_icn_white"
+        android:icon="@drawable/exit_room_icn_dark"
         android:title="나가기"
         app:showAsAction="always" />
 

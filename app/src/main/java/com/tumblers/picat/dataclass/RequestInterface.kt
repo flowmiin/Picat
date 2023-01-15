@@ -23,7 +23,7 @@ interface RequestInterface {
     @FormUrlEncoded
     @POST("friends/")
     fun postFriends(
-        @Field ("friends") friendList: ArrayList<Long>,
+        @Field ("friends") friendList: MutableSet<Long>,
         @Field ("id")myKakaoId: Long
     ) :Call<SimpleResponseData>
 
