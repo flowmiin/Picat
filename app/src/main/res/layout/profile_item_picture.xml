@@ -28,6 +28,8 @@
         android:layout_gravity="center"
         android:textAlignment="center"
         android:textSize="@dimen/picat_text_size_small"
+        android:includeFontPadding="false"
+        android:layout_marginTop="10dp"
         android:fontFamily="@font/notosans_regular"
         android:textColor="@color/picat_font_color"
         app:layout_constraintTop_toBottomOf="@+id/profile_picture"

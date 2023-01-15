@@ -13,14 +13,27 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
+        android:minHeight="63dp"
         android:theme="?attr/actionBarTheme"
         app:titleTextColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/scroll_view">
+        
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="63dp">
+            
+            <ImageView
+                android:layout_width="66dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/picat_letter_logo"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"/>
+            
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.core.widget.NestedScrollView
@@ -37,7 +50,7 @@
                 android:id="@+id/profile_tab"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="30dp"
+                android:paddingBottom="30dp"
                 android:paddingVertical="50dp"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="0dp">
@@ -68,37 +81,33 @@
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/room_name_editText">
+                    app:layout_constraintTop_toBottomOf="@id/room_name_editText"
+                    app:layout_constraintBottom_toBottomOf="parent">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/profile_recyclerview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:clipToPadding="false">
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent">
+                    </androidx.recyclerview.widget.RecyclerView>
 
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/profile_recyclerview"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintLeft_toLeftOf="parent"></androidx.recyclerview.widget.RecyclerView>
-
-                        <ImageButton
-                            android:id="@+id/profile_item_plus_button"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginLeft="10dp"
-                            android:background="@drawable/round_button_shape_blue"
-                            android:padding="5dp"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/plus_fab"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintLeft_toRightOf="@id/profile_recyclerview"
-                            app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </HorizontalScrollView>
+
+                <ImageButton
+                    android:id="@+id/profile_item_plus_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="12dp"
+                    android:background="@drawable/round_button_shape_blue"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/plus_fab"
+                    app:layout_constraintBottom_toBottomOf="@id/profile_horizontal_scrollview"
+                    app:layout_constraintLeft_toRightOf="@id/profile_horizontal_scrollview"
+                    app:layout_constraintTop_toTopOf="@id/profile_horizontal_scrollview"
+                    app:layout_constraintVertical_bias="0.3" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -107,26 +116,33 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="자동 업로드"
+                android:gravity="center_vertical"
                 android:layout_marginRight="4dp"
-                android:fontFamily="@font/notosans_regular"
                 android:includeFontPadding="false"
-                android:textSize="@dimen/picat_text_size_small"
+                android:switchMinWidth="0dp"
                 android:textColor="@color/picat_font_color"
                 app:layout_constraintTop_toTopOf="@+id/auto_upload_switch"
                 app:layout_constraintBottom_toBottomOf="@+id/auto_upload_switch"
                 app:layout_constraintRight_toLeftOf="@+id/auto_upload_switch"/>
 
+
             <Switch
                 android:id="@+id/auto_upload_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/profile_tab"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/picture_recyclerview"
-                android:layout_marginBottom="10dp"
-                android:layout_marginRight="10dp"/>
+                android:layout_marginRight="20dp"
+                android:gravity="right|center"
 
-            <!-- 나머지 사진  -->
+                android:textOff=""
+                android:textOn=""
+                android:textSize="@dimen/picat_text_size_medium"
+                android:thumb="@drawable/switch_thumb"
+
+                android:track="@drawable/switch_track_selector"
+                app:layout_constraintBottom_toTopOf="@+id/picture_recyclerview"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_tab"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/picture_recyclerview"
                 android:layout_width="match_parent"
@@ -146,13 +162,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/paw_icn_subtract"
-        app:fabSize="normal"
         app:borderWidth="0dp"
         android:backgroundTint="@color/picat_orange"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:visibility="visible"
-        android:layout_margin="@dimen/picat_layout_padding"/>
+        android:layout_margin="@dimen/picat_layout_padding"
+        app:fabCustomSize="67dp"
+        app:maxImageSize="44dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
