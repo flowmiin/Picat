@@ -14,18 +14,12 @@ import android.os.IBinder
 import android.provider.MediaStore
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.net.toUri
 import com.tumblers.picat.R
 import com.tumblers.picat.SharePictureActivity
 import com.tumblers.picat.SocketApplication
-import com.tumblers.picat.dataclass.ImageData
+import com.tumblers.picat.dataclass.ImageResponseData
 import com.tumblers.picat.dataclass.RequestInterface
-import com.tumblers.picat.room.AppDatabase
-import com.tumblers.picat.room.ImageTable
 import io.socket.client.Socket
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -117,14 +111,6 @@ class ForegroundService : Service() {
             mThread!!.interrupt()
             mThread = null
             mSocket.disconnect()
-
-//            val showIntent = Intent(this, SharePictureActivity::class.java)
-//            showIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//            showIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-//            showIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-//            println("imageList : ${imageList}")
-//            showIntent.putExtra("imageList", imageList)
-//            startActivity(showIntent)
         }
         Log.d(TAG, "onDestroy")
     }
@@ -133,7 +119,6 @@ class ForegroundService : Service() {
         private const val TAG = "MyServiceTag"
         private const val NOTI_ID = 5
     }
-
 
     fun handlerNewPhotos() {
         // 새로운 이미지 얻기
@@ -160,19 +145,7 @@ class ForegroundService : Service() {
             apiRequest(emitBody, 1)
 
         }
-        // 갤러리에 이미지가 없는 상태에서 새로운 이미지가 들어왔을떄
-//        else if(lastImageDate == null && newImageDate != null) {
-//            lastImage = newImage!!
-//
-//            var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
-//            var file = File(getAbsolutePath(newImage, this))
-//            var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
-//            var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-//            emitBody?.add(body)
-//            if (myKakaoId != -1 as Long) {
-//                apiRequest(emitBody, 1)
-//            }
-//        }
+
     }
 
     // 사진의 절대 경로 가져오기
@@ -191,15 +164,15 @@ class ForegroundService : Service() {
     private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("http://43.200.93.112:5000/")
+            .baseUrl(resources.getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
+        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
 
-            override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
+            override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
                     val jsonArray = JSONArray()
@@ -219,7 +192,7 @@ class ForegroundService : Service() {
                 }
             }
 
-            override fun onFailure(call: Call<ImageData>, t: Throwable) {
+            override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
                 println("이미지 업로드 실패")
             }
         })

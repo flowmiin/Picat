@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Geocoder.isPresent
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
@@ -18,6 +19,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -25,6 +27,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -32,17 +35,20 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
 import com.kakao.sdk.friend.model.ViewAppearance
+import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
-import com.tumblers.picat.dataclass.ImageData
-import com.tumblers.picat.dataclass.RequestInterface
-import com.tumblers.picat.dataclass.SimpleResponseData
+import com.tumblers.picat.databinding.LoadingDialogBinding
+import com.tumblers.picat.dataclass.*
 import com.tumblers.picat.fragment.DownloadCompleteFragment
 import com.tumblers.picat.service.ForegroundService
 import io.socket.client.Socket
@@ -74,9 +80,9 @@ class SharePictureActivity: AppCompatActivity(){
     var mSocket: Socket? = null
     lateinit var bottomSheetDialog: BottomSheetDialog
 
-    var profileImageList: ArrayList<Uri> = ArrayList()
-    var imageList: ArrayList<Uri> = ArrayList()
-    val selectionIdList: HashSet<Int> = hashSetOf()
+    var joinFriendList: ArrayList<FriendData> = ArrayList()
+    var imageDataList: ArrayList<ImageData> = ArrayList()
+    var selectionIdList: HashSet<Int> = hashSetOf()
 
     // 유저 데이터
     var myKakaoId : Long? = null
@@ -89,6 +95,8 @@ class SharePictureActivity: AppCompatActivity(){
 
     // switch 상태 저장
     lateinit var pref : SharedPreferences
+
+    private lateinit var progressDialog: AppCompatDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,21 +126,57 @@ class SharePictureActivity: AppCompatActivity(){
             } else if (user != null) {
                 Log.e(TAG, "사용자 정보 요청 성공")
 
+                //사용자 정보 요청
                 myKakaoId = user.id
                 myEmail = user.kakaoAccount?.email
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
-                profileImageList.add(myPicture.toString().toUri())
+                joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
+                joinFriendList.distinct()
                 setProfileRecyclerview()
 
+                var requestData = JSONObject()
+                requestData.put("id", myKakaoId)
 
                 // socket 통신 연결
                 mSocket = SocketApplication.get()
                 mSocket?.connect()
-                mSocket?.emit("join", myKakaoId)
+//                mSocket?.emit("join", myKakaoId)
+                mSocket?.emit("participate", FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
                 mSocket?.on("image", onMessage)
                 mSocket?.on("join", onRoom)
+                mSocket?.on("participate", onParticipate)
+                mSocket?.on("exit", onExit)
+
+                // 카카오톡 친구 목록 가져오기 (기본)
+                TalkApiClient.instance.friends { friends, error ->
+                    if (error != null) {
+                        Log.e(TAG, "카카오톡 친구 목록 가져오기 실패", error)
+                    }
+                    else if (friends != null) {
+
+                        val friendList = JSONArray()
+                        if (friends.totalCount > 0){
+                            for (friend in friends.elements!!) {
+                                val friendObj = JSONObject()
+                                friendObj.put("id", friend.id)
+                                friendObj.put("uuid", friend.uuid)
+                                friendObj.put("profile_nickname", friend.profileNickname)
+                                friendObj.put("profile_thumbnail_image", friend.profileThumbnailImage)
+                                friendObj.put("favorite", friend.favorite)
+                                friendObj.put("allowedMsg", friend.allowedMsg)
+                                friendList.put(friendObj)
+                            }
+                        }
+                        requestData.put("elements", friendList)
+                        mSocket?.emit("join", requestData)
+                        println("소켓 join: ${requestData}")
+
+                    }
+                }
+
+
 
                 // 갤러리에서 사진 선택 후 공유 버튼을 눌러 picat앱에 들어왔을 때
                 if(intent.type == "image/*") {
@@ -162,20 +206,10 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-        // FCM 알림 받기
-//        MyFirebaseMessagingService().getFirebaseToken()
-//        FirebaseMessaging.getInstance().token.addOnCompleteListener{ task ->
-//            if(task.isSuccessful) {
-//                println("my token2 = ${task.result}")
-//            }
-//        }
-
-
         // 액션바 제목 설정
         val actionbar = binding.toolbar
         setSupportActionBar(actionbar) //커스텀한 toolbar를 액션바로 사용
         supportActionBar?.setDisplayShowTitleEnabled(false) //액션바에 표시되는 제목의 표시유무를 설정합니다. false로 해야 custom한 툴바의 이름이 화면에 보이게 됩니다.
-        actionbar.title = "공유방"
 
         // 프로필 사진 옆 플러스 버튼: 카카오 친구 피커 실행
         // 수동으로 친구추가
@@ -202,18 +236,24 @@ class SharePictureActivity: AppCompatActivity(){
                 } else {
                     Log.d(TAG, "친구 선택 성공 $selectedUsers")
                     val friend_count = selectedUsers?.totalCount
-                    for (i in 0..friend_count!! - 1) {
-                        profileImageList.add(selectedUsers?.users?.get(i)?.profileThumbnailImage.toString().toUri())
+                    var inviteFriendsId = mutableSetOf<Long>()
+                    for (i in 0 until friend_count!!) {
+                        inviteFriendsId.add(selectedUsers?.users?.get(i)?.id!!)
                     }
-                    // 친구 프로필을 화면에 띄우기
-                    setProfileRecyclerview()
+                    inviteRequest(inviteFriendsId)
                 }
             }
         }
 
         //Adapter 초기화
-        pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
-        profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
+        pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
+        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
+        profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
+            override fun onItemClick(view: View?, position: Int) {
+                gotoFaceFilter(position)
+            }
+
+        })
 
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
@@ -352,7 +392,7 @@ class SharePictureActivity: AppCompatActivity(){
             val bundle = Bundle()
             bundle.putInt("pictureCount", pictureAdapter.mSelected.size)
             bundle.putString("albumName", binding.roomNameEditText.text.toString())
-            bundle.putString("albumCover", imageList[pictureAdapter.mSelected.first()].toString())
+            bundle.putString("albumCover", imageDataList[pictureAdapter.mSelected.first()].uri.toString())
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction().add(R.id.activity_share_picture_layout, downloadAlbumFragment)
@@ -371,8 +411,11 @@ class SharePictureActivity: AppCompatActivity(){
             mSocket = SocketApplication.get()
             mSocket?.connect()
             mSocket?.emit("join", myKakaoId)
+            mSocket?.emit("participate", FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
             mSocket?.on("image", onMessage)
             mSocket?.on("join", onRoom)
+            mSocket?.on("participate", onParticipate)
+            mSocket?.on("exit", onExit)
         }
     }
 
@@ -390,15 +433,14 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         for (pos in selectionIdList){
-            val imgUrl = imageList[pos]
-            println(imgUrl.toString())
-            val fileName = getFileNameInUrl(imgUrl.toString())
+            val imgUrl = imageDataList[pos].uri.toString()
+            val fileName = getFileNameInUrl(imgUrl)
             val localPath = "$savePath/$fileName"
 
             val imgDownloadCoroutine = CoroutineScope(Dispatchers.IO)
             imgDownloadCoroutine.launch {
                 //url로 서버와 접속해서 이미지를 다운받기
-                val conn: HttpURLConnection = URL(imgUrl.toString()).openConnection() as HttpURLConnection
+                val conn: HttpURLConnection = URL(imgUrl).openConnection() as HttpURLConnection
                 val len: Int = conn.contentLength
                 val tmpByte = ByteArray(len)
                 val inputStream : InputStream = conn.inputStream
@@ -438,27 +480,14 @@ class SharePictureActivity: AppCompatActivity(){
                     var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
                     var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
                     emitBody?.add(body)
-                    if (index % 20 == 0) {
-                        apiRequest(emitBody, 20)
-                        emitBody?.clear()
-                    }
                 }
-                if(emitBody?.size!! > 0) {
-                    apiRequest(emitBody, count)
-                }
+                apiRequest(emitBody, count)
             }
         }
         else if (it.resultCode == 1){
             //사진선택을 통해 이미지 선택해서 돌아온 경우
             if (it.data!!.hasExtra("selectonIdList")){
-                var tmp = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
-                println("추가로 선택된 이미지: ${tmp}")
-                selectionIdList.clear()
-                for (i in tmp){
-                    pictureAdapter.select(i, true)
-                    selectionIdList.add(i)
-                }
-//                binding.pictureRecyclerview.adapter?.notifyDataSetChanged()
+                selectionIdList = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
                 setRecyclerView()
             }
         }
@@ -485,9 +514,12 @@ class SharePictureActivity: AppCompatActivity(){
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageData> {
 
-            override fun onResponse(call: Call<ImageData>, response: Response<ImageData>) {
+        progressOn()
+
+        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
+            override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
+                progressOff()
                 println("이미지 업로드 ${response.isSuccessful}")
                 if (response.isSuccessful){
                     println("이미지 response ${response.body()}")
@@ -501,16 +533,20 @@ class SharePictureActivity: AppCompatActivity(){
 
                     var friendJSON = JSONArray(response.body()?.friends.toString())
                     println("친구 수 : ${friendJSON.length()}")
-                    var nameList : ArrayList<String> = arrayListOf()
-                    var idList : ArrayList<Long> = arrayListOf()
-                    var profileList : ArrayList<Uri> = arrayListOf()
+
+                    var friendDataList : ArrayList<FriendData> = ArrayList()
+
                     for (i in 0..friendJSON.length() - 1) {
-                        nameList.add(friendJSON.getJSONObject(i).getString("nickname"))
-                        idList.add(friendJSON.getJSONObject(i).getLong("id"))
-                        profileList.add(friendJSON.getJSONObject(i).getString("picture").toUri())
+                        var nickName = (friendJSON.getJSONObject(i).getString("nickname"))
+                        var id = (friendJSON.getJSONObject(i).getLong("id"))
+                        var imgObj = (friendJSON.getJSONObject(i).getString("picture").toUri())
+                        var imgData = ImageData(i, imgObj.toString())
+                        var friendData = FriendData(id, imgData, nickName)
+                        friendDataList.add(friendData)
+                        friendDataList.distinct()
                     }
                     if (friendJSON.length() > 0) {
-                        openInviteDialog(profileList, idList, nameList)
+                        openInviteDialog(friendDataList)
                     }
 
                     val jsonObject = JSONObject()
@@ -522,7 +558,7 @@ class SharePictureActivity: AppCompatActivity(){
                 }
             }
 
-            override fun onFailure(call: Call<ImageData>, t: Throwable) {
+            override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
                 println("이미지 업로드 실패")
             }
         })
@@ -530,16 +566,21 @@ class SharePictureActivity: AppCompatActivity(){
 
     private fun setProfileRecyclerview(){
         // profile picture recyclerview 설정
-        profilePictureAdapter = ProfilePictureAdapter(profileImageList, this)
+        profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
+        profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
+            override fun onItemClick(view: View?, position: Int) {
+                // 클릭 시 selectPictureActivity로 넘어가며 -> 넘어간 이후 api 호출
+                gotoFaceFilter(position)
+            }
+
+        })
         binding.profileRecyclerview.adapter = profilePictureAdapter
     }
 
     private fun setRecyclerView(){
         // picture recyclerview 설정
-        pictureAdapter = PictureAdapter(imageList, this, selectionIdList)
+        pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
-
-
     }
 
 
@@ -552,17 +593,17 @@ class SharePictureActivity: AppCompatActivity(){
         when(item.itemId) {
             // 나가기 버튼
             R.id.out_button -> {
-                //카톡 로그인 사용자 동의 및 회원가입 테스트용
-                UserApiClient.instance.unlink { error ->
-                    if (error != null) {
-                        println("연결 끊기 실패.")
-                    }
-                    else {
-                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
-                    }
-                }
+                mSocket?.emit("exit", myKakaoId)
                 bottomSheetDialog.dismiss()
-                finish()
+                onRestart()
+//                UserApiClient.instance.unlink { error ->
+//                    if (error != null) {
+//                        println("연결 끊기 실패.")
+//                    }
+//                    else {
+//                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+//                    }
+//                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -587,7 +628,8 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                imageList.add(imgObj.toString().toUri())
+                val imgData = ImageData(imageDataList.size, imgObj)
+                imageDataList.add(imgData)
             }
             setRecyclerView()
         }
@@ -599,32 +641,63 @@ class SharePictureActivity: AppCompatActivity(){
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
             for (i in 0..img_count - 1) {
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                if (!imageList.contains(imgObj.toString().toUri())){
-                    imageList.add(imgObj.toString().toUri())
-                }
+                val imgData = ImageData(imageDataList.size, imgObj)
+                imageDataList.add(imgData)
+                // 데이터 중복 제거
+                imageDataList.distinct()
             }
             setRecyclerView()
         }
     }
 
-
-    fun openInviteDialog(inviteImageList : ArrayList<Uri>, idList : ArrayList<Long>, nameList : ArrayList<String>) {
-        val dialog = InviteDialog(this)
-        dialog.setOnOKClickedListener { content ->
-            println("${content}")
-            if(content != null) {
-                var sendFriendId : ArrayList<Long> = arrayListOf()
-                for (i in content) {
-                    sendFriendId.add(idList[i])
-                }
-                println("${sendFriendId}")
-                inviteRequest(sendFriendId)
+    var onParticipate = Emitter.Listener { args ->
+        CoroutineScope(Dispatchers.Main).launch {
+            val friend_list = JSONObject(args[0].toString()).getJSONArray("friend_list")
+            var imgData: ImageData
+            for (i in 0..friend_list.length() - 1) {
+                val profile = JSONObject(friend_list[i].toString()).getString("url")
+                val id = JSONObject(friend_list[i].toString()).getLong("id")
+                val nickName = JSONObject(friend_list[i].toString()).getString("name")
+                imgData = ImageData(joinFriendList.size, profile)
+                joinFriendList.add(FriendData(id, imgData, nickName))
+                joinFriendList.distinct()
             }
+            setProfileRecyclerview()
         }
-        dialog.show(inviteImageList, nameList)
     }
 
-    private fun inviteRequest(friendsId: ArrayList<Long>) {
+    var onExit = Emitter.Listener { args ->
+        CoroutineScope(Dispatchers.Main).launch {
+            val id = JSONObject(args[0].toString()).getLong("id")
+
+            for (i in 0 .. joinFriendList.size - 1) {
+                if (joinFriendList[i].id == id) {
+                    joinFriendList.removeAt(i)
+                }
+            }
+        }
+        setProfileRecyclerview()
+    }
+
+
+    fun openInviteDialog(friendDataList : ArrayList<FriendData>) {
+        val dialog = InviteDialog(this)
+        dialog.setOnOKClickedListener { content ->
+            if(content != null) {
+                var sendFriendId = mutableSetOf<Long>()
+                for (i in content) {
+                    sendFriendId.add(friendDataList[i].id!!)
+                }
+                if (sendFriendId.isNotEmpty()){
+                    println("${sendFriendId}")
+                    inviteRequest(sendFriendId)
+                }
+            }
+        }
+        dialog.show(friendDataList)
+    }
+
+    private fun inviteRequest(friendsId: MutableSet<Long>) {
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(getString(R.string.picat_server))
             .addConverterFactory(GsonConverterFactory.create())
@@ -644,6 +717,32 @@ class SharePictureActivity: AppCompatActivity(){
                 println("친구 초대 실패")
             }
         })
+    }
+
+
+    fun gotoFaceFilter(position: Int) {
+        var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
+        intent.putExtra("friendId", joinFriendList[position].id)
+        intent.putExtra("selectionIdList", selectionIdList)
+        intent.putExtra("imageDataList", imageDataList)
+        setResult(1)
+        activityResult.launch(intent)
+    }
+
+    fun progressOn() {
+        val binding = LoadingDialogBinding.inflate(layoutInflater)
+        progressDialog = AppCompatDialog(this)
+        progressDialog.setCancelable(false)
+        progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        progressDialog.setContentView(binding.root)
+        Glide.with(this).load(R.raw.loading_cat).into(binding.loadingImageview)
+        progressDialog.show()
+    }
+
+    fun progressOff() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss()
+        }
     }
 
 }

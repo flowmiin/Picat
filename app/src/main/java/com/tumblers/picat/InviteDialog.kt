@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tumblers.picat.adapter.InviteFriendPictureAdapter
 import com.tumblers.picat.databinding.FriendInviteDialogBinding
+import com.tumblers.picat.dataclass.FriendData
+import com.tumblers.picat.dataclass.ImageData
 import kotlinx.coroutines.selects.select
 
 class InviteDialog(private val context : AppCompatActivity) {
@@ -26,14 +28,15 @@ class InviteDialog(private val context : AppCompatActivity) {
 
     var selectionIdList: HashSet<Int> = hashSetOf()
 
-    fun show(imageList : ArrayList<Uri>, nameList: ArrayList<String>) {
+
+    fun show(friendDataList : ArrayList<FriendData>) {
         binding = FriendInviteDialogBinding.inflate(context.layoutInflater)
 
         dialog.requestWindowFeature((Window.FEATURE_ACTION_BAR)) // 액션 바 제거
         dialog.setContentView(binding.root)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.attributes?.width = WindowManager.LayoutParams.MATCH_PARENT
-        dialog.window?.attributes?.height = WindowManager.LayoutParams.WRAP_CONTENT
+//        dialog.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.WRAP_CONTENT)
+//        dialog.setCanceledOnTouchOutside(false)
         dialog.setCancelable(false) // 다이얼로그으 바깥 화면을 눌렀을 때 다이얼로그가 닫히지 않도록 함
 
         binding.inviteCheckButton.setOnClickListener {
@@ -44,7 +47,7 @@ class InviteDialog(private val context : AppCompatActivity) {
             dialog.dismiss()
         }
 
-        inviteFriendPictureAdapter = InviteFriendPictureAdapter(imageList, nameList, context, selectionIdList)
+        inviteFriendPictureAdapter = InviteFriendPictureAdapter(friendDataList, context, selectionIdList)
         binding.inviteRecyclerview.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         binding.inviteRecyclerview.adapter = inviteFriendPictureAdapter
 

@@ -7,4 +7,5 @@
     <dimen name="picat_text_size_small">16sp</dimen>
     <dimen name="picat_text_size_medium">20sp</dimen>
     <dimen name="picat_text_size_large">24sp</dimen>
+
 </resources>

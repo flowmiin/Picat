@@ -1,10 +1,8 @@
 package com.tumblers.picat.dataclass
 
-
-import com.google.gson.JsonArray
+import java.io.Serializable
 
 data class ImageData(
-    val friends: JsonArray?,
-    val url: List<String>,
-    val img_cnt: Int
-)
+    val idx: Int,
+    val uri: String
+): Serializable

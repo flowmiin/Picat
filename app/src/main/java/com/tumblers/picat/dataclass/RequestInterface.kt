@@ -13,7 +13,7 @@ interface RequestInterface {
         @Part arrayImage: MutableList<MultipartBody.Part>,
         @Part ("img_cnt") img_cnt: Int,
         @Part ("id") id: Long
-    ): Call<ImageData>
+    ): Call<ImageResponseData>
 
     @POST("app/users/kakao/")
     fun postUser(
@@ -23,7 +23,12 @@ interface RequestInterface {
     @FormUrlEncoded
     @POST("friends/")
     fun postFriends(
-        @Field ("friends") friendList: ArrayList<Long>,
+        @Field ("friends") friendList: MutableSet<Long>,
         @Field ("id")myKakaoId: Long
     ) :Call<SimpleResponseData>
+
+    @GET("filter/")
+    fun postSelectedFriend(
+        @Query ("id") id: Long
+    ) : Call<ImageResponseData>
 }

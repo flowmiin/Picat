@@ -2,22 +2,21 @@ package com.tumblers.picat.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.ImageViewPagerActivity
 import com.tumblers.picat.R
+import com.tumblers.picat.dataclass.ImageData
 
-class PictureAdapter(private var imageList: ArrayList<Uri>,
+class PictureAdapter(private var imageDataList: ArrayList<ImageData>,
                      val mContext: Context,
                      var mSelected: HashSet<Int>)
-    : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
+    : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>(){
     private var mClickListener: ItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {
@@ -29,12 +28,12 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
 
     override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position])
+            .load(imageDataList[position].uri)
             .into(holder.imv)
         
         holder.itemView.setOnClickListener {
             var intent = Intent(mContext, ImageViewPagerActivity::class.java)
-            intent.putExtra("imageList", imageList)
+            intent.putExtra("imageList", imageDataList)
             intent.putExtra("current", position)
             mContext.startActivity(intent)
         }
@@ -54,7 +53,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
 
     // 아이템 개수
     override fun getItemCount(): Int {
-        return imageList.size
+        return imageDataList.size
     }
 
     override fun getItemId(position: Int): Long {
@@ -108,7 +107,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     }
 
     fun selectAll() {
-        for (i in 0 until imageList.size) mSelected.add(i)
+        for (i in 0 until imageDataList.size) mSelected.add(i)
         notifyDataSetChanged()
     }
 
@@ -124,7 +123,7 @@ class PictureAdapter(private var imageList: ArrayList<Uri>,
     // Click Listener
     // ----------------------
 
-    fun setClickListener(itemClickListener: SelectPictureAdapter.ItemClickListener) {
+    fun setClickListener(itemClickListener: ItemClickListener) {
         mClickListener = itemClickListener
     }
 

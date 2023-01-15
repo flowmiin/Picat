@@ -14,9 +14,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.R
+import com.tumblers.picat.dataclass.FriendData
+import com.tumblers.picat.dataclass.ImageData
 
-class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
-                                  var nameList: ArrayList<String>,
+class InviteFriendPictureAdapter (var friendDataList : ArrayList<FriendData>,
                                   val mContext: Context,
                                   var mSelected: HashSet<Int>)
     : RecyclerView.Adapter<InviteFriendPictureAdapter.InviteFriendPictureViewHolder>() {
@@ -31,20 +32,20 @@ class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: InviteFriendPictureViewHolder, position: Int) {
         Glide.with(mContext)
-            .load(imageList[position])
+            .load(friendDataList[position].picture.uri)
             .circleCrop()
             .into(holder.imv)
 
-        holder.name.text = nameList[position]
+        holder.name.text = friendDataList[position].nickName
 
         if (mSelected.contains(position)) {
             holder.border.background = mContext.getDrawable(R.drawable.check_profile_background)
+            holder.imv.foreground = mContext.getDrawable(R.drawable.check_icn)
         }
         else {
-//            holder.isSelectButton.setImageResource(R.drawable.unselected_icn)
+            holder.imv.foreground = null
             holder.border.background = mContext.getDrawable(R.drawable.not_check_profile_background)
         }
-//        holder.zoomButton.visibility = View.INVISIBLE
 
         holder.imv.setOnClickListener {
             toggleSelection(position)
@@ -53,7 +54,7 @@ class InviteFriendPictureAdapter (private var imageList: ArrayList<Uri>,
     }
 
     override fun getItemCount(): Int {
-        return imageList.size
+        return friendDataList.size
     }
 
     fun select(pos: Int, selected: Boolean) {

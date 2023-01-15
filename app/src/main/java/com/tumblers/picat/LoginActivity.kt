@@ -165,7 +165,6 @@ class LoginActivity : AppCompatActivity() {
                             }
                         }
                         requestData.add("elements", friendList)
-
                         apiRequest(requestData)
                     }
                 }
