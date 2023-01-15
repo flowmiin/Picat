@@ -107,7 +107,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toRightOf="@+id/profile_recyclerview"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.3" />
+                            app:layout_constraintVertical_bias="0.4" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

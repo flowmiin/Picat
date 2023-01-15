@@ -141,20 +141,11 @@ class SharePictureActivity: AppCompatActivity(){
 //                if (joinFriendList.isEmpty()) {
 //                    joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
 //                }
-//                setProfileRecyclerview()
+                setProfileRecyclerview()
 
                 var requestData = JSONObject()
                 requestData.put("id", myKakaoId)
 
-
-                
-                val jsonObject = JSONObject()
-                jsonObject.put("id", myKakaoId)
-                jsonObject.put("nickname", myNickname)
-                jsonObject.put("picture", myPicture)
-                mSocket?.emit("participate", jsonObject)
-                println("oncreate 소켓 participate emit: $jsonObject")
-                
                 // 카카오톡 친구 목록 가져오기 (기본)
                 TalkApiClient.instance.friends { friends, error ->
                     if (error != null) {
@@ -178,6 +169,12 @@ class SharePictureActivity: AppCompatActivity(){
                         }
                         requestData.put("elements", friendList)
                         mSocket?.emit("join", requestData)
+                        val jsonObject = JSONObject()
+                        jsonObject.put("id", myKakaoId)
+                        jsonObject.put("nickname", myNickname)
+                        jsonObject.put("picture", myPicture)
+                        mSocket?.emit("participate", jsonObject)
+                        println("oncreate 소켓 participate emit: $jsonObject")
                         println("oncreate 소켓 join emit")
 
                     }
@@ -382,6 +379,7 @@ class SharePictureActivity: AppCompatActivity(){
             val intent = Intent(this, SelectPictureActivity::class.java)
             intent.putExtra("selectonIdList", selectionIdList)
             intent.putExtra("myKakaoId", myKakaoId)
+            intent.putExtra("imageDataList", imageDataList)
             activityResult.launch(intent)
 
         }
@@ -414,7 +412,6 @@ class SharePictureActivity: AppCompatActivity(){
         if (mSocket != null && !mSocket?.isActive!!) {
             mSocket?.connect()
             mSocket?.emit("participate", myKakaoId)
-            println("onreume 소켓 participate emit: $myKakaoId")
             mSocket?.on("participate", onParticipate)
         }
     }
@@ -626,6 +623,8 @@ class SharePictureActivity: AppCompatActivity(){
         }
         if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
             bottomSheetDialog.dismiss()
+            mSocket?.disconnect()
+            mSocket?.close()
             finish()
         }
     }
