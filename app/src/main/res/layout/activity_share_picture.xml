@@ -46,12 +46,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitStart"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:src="@drawable/main_background"/>
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/profile_tab"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingVertical="50dp"
-                android:paddingBottom="30dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="40dp"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="57dp">
 
@@ -78,6 +86,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="40dp"
+                    android:layout_marginBottom="30dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintHorizontal_bias="0.6"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -157,7 +166,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginBottom="120dp"/>
+                android:layout_marginBottom="120dp"
+                android:background="@color/picat_picture_recyclerview_background"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

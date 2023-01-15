@@ -32,7 +32,6 @@ class SelectPictureActivity : AppCompatActivity() {
     lateinit var actionbar: androidx.appcompat.widget.Toolbar
     lateinit var binding: ActivityPictureSelectBinding
     var myKakaoId: Long = 0
-    lateinit var mSocket: Socket
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

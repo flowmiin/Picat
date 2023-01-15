@@ -518,7 +518,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         progressOn()
 
-        server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
+        server.postImg(myKakaoId!!, image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
             override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
                 progressOff()
 
