@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Geocoder.isPresent
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
@@ -659,16 +660,13 @@ class SharePictureActivity: AppCompatActivity(){
 
     var onExit = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            val friend_list = JSONObject(args[0].toString()).getJSONArray("friend_list")
-            var imgData: ImageData
+            val id = JSONObject(args[0].toString()).getLong("id")
 
-            val profile = JSONObject(friend_list.toString()).getString("url")
-            val id = JSONObject(friend_list.toString()).getLong("id")
-            val nickName = JSONObject(friend_list.toString()).getString("name")
-
-            imgData = ImageData(joinFriendList.size, profile)
-            joinFriendList.remove(FriendData(id, imgData, nickName))
-            joinFriendList.distinct()
+            for (i in 0 .. joinFriendList.size - 1) {
+                if (joinFriendList[i].id == id) {
+                    joinFriendList.removeAt(i)
+                }
+            }
         }
         setProfileRecyclerview()
     }
