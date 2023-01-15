@@ -135,8 +135,8 @@ class SharePictureActivity: AppCompatActivity(){
                 joinFriendList.distinct()
                 setProfileRecyclerview()
 
-                var requestData = JsonObject()
-                requestData.addProperty("id", myKakaoId)
+                var requestData = JSONObject()
+                requestData.put("id", myKakaoId)
 
                 // socket 통신 연결
                 mSocket = SocketApplication.get()
@@ -155,20 +155,20 @@ class SharePictureActivity: AppCompatActivity(){
                     }
                     else if (friends != null) {
 
-                        val friendList = JsonArray()
+                        val friendList = JSONArray()
                         if (friends.totalCount > 0){
                             for (friend in friends.elements!!) {
-                                val friendObj = JsonObject()
-                                friendObj.addProperty("id", friend.id)
-                                friendObj.addProperty("uuid", friend.uuid)
-                                friendObj.addProperty("profile_nickname", friend.profileNickname)
-                                friendObj.addProperty("profile_thumbnail_image", friend.profileThumbnailImage)
-                                friendObj.addProperty("favorite", friend.favorite)
-                                friendObj.addProperty("allowedMsg", friend.allowedMsg)
-                                friendList.add(friendObj)
+                                val friendObj = JSONObject()
+                                friendObj.put("id", friend.id)
+                                friendObj.put("uuid", friend.uuid)
+                                friendObj.put("profile_nickname", friend.profileNickname)
+                                friendObj.put("profile_thumbnail_image", friend.profileThumbnailImage)
+                                friendObj.put("favorite", friend.favorite)
+                                friendObj.put("allowedMsg", friend.allowedMsg)
+                                friendList.put(friendObj)
                             }
                         }
-                        requestData.add("elements", friendList)
+                        requestData.put("elements", friendList)
                         mSocket?.emit("join", requestData)
                         println("소켓 join: ${requestData}")
 
