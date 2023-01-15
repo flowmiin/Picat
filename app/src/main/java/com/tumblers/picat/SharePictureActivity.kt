@@ -672,6 +672,7 @@ class SharePictureActivity: AppCompatActivity(){
                 val nickName = JSONObject(friend_list[i].toString()).getString("name")
                 imgData = ImageData(joinFriendList.size, profile)
                 joinFriendList.add(FriendData(id, imgData, nickName))
+                joinFriendList.distinct()
             }
             setProfileRecyclerview()
         }
