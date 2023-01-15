@@ -133,9 +133,10 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
-//                joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
-//                joinFriendList.distinct()
-//                setProfileRecyclerview()
+                if (joinFriendList.isEmpty()) {
+                    joinFriendList.add(FriendData(myKakaoId, ImageData(0, myPicture!!), myNickname!!))
+                }
+                setProfileRecyclerview()
 
                 var requestData = JSONObject()
                 requestData.put("id", myKakaoId)
@@ -678,10 +679,12 @@ class SharePictureActivity: AppCompatActivity(){
     var onExit = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
             val id = args[0].toString().toLong()
+            println("나간 친구 id : ${id}")
 
-            for (i in 0 until joinFriendList.size) {
-                if (joinFriendList[i].id == id) {
-                    joinFriendList.removeAt(i)
+            for ( friend in joinFriendList){
+                if (friend.id == id){
+                    joinFriendList.remove(friend)
+                    break
                 }
             }
             setProfileRecyclerview()
