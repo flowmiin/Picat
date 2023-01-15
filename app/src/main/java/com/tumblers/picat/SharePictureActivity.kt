@@ -164,7 +164,7 @@ class SharePictureActivity: AppCompatActivity(){
                     else if (friends != null) {
 
                         val friendList = JSONArray()
-                        println("friendCnt: ${friends.totalCount}")
+
                         if (friends.totalCount > 0){
                             for (friend in friends.elements!!) {
                                 val friendObj = JSONObject()
@@ -179,8 +179,6 @@ class SharePictureActivity: AppCompatActivity(){
                         }
                         requestData.put("elements", friendList)
                         mSocket?.emit("join", requestData)
-                        println("소켓 join: ${requestData}")
-
                     }
                 }
 
@@ -412,32 +410,18 @@ class SharePictureActivity: AppCompatActivity(){
     override fun onResume() {
         super.onResume()
 
-        // 자동업로드 설정하고 다른 화면 갔다가 다시 돌아왔을 때
-        // 소켓 연결이 끊어졌을 떄
-        // socket 통신 연결
-//        if(mSocket == null){
-//            mSocket = SocketApplication.get()
-//            mSocket?.connect()
-//            mSocket?.emit("join", myKakaoId)
-////            val jsonObject = JSONObject()
-////            jsonObject.put("id", myKakaoId)
-////            jsonObject.put("nickname", myNickname)
-////            jsonObject.put("picture", myPicture)
-////            mSocket?.emit("participate", jsonObject)
-////            println("소켓 resume participate emit: $jsonObject")
-//            mSocket?.on("image", onMessage)
-//            mSocket?.on("join", onRoom)
-//            mSocket?.on("participate", onParticipate)
-//            mSocket?.on("exit", onExit)
-//        }
+        if (mSocket != null && !mSocket?.isActive!!) {
+            mSocket?.connect()
+        }
     }
 
+    // 파일 이름 parsing
     fun getFileNameInUrl(imgUrl: String): String{
         val ary = imgUrl.split("/")
-        println(ary)
         return ary[3]
     }
 
+    // 이미지를 로컬로 다운로드
     private fun imageDownload(albumName: String){
         val savePath: String = Environment.getExternalStoragePublicDirectory(DIRECTORY_DCIM).toString() + "/" + albumName
         val dir = File(savePath)
@@ -506,6 +490,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
+    // 사진의 절대 경로 가져오기
     private fun getAbsolutePath(path: Uri?, context : Context): String {
         var proj: Array<String> = arrayOf(MediaStore.Images.Media.DATA)
         var c: Cursor? = context.contentResolver.query(path!!, proj, null, null, null)
@@ -517,7 +502,7 @@ class SharePictureActivity: AppCompatActivity(){
         return result!!
     }
 
-
+    // 이미지 업로드 post 요청
     private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
         val okHttpClient = OkHttpClient.Builder()
             .readTimeout(20, TimeUnit.SECONDS)
@@ -537,9 +522,8 @@ class SharePictureActivity: AppCompatActivity(){
         server.postImg(image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
             override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
                 progressOff()
-                println("이미지 업로드 ${response.isSuccessful}")
+
                 if (response.isSuccessful){
-                    println("이미지 response ${response.body()}")
                     val jsonArray = JSONArray()
 
                     for (i in 0..response.body()?.img_cnt!! - 1) {
@@ -549,7 +533,6 @@ class SharePictureActivity: AppCompatActivity(){
                     }
 
                     var friendJSON = JSONArray(response.body()?.friends.toString())
-                    println("친구 수 : ${friendJSON.length()}")
 
                     var friendDataList : ArrayList<FriendData> = ArrayList()
 
@@ -581,6 +564,7 @@ class SharePictureActivity: AppCompatActivity(){
         })
     }
 
+    // profile recyclerview 초기화
     private fun setProfileRecyclerview(){
         // profile picture recyclerview 설정
         profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
@@ -594,18 +578,20 @@ class SharePictureActivity: AppCompatActivity(){
         binding.profileRecyclerview.adapter = profilePictureAdapter
     }
 
+    // recyclerview 초기화
     private fun setRecyclerView(){
         // picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 
-
+    // 툴바 메뉴 버튼 설정
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
         return true
     }
 
+    // 툴바 메뉴 버튼
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             // 나가기 버튼
@@ -627,6 +613,7 @@ class SharePictureActivity: AppCompatActivity(){
         return super.onOptionsItemSelected(item)
     }
 
+    // 뒤로가기 2번
     override fun onBackPressed() {
         if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
             backKeyPressedTime = System.currentTimeMillis()
@@ -640,6 +627,7 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
 
+    // 이미지 url을 받았을 때
     var onMessage = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
             val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
@@ -653,6 +641,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
+    // 방에 입장했을 떄
     var onRoom = Emitter.Listener { args->
         CoroutineScope(Dispatchers.Main).launch {
             val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
@@ -661,24 +650,26 @@ class SharePictureActivity: AppCompatActivity(){
                 val imgObj = JSONObject(img_list[i].toString()).getString("url")
                 val imgData = ImageData(imageDataList.size, imgObj)
                 imageDataList.add(imgData)
-                // 데이터 중복 제거
-                imageDataList.distinct()
             }
             setRecyclerView()
         }
     }
 
+    // 방에 친구가 참여했을 때
     var onParticipate = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
+            var joinFriendList: ArrayList<FriendData> = arrayListOf()
 
-            var jsonObj = JSONObject(args[0].toString())
-            val profile = jsonObj.getString("picture")
-            val id = jsonObj.getLong("id")
-            val nickName = jsonObj.getString("nickname")
+            var friendList = JSONObject(args[0].toString()).getJSONArray("friend_list")
+            for (i in 0..friendList.length() - 1) {
+                val jsonObject = JSONObject(friendList[i].toString())
 
-            joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
-            joinFriendList.distinct()
+                val profile = jsonObject.getString("picture")
+                val id = jsonObject.getLong("id")
+                val nickName = jsonObject.getString("nickname")
 
+                joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
+            }
             setProfileRecyclerview()
         }
     }
@@ -693,12 +684,11 @@ class SharePictureActivity: AppCompatActivity(){
                     joinFriendList.removeAt(i)
                 }
             }
-            println("joinFriendList onExit: ${joinFriendList}")
         }
         setProfileRecyclerview()
     }
 
-
+    // 친구 초대 다이얼로그 열기
     fun openInviteDialog(friendDataList : ArrayList<FriendData>) {
         val dialog = InviteDialog(this)
         dialog.setOnOKClickedListener { content ->
@@ -708,7 +698,6 @@ class SharePictureActivity: AppCompatActivity(){
                     sendFriendId.add(friendDataList[i].id!!)
                 }
                 if (sendFriendId.isNotEmpty()){
-                    println("${sendFriendId}")
                     inviteRequest(sendFriendId)
                 }
             }
@@ -716,6 +705,7 @@ class SharePictureActivity: AppCompatActivity(){
         dialog.show(friendDataList)
     }
 
+    // 친구 초대 post 요청
     private fun inviteRequest(friendsId: MutableSet<Long>) {
         val okHttpClient = OkHttpClient.Builder()
             .readTimeout(20, TimeUnit.SECONDS)
@@ -753,6 +743,7 @@ class SharePictureActivity: AppCompatActivity(){
         activityResult.launch(intent)
     }
 
+    // 로딩 다이얼로그 열기
     fun progressOn() {
         val binding = LoadingDialogBinding.inflate(layoutInflater)
         progressDialog = AppCompatDialog(this)
@@ -763,6 +754,7 @@ class SharePictureActivity: AppCompatActivity(){
         progressDialog.show()
     }
 
+    // 로딩 다이얼로그 닫기
     fun progressOff() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss()

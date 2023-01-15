@@ -111,6 +111,7 @@ class ForegroundService : Service() {
             mThread!!.interrupt()
             mThread = null
             mSocket.disconnect()
+            mSocket.close()
         }
         Log.d(TAG, "onDestroy")
     }
