@@ -14,6 +14,7 @@ import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor.ISelectio
 import com.tumblers.picat.adapter.SelectPictureAdapter
 import com.tumblers.picat.databinding.ActivityPictureSelectBinding
 import com.tumblers.picat.dataclass.ImageData
+import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,7 @@ class SelectPictureActivity : AppCompatActivity() {
     lateinit var actionbar: androidx.appcompat.widget.Toolbar
     lateinit var binding: ActivityPictureSelectBinding
     var myKakaoId: Long = 0
+    lateinit var mSocket: Socket
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +49,7 @@ class SelectPictureActivity : AppCompatActivity() {
         }
 
         // socket 통신 연결
-        var mSocket = SocketApplication.get()
+        mSocket = SocketApplication.get()
         mSocket.connect()
         mSocket.emit("join", myKakaoId)
         mSocket.on("join", onJoin)
@@ -81,7 +83,6 @@ class SelectPictureActivity : AppCompatActivity() {
                 val imgData = ImageData(imageDataList.size, imgObj)
                 imageDataList.add(imgData)
                 // 데이터 중복 제거
-                imageDataList.distinct()
             }
 
             setRecyclerView()
@@ -157,6 +158,8 @@ class SelectPictureActivity : AppCompatActivity() {
                 val intent = Intent(this, SharePictureActivity::class.java)
                 intent.putExtra("selectonIdList", mAdapter.mSelected)
                 setResult(1, intent)
+                mSocket.disconnect()
+                mSocket.close()
                 finish()
             }
         }
