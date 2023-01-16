@@ -163,6 +163,14 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
+                if (pref.getLong("invite_id", 0)?.toInt() != 0){
+                    var id = pref.getLong("invite_id", 0)
+                    var roomIdx = pref.getLong("invite_roomIdx", 0)
+                    var picture = pref.getString("invite_picture", "")
+                    var nickname = pref.getString("invite_nickname", "")
+
+                    inviteDialogOn(id, roomIdx, picture, nickname)
+                }
 
                 setProfileRecyclerview()
 
@@ -833,20 +841,22 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     fun inviteDialogOn(id: Long?, roomIdx: Long?, picture: String?, nickname: String?) {
-
         val binding = InviteCheckDialogBinding.inflate(layoutInflater)
         inviteDialog = AppCompatDialog(this)
         inviteDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        Glide.with(this).load(picture).into(binding.friendPicture)
+        Glide.with(this).load(picture).circleCrop().into(binding.friendPicture)
+        binding.kakaoNickName.text = nickname
         inviteDialog.setContentView(binding.root)
         inviteDialog.show()
         binding.inviteAcceptButton.setOnClickListener {
             // 내 id랑, 들어갈 방 번호 post 보내기
             postInviteResponse(id, roomIdx, picture, nickname)
+            pref.edit().clear().commit()
             inviteDialog.dismiss()
         }
         binding.inviteCancelButton.setOnClickListener {
             inviteDialog.dismiss()
+            pref.edit().clear().commit()
         }
     }
 
@@ -868,10 +878,6 @@ class SharePictureActivity: AppCompatActivity(){
 
             override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
                 if (response.body()?.isSuccess!!) {
-                    val jsonObject = JSONObject()
-                    jsonObject.put("id", myKakaoId)
-                    jsonObject.put("nickname", myNickname)
-                    jsonObject.put("picture", myPicture)
                     finishAffinity()
                     val intent = Intent(applicationContext, SharePictureActivity::class.java)
                     startActivity(intent)

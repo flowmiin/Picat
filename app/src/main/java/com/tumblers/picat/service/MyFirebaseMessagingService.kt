@@ -50,6 +50,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         intent.putExtra("invite_picture", remoteMessage.data.getValue("picture").toString())
         intent.putExtra("invite_nickname", remoteMessage.data.getValue("nickname").toString())
 
+        var id = remoteMessage.data.getValue("id").toLong()
+        var roomIdx = remoteMessage.data.getValue("roomIdx").toLong()
+        var picture = remoteMessage.data.getValue("picture").toString()
+        var nickname = remoteMessage.data.getValue("nickname").toString()
+
+        val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
+        pref.edit().putBoolean("store_check", false).commit()
+        pref.edit().putLong("invite_id", id).commit()
+        pref.edit().putLong("invite_roomIdx", roomIdx).commit()
+        pref.edit().putString("invite_picture", picture).commit()
+        pref.edit().putString("invite_nickname", nickname).commit()
+
         /*버전 31부터는 FLAG_IMMUTABLE으로 사용해야함*/
         val resultPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
