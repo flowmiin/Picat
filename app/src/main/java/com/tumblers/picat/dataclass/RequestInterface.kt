@@ -32,4 +32,11 @@ interface RequestInterface {
     fun postSelectedFriend(
         @Query ("id") id: Long
     ) : Call<ImageResponseData>
+
+    @FormUrlEncoded
+    @POST("accept/")
+    fun postInviteResponse(
+        @Field ("id") id: Long?,
+        @Field ("roomIdx") roomIdx: Long?
+    ) :Call<SimpleResponseData>
 }
