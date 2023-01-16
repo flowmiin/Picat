@@ -120,7 +120,7 @@ class SharePictureActivity: AppCompatActivity(){
         var roomIdx = intent?.getLongExtra("invite_roomIdx", 0)
         var picture = intent?.getStringExtra("invite_picture")
         var nickname = intent?.getStringExtra("invite_nickname")
-        println("======$id, $roomIdx $picture $nickname")
+
         if (id?.toInt() != 0){
             inviteDialogOn(id, roomIdx, picture, nickname)
         }
@@ -862,26 +862,25 @@ class SharePictureActivity: AppCompatActivity(){
             .client(okHttpClient)
             .build()
 
-        println("========req invite: $id $roomIdx $picture $nickname")
-
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
         server.postInviteResponse(myKakaoId, roomIdx).enqueue(object : Callback<SimpleResponseData> {
 
             override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
                 if (response.body()?.isSuccess!!) {
-                    println("초대 수락")
                     val jsonObject = JSONObject()
                     jsonObject.put("id", myKakaoId)
                     jsonObject.put("nickname", myNickname)
                     jsonObject.put("picture", myPicture)
-                    mSocket?.emit("participate", jsonObject)
+                    finishAffinity()
+                    val intent = Intent(applicationContext, SharePictureActivity::class.java)
+                    startActivity(intent)
+                    System.exit(0)
                 }
             }
 
             override fun onFailure(call: Call<SimpleResponseData>, t: Throwable) {
                 println("초대 수락 실패")
-                Toast.makeText(applicationContext, "초대 수락이 실패. 다시시도", Toast.LENGTH_SHORT).show()
             }
         })
     }
