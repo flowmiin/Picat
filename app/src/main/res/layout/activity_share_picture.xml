@@ -137,6 +137,7 @@
                 android:layout_marginRight="4dp"
                 android:includeFontPadding="false"
                 android:switchMinWidth="0dp"
+                android:textSize="@dimen/picat_text_size_small"
                 android:textColor="@color/picat_font_color"
                 app:layout_constraintTop_toTopOf="@+id/auto_upload_switch"
                 app:layout_constraintBottom_toBottomOf="@+id/auto_upload_switch"

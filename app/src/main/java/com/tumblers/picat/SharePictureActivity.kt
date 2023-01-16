@@ -100,15 +100,17 @@ class SharePictureActivity: AppCompatActivity(){
         super.onCreate(savedInstanceState)
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // 스크롤뷰 배경 이벤트 설정
+        binding.pictureRecyclerview.isNestedScrollingEnabled = false
+        scrollEvent()
 
         /* TEST CODE
         // 스크롤뷰 테스트 코드
-        var url = "https://images.unsplash.com/photo-1449034446853-66c86144b0ad?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
+        var url = "https://picat-3rd.s3.ap-northeast-2.amazonaws.com/2/6321673847681050.jpg"
         for (i in 0..40){
             imageDataList.add(ImageData(imageDataList.size, "url"))
         }
-        binding.pictureRecyclerview.isNestedScrollingEnabled = false
-        scrollEvent()
+
 
         // 다이얼로그 테스트 코드
         for (i in 0..5){

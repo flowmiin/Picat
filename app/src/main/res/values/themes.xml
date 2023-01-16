@@ -10,7 +10,8 @@
         <item name="colorSecondaryVariant">@color/picat_light_blue</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/picat_blue</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <!-- Customize your theme here. -->
 
         <!-- 애니메이션 사용 설정 -->
