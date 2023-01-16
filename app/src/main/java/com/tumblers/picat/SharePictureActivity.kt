@@ -101,6 +101,22 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        /* TEST CODE
+        // 스크롤뷰 테스트 코드
+        var url = "https://images.unsplash.com/photo-1449034446853-66c86144b0ad?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
+        for (i in 0..40){
+            imageDataList.add(ImageData(imageDataList.size, "url"))
+        }
+        binding.pictureRecyclerview.isNestedScrollingEnabled = false
+        scrollEvent()
+
+        // 다이얼로그 테스트 코드
+        for (i in 0..5){
+            joinFriendList.add(FriendData(joinFriendList.size.toLong(), ImageData(0, url), "테스트"))
+        }
+        openInviteDialog(joinFriendList)
+        TEST CODE */
+
         // socket 통신 연결
         mSocket = SocketApplication.get()
         mSocket?.connect()
@@ -762,6 +778,36 @@ class SharePictureActivity: AppCompatActivity(){
             progressDialog.dismiss()
         }
     }
+
+
+    private fun scrollEvent() {
+
+        binding.scrollView.overScrollMode = View.OVER_SCROLL_NEVER
+
+        // ScrollView에서 받는 이벤트 처리
+        // 1: 완전 불투명
+        // 스크롤 위치에 따라 alpha 값이 변경되므로, 방향은 상관이 없다.
+        binding.scrollView.setOnScrollListener(object : CustomScrollView.OnScrollListener {
+            override fun onScroll(direction: Int, scrollY: Float) {
+
+                // statusBar 높이 구하기
+                var statusBarHeight = 0
+//                val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
+                statusBarHeight = 63
+
+                // top_image 높이 구하기, 나는 끝까지 안올리고 100% 불투명도 만들기위해 statusbar 높이를 뺐다.
+                val backgroundImgHeight = binding.topImage.height - 800
+
+                val alpha = ((backgroundImgHeight - scrollY) / backgroundImgHeight)
+
+                binding.topImage.alpha = alpha
+
+
+            }
+
+        })
+    }
+
 
 }
 

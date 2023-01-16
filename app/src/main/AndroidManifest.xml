@@ -85,7 +85,8 @@
         </activity> <!-- SharePictureActivity -->
         <activity
             android:name=".SharePictureActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

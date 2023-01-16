@@ -5,7 +5,8 @@
     android:background="@drawable/alert_background"
     android:orientation="vertical"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/picat_layout_padding">
 
     <TextView
         android:id="@+id/select_text"
@@ -36,13 +37,13 @@
         android:id="@+id/invite_horizontal_scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp" >
+        android:layout_marginTop="20dp" >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/friend_profile_recyclerview"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="#CFDEFF">
+            android:layout_height="136dp"
+            android:background="@color/picat_light_blue">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/invite_recyclerview"
