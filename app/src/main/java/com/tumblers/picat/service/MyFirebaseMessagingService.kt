@@ -23,7 +23,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val pref = this.getSharedPreferences("token", Context.MODE_PRIVATE)
         pref.edit().putString("token", token).apply()
         pref.edit().commit()
-        println("내 토큰 : ${pref.getString("token", "nothing")}")
     }
 
     // 메시지 수신
@@ -32,7 +31,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
         pref.edit().putBoolean("store_check", false).apply()
         if(remoteMessage.data.isNotEmpty()) {
-            println("From : ${remoteMessage!!.from}")
             sendNotification(remoteMessage)
         }
         else {
@@ -46,18 +44,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         /* 알람을 누르면 실행되는 액티비티를 설정 */
         val intent = Intent(this, SharePictureActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP )
-        //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) // 액티비티 중복 생성 방지
-
-        println("=========$remoteMessage")
-        println("=========${remoteMessage.data}")
-        println("=========${remoteMessage.notification}")
-
-        println("=========${remoteMessage.data.getValue("id")}")
-        println("=========${remoteMessage.data.getValue("roomIdx")}")
-        println("=========${remoteMessage.data.getValue("picture")}")
-        println("=========${remoteMessage.data.getValue("nickname")}")
-
-
 
         intent.putExtra("invite_id", remoteMessage.data.getValue("id").toLong())
         intent.putExtra("invite_roomIdx", remoteMessage.data.getValue("roomIdx").toLong())
