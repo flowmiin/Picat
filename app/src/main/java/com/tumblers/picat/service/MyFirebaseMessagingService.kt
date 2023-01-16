@@ -8,13 +8,11 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.preference.PreferenceManager
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.tumblers.picat.R
 import com.tumblers.picat.SharePictureActivity
-import com.tumblers.picat.dataclass.InviteData
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val TAG = "FirebaseService"
@@ -47,12 +45,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     private fun sendNotification(remoteMessage: RemoteMessage) {
         /* 알람을 누르면 실행되는 액티비티를 설정 */
         val intent = Intent(this, SharePictureActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP )
         //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) // 액티비티 중복 생성 방지
 
         println("=========$remoteMessage")
         println("=========${remoteMessage.data}")
         println("=========${remoteMessage.notification}")
+
+        println("=========${remoteMessage.data.getValue("id")}")
+        println("=========${remoteMessage.data.getValue("roomIdx")}")
+        println("=========${remoteMessage.data.getValue("picture")}")
+        println("=========${remoteMessage.data.getValue("nickname")}")
+
 
 
         intent.putExtra("invite_id", remoteMessage.data.getValue("id").toLong())

@@ -100,6 +100,12 @@ class SharePictureActivity: AppCompatActivity(){
     private lateinit var exitDialog: AppCompatDialog
     private lateinit var inviteDialog: AppCompatDialog
 
+    override fun onNewIntent(intent: Intent?) {
+
+
+        super.onNewIntent(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
@@ -108,19 +114,16 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.isNestedScrollingEnabled = false
         scrollEvent()
 
-        println("has extra ${intent.hasExtra("invite_id")}")
-        if (intent.getStringExtra("invite_picture") != null){
-            // 초대 받고 시작한 경우
-            // 다이얼로그 띄우기
-//                    var invite: InviteData = intent.getSerializableExtra("invite") as InviteData
-            var id = intent.getLongExtra("invite_id", 0)
-            var roomIdx = intent.getLongExtra("invite_roomIdx", 0)
-            var picture = intent.getStringExtra("invite_picture")
-            var nickname = intent.getStringExtra("invite_nickname")
-            inviteDialogOn(InviteData(id, roomIdx, picture, nickname))
-
+        // 초대 받고 시작한 경우
+        // 다이얼로그 띄우기
+        var id = intent?.getLongExtra("invite_id", 0)
+        var roomIdx = intent?.getLongExtra("invite_roomIdx", 0)
+        var picture = intent?.getStringExtra("invite_picture")
+        var nickname = intent?.getStringExtra("invite_nickname")
+        println("======$id, $roomIdx $picture $nickname")
+        if (id?.toInt() != 0){
+            inviteDialogOn(id, roomIdx, picture, nickname)
         }
-
 
 
         // socket 통신 연결
@@ -159,8 +162,6 @@ class SharePictureActivity: AppCompatActivity(){
                 myEmail = user.kakaoAccount?.email
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
-
-
 
 
                 setProfileRecyclerview()
@@ -831,17 +832,17 @@ class SharePictureActivity: AppCompatActivity(){
         exitDialog.show()
     }
 
-    fun inviteDialogOn(invite: InviteData) {
+    fun inviteDialogOn(id: Long?, roomIdx: Long?, picture: String?, nickname: String?) {
 
         val binding = InviteCheckDialogBinding.inflate(layoutInflater)
         inviteDialog = AppCompatDialog(this)
         inviteDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        Glide.with(this).load(invite.picture).into(binding.friendPicture)
+        Glide.with(this).load(picture).into(binding.friendPicture)
         inviteDialog.setContentView(binding.root)
         inviteDialog.show()
         binding.inviteAcceptButton.setOnClickListener {
             // 내 id랑, 들어갈 방 번호 post 보내기
-            postInviteResponse(invite)
+            postInviteResponse(id, roomIdx, picture, nickname)
             inviteDialog.dismiss()
         }
         binding.inviteCancelButton.setOnClickListener {
@@ -850,7 +851,7 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     // 친구 초대 수락 post 요청
-    private fun postInviteResponse(invite: InviteData) {
+    private fun postInviteResponse(id: Long?, roomIdx: Long?, picture: String?, nickname: String?) {
         val okHttpClient = OkHttpClient.Builder()
             .readTimeout(20, TimeUnit.SECONDS)
             .build()
@@ -861,11 +862,11 @@ class SharePictureActivity: AppCompatActivity(){
             .client(okHttpClient)
             .build()
 
-        println("========req invite: $invite")
+        println("========req invite: $id $roomIdx $picture $nickname")
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
-        server.postInviteResponse(myKakaoId, invite.roomIdx).enqueue(object : Callback<SimpleResponseData> {
+        server.postInviteResponse(myKakaoId, roomIdx).enqueue(object : Callback<SimpleResponseData> {
 
             override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
                 if (response.body()?.isSuccess!!) {

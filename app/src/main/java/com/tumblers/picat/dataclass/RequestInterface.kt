@@ -37,6 +37,6 @@ interface RequestInterface {
     @POST("accept/")
     fun postInviteResponse(
         @Field ("id") id: Long?,
-        @Field ("roomIdx") roomIdx: Long
+        @Field ("roomIdx") roomIdx: Long?
     ) :Call<SimpleResponseData>
 }
