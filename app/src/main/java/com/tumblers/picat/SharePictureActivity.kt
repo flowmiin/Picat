@@ -44,6 +44,7 @@ import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
+import com.tumblers.picat.databinding.ExitDialogBinding
 import com.tumblers.picat.databinding.LoadingDialogBinding
 import com.tumblers.picat.dataclass.*
 import com.tumblers.picat.fragment.DownloadCompleteFragment
@@ -95,6 +96,7 @@ class SharePictureActivity: AppCompatActivity(){
     lateinit var pref : SharedPreferences
 
     private lateinit var progressDialog: AppCompatDialog
+    private lateinit var exitDialog: AppCompatDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -613,18 +615,7 @@ class SharePictureActivity: AppCompatActivity(){
         when(item.itemId) {
             // 나가기 버튼
             R.id.out_button -> {
-                mSocket?.emit("exit", myKakaoId)
-                bottomSheetDialog.dismiss()
-
-                UserApiClient.instance.unlink { error ->
-                    if (error != null) {
-                        println("연결 끊기 실패.")
-                    }
-                    else {
-                        println("연결 끊기 성공. SDK에서 토큰 삭제됨")
-                    }
-                }
-                finish()
+                exitDialogOn()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -793,9 +784,8 @@ class SharePictureActivity: AppCompatActivity(){
             override fun onScroll(direction: Int, scrollY: Float) {
 
                 // statusBar 높이 구하기
-                var statusBarHeight = 0
-//                val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
-                statusBarHeight = 63
+                //var statusBarHeight = 0
+                //val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
 
                 // top_image 높이 구하기, 나는 끝까지 안올리고 100% 불투명도 만들기위해 statusbar 높이를 뺐다.
                 val backgroundImgHeight = binding.topImage.height - 800
@@ -810,6 +800,32 @@ class SharePictureActivity: AppCompatActivity(){
         })
     }
 
+
+    // 나가기 다이얼로그 열기
+    fun exitDialogOn() {
+        val binding = ExitDialogBinding.inflate(layoutInflater)
+        exitDialog = AppCompatDialog(this)
+        exitDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        exitDialog.setContentView(binding.root)
+        binding.exitCancelButton.setOnClickListener {
+            exitDialog.dismiss()
+        }
+        binding.exitCheckButton.setOnClickListener {
+            mSocket?.emit("exit", myKakaoId)
+            bottomSheetDialog.dismiss()
+
+            UserApiClient.instance.unlink { error ->
+                if (error != null) {
+                    println("연결 끊기 실패.")
+                }
+                else {
+                    println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+                }
+            }
+            finish()
+        }
+        exitDialog.show()
+    }
 
 }
 

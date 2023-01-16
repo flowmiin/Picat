@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/alert_background">
+
+    <ImageView
+        android:id="@+id/warning_image"
+        android:layout_gravity="center"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/warning" />
+
+    <TextView
+        android:id="@+id/exit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="방 나가기"
+        android:textSize="20dp"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        android:fontFamily="@font/notosans_bold"
+        android:textColor="@color/picat_font_color"
+        android:includeFontPadding="false"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/warning_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="나가기를 하면 사진이 모두 삭제됩니다."
+        android:textSize="16dp"
+        android:textAlignment="center"
+        android:ems="12"
+        android:fontFamily="@font/notosans_regular"
+        android:textColor="@color/picat_font_color"
+        android:includeFontPadding="false"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/warning_text">
+
+        <Button
+            android:id="@+id/exit_cancel_button"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#00ff0000"
+            android:fontFamily="@font/notosans_bold"
+            android:includeFontPadding="false"
+            android:text="취소"
+            android:textColor="@color/picat_font_color"
+            android:textSize="16dp" />
+
+        <Button
+            android:id="@+id/exit_check_button"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#00ff0000"
+            android:fontFamily="@font/notosans_bold"
+            android:includeFontPadding="false"
+            android:text="확인"
+            android:textColor="@color/picat_font_color"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
