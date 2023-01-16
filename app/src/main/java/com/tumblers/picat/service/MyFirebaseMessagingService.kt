@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.preference.PreferenceManager
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -28,35 +29,36 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     // 메시지 수신
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
+        pref.edit().putBoolean("store_check", false).apply()
         // 포그라운드 상태에서 Notification을 받는 경우
         if(remoteMessage.data.isNotEmpty()) {
             println("From : ${remoteMessage!!.from}")
             sendNotification(remoteMessage)
         }
         else {
-            println("메시지를 수신하지 못했습니다.")
+            sendNotification(remoteMessage)
         }
     }
 
     // FCM 메시지를 보낸다
     private fun sendNotification(remoteMessage: RemoteMessage) {
         /* 알람을 누르면 실행되는 액티비티를 설정 */
-        val intent = Intent(this, SharePictureActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) // 액티비티 중복 생성 방지
-        }
+        val intent = Intent(this, SharePictureActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-        for(key in remoteMessage.data.keys){
+        for (key in remoteMessage.data.keys){
             intent.putExtra(key, remoteMessage.data.getValue(key))
         }
 
-        val resultPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+        val resultPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         val channelId = "picat_channel_2"
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.mipmap.picat_app_icn)
-            .setContentTitle("Picat 알림")
-            .setContentText("방에 초대되었습니다.")
+            .setContentTitle(remoteMessage.notification?.title)
+            .setContentText(remoteMessage.notification?.body)
             .setAutoCancel(true) // 알림 클릭시 삭제 여부
             .setContentIntent(resultPendingIntent) // 알림 실행 시 intent
 

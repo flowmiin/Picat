@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/alert_background"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/picat_layout_padding">
+
+    <TextView
+        android:id="@+id/invite_room_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="13"
+        android:fontFamily="@font/notosans_bold"
+        android:includeFontPadding="false"
+        android:text="친구의 방에 입장"
+        android:textAlignment="center"
+        android:textColor="@color/picat_font_color"
+        android:textSize="16dp" />
+    <TextView
+        android:id="@+id/select_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="초대한 친구"
+        android:textAlignment="center"
+        android:textSize="13dp"
+        android:fontFamily="@font/notosans_regular"
+        android:textColor="@color/picat_font_color"
+        android:includeFontPadding="false"
+        android:layout_marginTop="20dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+        <ImageView
+            android:id="@+id/friend_picture"
+            android:scaleType="centerCrop"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:clipToOutline="true"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/kakao_nick_name"/>
+
+        <TextView
+            android:id="@+id/kakao_nick_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:textSize="15dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/friend_picture"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+        <Button
+            android:id="@+id/invite_cancel_button"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#00ff0000"
+            android:text="취소"
+            android:textSize="16dp"
+            android:fontFamily="@font/notosans_bold"
+            android:textColor="@color/picat_font_color"
+            android:includeFontPadding="false" />
+
+        <Button
+            android:id="@+id/invite_accept_button"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#00ff0000"
+            android:text="확인"
+            android:textSize="16dp"
+            android:fontFamily="@font/notosans_bold"
+            android:textColor="@color/picat_font_color"
+            android:includeFontPadding="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

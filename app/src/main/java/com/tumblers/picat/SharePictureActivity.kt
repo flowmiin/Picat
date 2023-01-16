@@ -45,6 +45,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.databinding.ExitDialogBinding
+import com.tumblers.picat.databinding.InviteCheckDialogBinding
 import com.tumblers.picat.databinding.LoadingDialogBinding
 import com.tumblers.picat.dataclass.*
 import com.tumblers.picat.fragment.DownloadCompleteFragment
@@ -97,6 +98,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     private lateinit var progressDialog: AppCompatDialog
     private lateinit var exitDialog: AppCompatDialog
+    private lateinit var inviteDialog: AppCompatDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,20 +108,9 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.isNestedScrollingEnabled = false
         scrollEvent()
 
-        /* TEST CODE
-        // 스크롤뷰 테스트 코드
-        var url = "https://picat-3rd.s3.ap-northeast-2.amazonaws.com/2/6321673847681050.jpg"
-        for (i in 0..40){
-            imageDataList.add(ImageData(imageDataList.size, "url"))
-        }
+        if (intent.hasExtra("invite")) {
 
-
-        // 다이얼로그 테스트 코드
-        for (i in 0..5){
-            joinFriendList.add(FriendData(joinFriendList.size.toLong(), ImageData(0, url), "테스트"))
         }
-        openInviteDialog(joinFriendList)
-        TEST CODE */
 
         // socket 통신 연결
         mSocket = SocketApplication.get()
@@ -143,7 +134,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         // switch 버튼 체크 유무 저장
-        pref = getPreferences(Context.MODE_PRIVATE)
+        pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
 
         // 사용자 정보 요청 및 소켓 연결
         UserApiClient.instance.me { user, error ->
@@ -825,6 +816,20 @@ class SharePictureActivity: AppCompatActivity(){
             finish()
         }
         exitDialog.show()
+    }
+
+    fun inviteDialogOn() {
+        val binding = InviteCheckDialogBinding.inflate(layoutInflater)
+        inviteDialog = AppCompatDialog(this)
+        inviteDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        Glide.with(this).load("사진넣어").into(binding.friendPicture)
+        inviteDialog.setContentView(binding.root)
+        binding.inviteAcceptButton.setOnClickListener {
+            // 내 id랑, 들어갈 방 번호 post 보내기
+        }
+        binding.inviteCancelButton.setOnClickListener {
+            inviteDialog.dismiss()
+        }
     }
 
 }
