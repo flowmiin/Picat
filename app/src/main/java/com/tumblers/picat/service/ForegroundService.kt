@@ -35,7 +35,9 @@ import java.io.File
 
 class ForegroundService : Service() {
 
-    var lastImage : Uri? = null
+    var startImage : Uri? = null
+    var startImageDate : Long? = null
+    var currentImageDate : Long? = null
 
     lateinit var mSocket: Socket
 
@@ -55,7 +57,11 @@ class ForegroundService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         // 액티비티에서 서비스로 넘어 올 때 갤러리에서 가장 최근의 이미지를 저장
         // 나중에 새로운 이미지가 들어오면 비교해야한다.
-        lastImage = getTheLastImage()
+        startImage = getTheLastImage()
+        if (startImage != null) {
+            startImageDate = getImageDateTaken(startImage)
+            currentImageDate = startImageDate
+        }
         myKakaoId = intent.getLongExtra("myKakaoId", -1)
 
         return super.onStartCommand(intent, flags, startId)
@@ -126,18 +132,23 @@ class ForegroundService : Service() {
         val newImage = getTheLastImage()
         val newImageDate = getImageDateTaken(newImage)
 
-        // 새로운 이미지가 들어오기 전의 기존 이미지
-        var lastImageDate: Long? = null
-        if (lastImage != null) {
-            lastImageDate = getImageDateTaken(lastImage)
-        }
 
         // 새로운 이미지 날짜와 기존 이미지 날짜를 비교
-        // 또는 갤러리에 이미지가 없는 상태에서 새로운 이미지가 들어왔을떄
-//        print("새 이미지: $newImageDate")
-//        println("기존 이미지: $lastImageDate")
-        if (((lastImageDate != null) && (newImageDate!! > lastImageDate)) || ((lastImageDate == null) && (newImageDate != null))) {
-            lastImage = newImage!!
+        if ((currentImageDate != null) && (newImageDate != null) && (newImageDate!! > currentImageDate!!)) {
+            currentImageDate = newImageDate
+            var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
+            var file = File(getAbsolutePath(newImage, this))
+            var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
+            var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+            emitBody?.add(body)
+            apiRequest(emitBody, 1)
+        }
+
+        // 갤러리에 이미지가 없는 상태에서 새로운 이미지가 들어왔을떄
+        else if ((currentImageDate == null) && (newImageDate != null)) {
+            startImage = newImage!!
+            startImageDate = getImageDateTaken(startImage)
+            currentImageDate = startImageDate
 
             var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
             var file = File(getAbsolutePath(newImage, this))
@@ -145,7 +156,6 @@ class ForegroundService : Service() {
             var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
             emitBody?.add(body)
             apiRequest(emitBody, 1)
-
         }
 
     }
@@ -271,9 +281,12 @@ class ForegroundService : Service() {
             contentResolver.query(it, projection, null, null, null)
         }?: return null
         val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        cursor.moveToFirst()
-        val s = cursor.getString(columnIndex)
+        if (cursor.moveToFirst()) {
+            val s = cursor.getString(columnIndex)
+            cursor.close()
+            return s
+        }
         cursor.close()
-        return s
+        return null
     }
 }
