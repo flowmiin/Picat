@@ -108,9 +108,6 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.isNestedScrollingEnabled = false
         scrollEvent()
 
-        if (intent.hasExtra("invite")) {
-
-        }
 
         // socket 통신 연결
         mSocket = SocketApplication.get()
@@ -149,6 +146,14 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
+                if (pref.getLong("invite_id", 0)?.toInt() != 0){
+                    var id = pref.getLong("invite_id", 0)
+                    var roomIdx = pref.getLong("invite_roomIdx", 0)
+                    var picture = pref.getString("invite_picture", "")
+                    var nickname = pref.getString("invite_nickname", "")
+
+                    inviteDialogOn(id, roomIdx, picture, nickname)
+                }
 
                 setProfileRecyclerview()
 
@@ -818,18 +823,58 @@ class SharePictureActivity: AppCompatActivity(){
         exitDialog.show()
     }
 
-    fun inviteDialogOn() {
+    fun inviteDialogOn(id: Long?, roomIdx: Long?, picture: String?, nickname: String?) {
         val binding = InviteCheckDialogBinding.inflate(layoutInflater)
         inviteDialog = AppCompatDialog(this)
         inviteDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        Glide.with(this).load("사진넣어").into(binding.friendPicture)
+        Glide.with(this).load(picture).circleCrop().into(binding.friendPicture)
+        binding.kakaoNickName.text = nickname
         inviteDialog.setContentView(binding.root)
+
+        inviteDialog.show()
         binding.inviteAcceptButton.setOnClickListener {
             // 내 id랑, 들어갈 방 번호 post 보내기
+            postInviteResponse(id, roomIdx, picture, nickname)
+            pref.edit().clear().commit()
+            inviteDialog.dismiss()
         }
         binding.inviteCancelButton.setOnClickListener {
             inviteDialog.dismiss()
+            pref.edit().clear().commit()
         }
+    }
+
+    // 친구 초대 수락 post 요청
+    private fun postInviteResponse(id: Long?, roomIdx: Long?, picture: String?, nickname: String?) {
+        val okHttpClient = OkHttpClient.Builder()
+            .readTimeout(20, TimeUnit.SECONDS)
+            .build()
+
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl(getString(R.string.picat_server))
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+
+
+        // APIInterface 객체 생성
+        var server: RequestInterface = retrofit.create(RequestInterface::class.java)
+        server.postInviteResponse(myKakaoId, roomIdx).enqueue(object : Callback<SimpleResponseData> {
+
+            override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
+                if (response.body()?.isSuccess!!) {
+                    finishAffinity()
+                    val intent = Intent(applicationContext, SharePictureActivity::class.java)
+                    startActivity(intent)
+                    System.exit(0)
+                }
+            }
+
+            override fun onFailure(call: Call<SimpleResponseData>, t: Throwable) {
+                println("초대 수락 실패")
+                Toast.makeText(applicationContext, "초대 수락 실패. 다시시도", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
 }

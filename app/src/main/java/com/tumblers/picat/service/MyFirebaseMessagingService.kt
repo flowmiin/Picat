@@ -8,12 +8,13 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.preference.PreferenceManager
+import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.tumblers.picat.R
 import com.tumblers.picat.SharePictureActivity
+
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val TAG = "FirebaseService"
@@ -29,8 +30,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     // 메시지 수신
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
-        pref.edit().putBoolean("store_check", false).apply()
+
         // 포그라운드 상태에서 Notification을 받는 경우
         if(remoteMessage.data.isNotEmpty()) {
             println("From : ${remoteMessage!!.from}")
@@ -47,9 +47,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val intent = Intent(this, SharePictureActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-        for (key in remoteMessage.data.keys){
-            intent.putExtra(key, remoteMessage.data.getValue(key))
-        }
+        var id = remoteMessage.data.getValue("id").toLong()
+        var roomIdx = remoteMessage.data.getValue("roomIdx").toLong()
+        var picture = remoteMessage.data.getValue("picture").toString()
+        var nickname = remoteMessage.data.getValue("nickname").toString()
+
+        val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
+        pref.edit().putBoolean("store_check", false).commit()
+        pref.edit().putLong("invite_id", id).commit()
+        pref.edit().putLong("invite_roomIdx", roomIdx).commit()
+        pref.edit().putString("invite_picture", picture).commit()
+        pref.edit().putString("invite_nickname", nickname).commit()
+
 
         val resultPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
@@ -57,8 +66,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.mipmap.picat_app_icn)
-            .setContentTitle(remoteMessage.notification?.title)
-            .setContentText(remoteMessage.notification?.body)
+            .setContentTitle("Picat 초대 알림")
+            .setContentText("${remoteMessage.data.getValue("nickname")}님이 사진공유를 요청했어요")
             .setAutoCancel(true) // 알림 클릭시 삭제 여부
             .setContentIntent(resultPendingIntent) // 알림 실행 시 intent
 
