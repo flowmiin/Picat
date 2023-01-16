@@ -106,6 +106,21 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.isNestedScrollingEnabled = false
         scrollEvent()
 
+
+
+        if (intent.hasExtra("invite")){
+            // 초대 받고 시작한 경우
+            // 다이얼로그 띄우기
+            val builder = AlertDialog.Builder(this, R.style.BasicDialogTheme)
+            val invitePushAlertView = LayoutInflater.from(this)
+                .inflate(R.layout.basic_alert_content, findViewById<ConstraintLayout>(R.id.basic_alert_layout))
+            builder.setView(createAlbumAlertView)
+            var alertDialog : AlertDialog? = builder.create()
+            alertDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+
+        }
+
         /* TEST CODE
         // 스크롤뷰 테스트 코드
         var url = "https://picat-3rd.s3.ap-northeast-2.amazonaws.com/2/6321673847681050.jpg"
