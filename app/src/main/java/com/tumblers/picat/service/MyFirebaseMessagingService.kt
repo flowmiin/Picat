@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.preference.PreferenceManager
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -30,6 +31,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     // 메시지 수신
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // 앱이 비활성 상태일때
+        val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
+        pref.edit().putBoolean("store_check", false).apply()
         if(remoteMessage.data.isNotEmpty()) {
             println("From : ${remoteMessage!!.from}")
             sendNotification(remoteMessage)
@@ -47,19 +50,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) // 액티비티 중복 생성 방지
 
-
-
         println("=========$remoteMessage")
         println("=========${remoteMessage.data}")
         println("=========${remoteMessage.notification}")
-        var inviteData = InviteData(
-            remoteMessage.data.getValue("id").toLong(),
-            remoteMessage.data.getValue("roomIdx").toInt(),
-            remoteMessage.data.getValue("picture"),
-            remoteMessage.data.getValue("nickname")
-        )
 
-        intent.putExtra("invite", inviteData)
+
+        intent.putExtra("invite_id", remoteMessage.data.getValue("id").toLong())
+        intent.putExtra("invite_roomIdx", remoteMessage.data.getValue("roomIdx").toLong())
+        intent.putExtra("invite_picture", remoteMessage.data.getValue("picture").toString())
+        intent.putExtra("invite_nickname", remoteMessage.data.getValue("nickname").toString())
 
         /*버전 31부터는 FLAG_IMMUTABLE으로 사용해야함*/
         val resultPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
