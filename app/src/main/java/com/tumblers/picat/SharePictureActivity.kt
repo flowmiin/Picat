@@ -94,7 +94,8 @@ class SharePictureActivity: AppCompatActivity(){
     var backKeyPressedTime: Long = 0
 
     // switch 상태 저장
-    lateinit var pref : SharedPreferences
+    lateinit var switch_pref : SharedPreferences
+    lateinit var invite_pref : SharedPreferences
 
     private lateinit var progressDialog: AppCompatDialog
     private lateinit var exitDialog: AppCompatDialog
@@ -107,7 +108,6 @@ class SharePictureActivity: AppCompatActivity(){
         // 스크롤뷰 배경 이벤트 설정
         binding.pictureRecyclerview.isNestedScrollingEnabled = false
         scrollEvent()
-
 
         // socket 통신 연결
         mSocket = SocketApplication.get()
@@ -131,7 +131,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         // switch 버튼 체크 유무 저장
-        pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
+        switch_pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
 
         // 사용자 정보 요청 및 소켓 연결
         UserApiClient.instance.me { user, error ->
@@ -146,11 +146,13 @@ class SharePictureActivity: AppCompatActivity(){
                 myPicture = user.kakaoAccount?.profile?.profileImageUrl
                 myNickname = user.kakaoAccount?.profile?.nickname
 
-                if (pref.getLong("invite_id", 0)?.toInt() != 0){
-                    var id = pref.getLong("invite_id", 0)
-                    var roomIdx = pref.getLong("invite_roomIdx", 0)
-                    var picture = pref.getString("invite_picture", "")
-                    var nickname = pref.getString("invite_nickname", "")
+                invite_pref = getSharedPreferences("invite_pref", Context.MODE_PRIVATE)
+
+                if (invite_pref.getLong("invite_id", 0)?.toInt() != 0){
+                    var id = invite_pref.getLong("invite_id", 0)
+                    var roomIdx = invite_pref.getLong("invite_roomIdx", 0)
+                    var picture = invite_pref.getString("invite_picture", "")
+                    var nickname = invite_pref.getString("invite_nickname", "")
 
                     inviteDialogOn(id, roomIdx, picture, nickname)
                 }
@@ -309,7 +311,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         // 자동 업로드 스위치 버튼 저장값 불러오기
-        if(pref.getBoolean("store_check", false)) {
+        if(switch_pref.getBoolean("store_check", false)) {
             binding.autoUploadSwitch.isChecked = true
         }
 
@@ -321,7 +323,7 @@ class SharePictureActivity: AppCompatActivity(){
                     // 포어그라운드 실행
                     val serviceIntent = Intent(this, ForegroundService::class.java)
                     serviceIntent.putExtra("myKakaoId", myKakaoId)
-                    pref.edit().putBoolean("store_check", true).apply()
+                    switch_pref.edit().putBoolean("store_check", true).apply()
                     ContextCompat.startForegroundService(this, serviceIntent)
                     Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
                 }
@@ -334,7 +336,7 @@ class SharePictureActivity: AppCompatActivity(){
                 // 포어그라운드 종료
                 val serviceIntent = Intent(this, ForegroundService::class.java)
                 stopService(serviceIntent)
-                pref.edit().putBoolean("store_check", false).apply()
+                switch_pref.edit().putBoolean("store_check", false).apply()
                 Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
         }
@@ -886,17 +888,16 @@ class SharePictureActivity: AppCompatActivity(){
         Glide.with(this).load(picture).circleCrop().into(binding.friendPicture)
         binding.kakaoNickName.text = nickname
         inviteDialog.setContentView(binding.root)
-
         inviteDialog.show()
         binding.inviteAcceptButton.setOnClickListener {
             // 내 id랑, 들어갈 방 번호 post 보내기
             postInviteResponse(id, roomIdx, picture, nickname)
-            pref.edit().clear().commit()
+            invite_pref.edit().clear().commit()
             inviteDialog.dismiss()
         }
         binding.inviteCancelButton.setOnClickListener {
             inviteDialog.dismiss()
-            pref.edit().clear().commit()
+            invite_pref.edit().clear().commit()
         }
     }
 
@@ -911,7 +912,6 @@ class SharePictureActivity: AppCompatActivity(){
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
-
 
         // APIInterface 객체 생성
         var server: RequestInterface = retrofit.create(RequestInterface::class.java)
@@ -928,7 +928,6 @@ class SharePictureActivity: AppCompatActivity(){
 
             override fun onFailure(call: Call<SimpleResponseData>, t: Throwable) {
                 println("초대 수락 실패")
-                Toast.makeText(applicationContext, "초대 수락 실패. 다시시도", Toast.LENGTH_SHORT).show()
             }
         })
     }
