@@ -896,15 +896,15 @@ class SharePictureActivity: AppCompatActivity(){
         binding.exitCheckButton.setOnClickListener {
             mSocket?.emit("exit", myKakaoId)
             bottomSheetDialog.dismiss()
-
-            UserApiClient.instance.unlink { error ->
-                if (error != null) {
-                    println("연결 끊기 실패.")
-                }
-                else {
-                    println("연결 끊기 성공. SDK에서 토큰 삭제됨")
-                }
-            }
+            exitDialog.dismiss()
+//            UserApiClient.instance.unlink { error ->
+//                if (error != null) {
+//                    println("연결 끊기 실패.")
+//                }
+//                else {
+//                    println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+//                }
+//            }
             finish()
         }
         exitDialog.show()
