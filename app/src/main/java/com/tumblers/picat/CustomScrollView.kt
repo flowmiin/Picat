@@ -3,8 +3,9 @@ package com.tumblers.picat
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.ScrollView
+import androidx.core.widget.NestedScrollView
 
-class CustomScrollView: ScrollView {
+class CustomScrollView: NestedScrollView {
 
     var SCROLL_UP = 0
     var SCROLL_DOWN = 1

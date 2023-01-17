@@ -29,14 +29,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // 앱이 비활성 상태일때
         val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
-        pref.edit().putBoolean("store_check", false).apply()
-        if(remoteMessage.data.isNotEmpty()) {
-            sendNotification(remoteMessage)
-        }
-        else {
-            //앱이 활성 상태 일때
-            sendNotification(remoteMessage)
-        }
+        pref.edit().putBoolean("store_check", false).commit()
+
+        sendNotification(remoteMessage)
+
     }
 
     // FCM 메시지를 보낸다
@@ -44,11 +40,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         /* 알람을 누르면 실행되는 액티비티를 설정 */
         val intent = Intent(this, SharePictureActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP )
-
-        intent.putExtra("invite_id", remoteMessage.data.getValue("id").toLong())
-        intent.putExtra("invite_roomIdx", remoteMessage.data.getValue("roomIdx").toLong())
-        intent.putExtra("invite_picture", remoteMessage.data.getValue("picture").toString())
-        intent.putExtra("invite_nickname", remoteMessage.data.getValue("nickname").toString())
+        //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) // 액티비티 중복 생성 방지
 
         var id = remoteMessage.data.getValue("id").toLong()
         var roomIdx = remoteMessage.data.getValue("roomIdx").toLong()

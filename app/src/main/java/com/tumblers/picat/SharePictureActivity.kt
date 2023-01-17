@@ -115,6 +115,7 @@ class SharePictureActivity: AppCompatActivity(){
 //        binding.pictureRecyclerview.isNestedScrollingEnabled = false
         scrollEvent()
 
+
         // socket 통신 연결
         mSocket = SocketApplication.get()
         mSocket?.connect()
@@ -643,6 +644,20 @@ class SharePictureActivity: AppCompatActivity(){
 
     // 이미지 url을 받았을 때
     var onImage = Emitter.Listener { args ->
+//        Thread {
+//            runOnUiThread(Runnable {
+//                kotlin.run {
+//                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+//                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+//                    for (i in 0 until img_count) {
+//                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
+//                        val imgData = ImageData(imageDataList.size, imgObj)
+//                        imageDataList.add(imgData)
+//                    }
+//                    setRecyclerView()
+//                }
+//            })
+//        }.start()
         CoroutineScope(Dispatchers.Main).launch {
             mutex.withLock {
                 val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
@@ -657,7 +672,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
-    // 방에 입장했을 떄
+    // 방에 입장했을 때
     var onJoin = Emitter.Listener { args->
         CoroutineScope(Dispatchers.Main).launch {
             mutex.withLock {
@@ -671,10 +686,50 @@ class SharePictureActivity: AppCompatActivity(){
                 setRecyclerView()
             }
         }
+//        Thread {
+//            runOnUiThread(Runnable {
+//                kotlin.run {
+//                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+//                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+//                    for (i in 0 until img_count) {
+//                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
+//                        val imgData = ImageData(imageDataList.size, imgObj)
+//                        imageDataList.add(imgData)
+//                    }
+//                    setRecyclerView()
+//                }
+//            })
+//        }.start()
     }
 
     // 방에 친구가 참여했을 때
     var onParticipate = Emitter.Listener { args ->
+
+//        Thread {
+//            runOnUiThread(Runnable {
+//                kotlin.run {
+//                    joinFriendList?.clear()
+//                    var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
+//                    for (i in 0 until friendList.length()) {
+//                        val jsonObject = JSONObject(friendList[i].toString())
+//
+//                        val profile = jsonObject.getString("picture")
+//                        val id = jsonObject.getLong("id")
+//                        val nickName = jsonObject.getString("nickname")
+//
+//                        joinFriendList.add(
+//                            FriendData(
+//                                id,
+//                                ImageData(joinFriendList.size, profile),
+//                                nickName
+//                            )
+//                        )
+//                    }
+//
+//                    setProfileRecyclerview()
+//                }
+//            })
+//        }.start()
         CoroutineScope(Dispatchers.Main).launch {
             mutex.withLock {
                 joinFriendList?.clear()
@@ -694,6 +749,24 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     var onExit = Emitter.Listener { args ->
+
+//        Thread(object : Runnable{
+//            override fun run() {
+//                runOnUiThread(Runnable {
+//                    kotlin.run {
+//                        val id = args[0].toString().toLong()
+//
+//                        for ( friend in joinFriendList){
+//                            if (friend.id == id){
+//                                joinFriendList.remove(friend)
+//                                break
+//                            }
+//                        }
+//                        setProfileRecyclerview()
+//                    }
+//                })
+//            }
+//        }).start()
         CoroutineScope(Dispatchers.Main).launch {
             mutex.withLock {
                 val id = args[0].toString().toLong()
