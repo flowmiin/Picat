@@ -107,7 +107,7 @@ class SharePictureActivity: AppCompatActivity(){
         setContentView(binding.root)
         // 스크롤뷰 배경 이벤트 설정
 //        binding.pictureRecyclerview.isNestedScrollingEnabled = false
-//        scrollEvent()
+        scrollEvent()
 
 
         // socket 통신 연결
@@ -846,29 +846,29 @@ class SharePictureActivity: AppCompatActivity(){
 
     private fun scrollEvent() {
 
-//        binding.scrollView.overScrollMode = View.OVER_SCROLL_NEVER
-//
-//        // ScrollView에서 받는 이벤트 처리
-//        // 1: 완전 불투명
-//        // 스크롤 위치에 따라 alpha 값이 변경되므로, 방향은 상관이 없다.
-//        binding.scrollView.setOnScrollListener(object : CustomScrollView.OnScrollListener {
-//            override fun onScroll(direction: Int, scrollY: Float) {
-//
-//                // statusBar 높이 구하기
-//                //var statusBarHeight = 0
-//                //val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
-//
-//                // top_image 높이 구하기, 나는 끝까지 안올리고 100% 불투명도 만들기위해 statusbar 높이를 뺐다.
-//                val backgroundImgHeight = binding.topImage.height - 800
-//
-//                val alpha = ((backgroundImgHeight - scrollY) / backgroundImgHeight)
-//
-//                binding.topImage.alpha = alpha
-//
-//
-//            }
-//
-//        })
+        binding.scrollView.overScrollMode = View.OVER_SCROLL_NEVER
+
+        // ScrollView에서 받는 이벤트 처리
+        // 1: 완전 불투명
+        // 스크롤 위치에 따라 alpha 값이 변경되므로, 방향은 상관이 없다.
+        binding.scrollView.setOnScrollListener(object : CustomScrollView.OnScrollListener {
+            override fun onScroll(direction: Int, scrollY: Float) {
+
+                // statusBar 높이 구하기
+                //var statusBarHeight = 0
+                //val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
+
+                // top_image 높이 구하기, 나는 끝까지 안올리고 100% 불투명도 만들기위해 statusbar 높이를 뺐다.
+                val backgroundImgHeight = binding.topImage.height - 800
+
+                val alpha = ((backgroundImgHeight - scrollY) / backgroundImgHeight)
+
+                binding.topImage.alpha = alpha
+
+
+            }
+
+        })
     }
 
 
