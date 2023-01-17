@@ -106,8 +106,8 @@ class SharePictureActivity: AppCompatActivity(){
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
         // 스크롤뷰 배경 이벤트 설정
-        binding.pictureRecyclerview.isNestedScrollingEnabled = false
-        scrollEvent()
+//        binding.pictureRecyclerview.isNestedScrollingEnabled = false
+//        scrollEvent()
 
 
         // socket 통신 연결
@@ -638,6 +638,20 @@ class SharePictureActivity: AppCompatActivity(){
 
     // 이미지 url을 받았을 때
     var onImage = Emitter.Listener { args ->
+//        Thread {
+//            runOnUiThread(Runnable {
+//                kotlin.run {
+//                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+//                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+//                    for (i in 0 until img_count) {
+//                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
+//                        val imgData = ImageData(imageDataList.size, imgObj)
+//                        imageDataList.add(imgData)
+//                    }
+//                    setRecyclerView()
+//                }
+//            })
+//        }.start()
         CoroutineScope(Dispatchers.Main).launch {
             val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
             val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
@@ -652,106 +666,108 @@ class SharePictureActivity: AppCompatActivity(){
 
     // 방에 입장했을 때
     var onJoin = Emitter.Listener { args->
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-//            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-//            for (i in 0 until img_count) {
-//                val imgObj = JSONObject(img_list[i].toString()).getString("url")
-//                val imgData = ImageData(imageDataList.size, imgObj)
-//                imageDataList.add(imgData)
-//            }
-//            setRecyclerView()
-//        }
-        Thread(object : Runnable{
-            override fun run() {
-                runOnUiThread(Runnable {
-                    kotlin.run {
-                        val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-                        val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-                        for (i in 0 until img_count) {
-                            val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                            val imgData = ImageData(imageDataList.size, imgObj)
-                            imageDataList.add(imgData)
-                        }
-                        setRecyclerView()
-                    }
-                })
+        CoroutineScope(Dispatchers.Main).launch {
+            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+            for (i in 0 until img_count) {
+                val imgObj = JSONObject(img_list[i].toString()).getString("url")
+                val imgData = ImageData(imageDataList.size, imgObj)
+                imageDataList.add(imgData)
             }
-        }).start()
+            setRecyclerView()
+        }
+//        Thread {
+//            runOnUiThread(Runnable {
+//                kotlin.run {
+//                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+//                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+//                    for (i in 0 until img_count) {
+//                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
+//                        val imgData = ImageData(imageDataList.size, imgObj)
+//                        imageDataList.add(imgData)
+//                    }
+//                    setRecyclerView()
+//                }
+//            })
+//        }.start()
     }
 
     // 방에 친구가 참여했을 때
     var onParticipate = Emitter.Listener { args ->
 
-        Thread(object : Runnable{
-            override fun run() {
-                runOnUiThread(Runnable {
-                    kotlin.run {
-                        joinFriendList?.clear()
-                        var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
-                        for (i in 0 until friendList.length()) {
-                            val jsonObject = JSONObject(friendList[i].toString())
+//        Thread {
+//            runOnUiThread(Runnable {
+//                kotlin.run {
+//                    joinFriendList?.clear()
+//                    var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
+//                    for (i in 0 until friendList.length()) {
+//                        val jsonObject = JSONObject(friendList[i].toString())
+//
+//                        val profile = jsonObject.getString("picture")
+//                        val id = jsonObject.getLong("id")
+//                        val nickName = jsonObject.getString("nickname")
+//
+//                        joinFriendList.add(
+//                            FriendData(
+//                                id,
+//                                ImageData(joinFriendList.size, profile),
+//                                nickName
+//                            )
+//                        )
+//                    }
+//
+//                    setProfileRecyclerview()
+//                }
+//            })
+//        }.start()
+        CoroutineScope(Dispatchers.Main).launch {
+            joinFriendList?.clear()
+            var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
+            for (i in 0 until friendList.length()) {
+                val jsonObject = JSONObject(friendList[i].toString())
 
-                            val profile = jsonObject.getString("picture")
-                            val id = jsonObject.getLong("id")
-                            val nickName = jsonObject.getString("nickname")
+                val profile = jsonObject.getString("picture")
+                val id = jsonObject.getLong("id")
+                val nickName = jsonObject.getString("nickname")
 
-                            joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
-                        }
-
-                        setProfileRecyclerview()
-                    }
-                })
+                joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
             }
-        }).start()
-//        CoroutineScope(Dispatchers.Main).launch {
-//            joinFriendList?.clear()
-//            var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
-//            for (i in 0 until friendList.length()) {
-//                val jsonObject = JSONObject(friendList[i].toString())
-//
-//                val profile = jsonObject.getString("picture")
-//                val id = jsonObject.getLong("id")
-//                val nickName = jsonObject.getString("nickname")
-//
-//                joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
-//            }
-//
-//            setProfileRecyclerview()
-//        }
+
+            setProfileRecyclerview()
+        }
     }
 
 
     var onExit = Emitter.Listener { args ->
 
-        Thread(object : Runnable{
-            override fun run() {
-                runOnUiThread(Runnable {
-                    kotlin.run {
-                        val id = args[0].toString().toLong()
-
-                        for ( friend in joinFriendList){
-                            if (friend.id == id){
-                                joinFriendList.remove(friend)
-                                break
-                            }
-                        }
-                        setProfileRecyclerview()
-                    }
-                })
-            }
-        }).start()
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val id = args[0].toString().toLong()
+//        Thread(object : Runnable{
+//            override fun run() {
+//                runOnUiThread(Runnable {
+//                    kotlin.run {
+//                        val id = args[0].toString().toLong()
 //
-//            for ( friend in joinFriendList){
-//                if (friend.id == id){
-//                    joinFriendList.remove(friend)
-//                    break
-//                }
+//                        for ( friend in joinFriendList){
+//                            if (friend.id == id){
+//                                joinFriendList.remove(friend)
+//                                break
+//                            }
+//                        }
+//                        setProfileRecyclerview()
+//                    }
+//                })
 //            }
-//            setProfileRecyclerview()
-//        }
+//        }).start()
+        CoroutineScope(Dispatchers.Main).launch {
+            val id = args[0].toString().toLong()
+
+            for ( friend in joinFriendList){
+                if (friend.id == id){
+                    joinFriendList.remove(friend)
+                    break
+                }
+            }
+            setProfileRecyclerview()
+        }
     }
 
     // 친구 초대 다이얼로그 열기
@@ -830,29 +846,29 @@ class SharePictureActivity: AppCompatActivity(){
 
     private fun scrollEvent() {
 
-        binding.scrollView.overScrollMode = View.OVER_SCROLL_NEVER
-
-        // ScrollView에서 받는 이벤트 처리
-        // 1: 완전 불투명
-        // 스크롤 위치에 따라 alpha 값이 변경되므로, 방향은 상관이 없다.
-        binding.scrollView.setOnScrollListener(object : CustomScrollView.OnScrollListener {
-            override fun onScroll(direction: Int, scrollY: Float) {
-
-                // statusBar 높이 구하기
-                //var statusBarHeight = 0
-                //val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
-
-                // top_image 높이 구하기, 나는 끝까지 안올리고 100% 불투명도 만들기위해 statusbar 높이를 뺐다.
-                val backgroundImgHeight = binding.topImage.height - 800
-
-                val alpha = ((backgroundImgHeight - scrollY) / backgroundImgHeight)
-
-                binding.topImage.alpha = alpha
-
-
-            }
-
-        })
+//        binding.scrollView.overScrollMode = View.OVER_SCROLL_NEVER
+//
+//        // ScrollView에서 받는 이벤트 처리
+//        // 1: 완전 불투명
+//        // 스크롤 위치에 따라 alpha 값이 변경되므로, 방향은 상관이 없다.
+//        binding.scrollView.setOnScrollListener(object : CustomScrollView.OnScrollListener {
+//            override fun onScroll(direction: Int, scrollY: Float) {
+//
+//                // statusBar 높이 구하기
+//                //var statusBarHeight = 0
+//                //val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
+//
+//                // top_image 높이 구하기, 나는 끝까지 안올리고 100% 불투명도 만들기위해 statusbar 높이를 뺐다.
+//                val backgroundImgHeight = binding.topImage.height - 800
+//
+//                val alpha = ((backgroundImgHeight - scrollY) / backgroundImgHeight)
+//
+//                binding.topImage.alpha = alpha
+//
+//
+//            }
+//
+//        })
     }
 
 
