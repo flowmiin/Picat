@@ -55,8 +55,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         var picture = remoteMessage.data.getValue("picture").toString()
         var nickname = remoteMessage.data.getValue("nickname").toString()
 
-        val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
-        pref.edit().putBoolean("store_check", false).commit()
+        val pref = getSharedPreferences("invite_pref", Context.MODE_PRIVATE)
         pref.edit().putLong("invite_id", id).commit()
         pref.edit().putLong("invite_roomIdx", roomIdx).commit()
         pref.edit().putString("invite_picture", picture).commit()
