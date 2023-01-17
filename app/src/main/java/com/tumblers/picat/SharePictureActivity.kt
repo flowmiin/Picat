@@ -649,7 +649,7 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
-    // 방에 입장했을 떄
+    // 방에 입장했을 때
     var onJoin = Emitter.Listener { args->
 //        CoroutineScope(Dispatchers.Main).launch {
 //            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
