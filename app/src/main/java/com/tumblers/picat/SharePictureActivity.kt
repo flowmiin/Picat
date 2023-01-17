@@ -100,6 +100,12 @@ class SharePictureActivity: AppCompatActivity(){
     private lateinit var exitDialog: AppCompatDialog
     private lateinit var inviteDialog: AppCompatDialog
 
+    override fun onNewIntent(intent: Intent?) {
+
+
+        super.onNewIntent(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
@@ -824,13 +830,13 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     fun inviteDialogOn(id: Long?, roomIdx: Long?, picture: String?, nickname: String?) {
+
         val binding = InviteCheckDialogBinding.inflate(layoutInflater)
         inviteDialog = AppCompatDialog(this)
         inviteDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         Glide.with(this).load(picture).circleCrop().into(binding.friendPicture)
         binding.kakaoNickName.text = nickname
         inviteDialog.setContentView(binding.root)
-
         inviteDialog.show()
         binding.inviteAcceptButton.setOnClickListener {
             // 내 id랑, 들어갈 방 번호 post 보내기
@@ -867,6 +873,7 @@ class SharePictureActivity: AppCompatActivity(){
                     val intent = Intent(applicationContext, SharePictureActivity::class.java)
                     startActivity(intent)
                     System.exit(0)
+
                 }
             }
 
