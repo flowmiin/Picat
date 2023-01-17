@@ -8,16 +8,11 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-<<<<<<< HEAD
-import androidx.core.app.NotificationManagerCompat
-=======
->>>>>>> d680d69c1da96a2032084832990a0ca015d5800d
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.tumblers.picat.R
 import com.tumblers.picat.SharePictureActivity
-
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val TAG = "FirebaseService"
@@ -28,27 +23,16 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val pref = this.getSharedPreferences("token", Context.MODE_PRIVATE)
         pref.edit().putString("token", token).apply()
         pref.edit().commit()
-        println("내 토큰 : ${pref.getString("token", "nothing")}")
     }
 
     // 메시지 수신
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-<<<<<<< HEAD
-
-        // 포그라운드 상태에서 Notification을 받는 경우
-=======
         // 앱이 비활성 상태일때
         val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
-        pref.edit().putBoolean("store_check", false).apply()
->>>>>>> d680d69c1da96a2032084832990a0ca015d5800d
-        if(remoteMessage.data.isNotEmpty()) {
-            println("From : ${remoteMessage!!.from}")
-            sendNotification(remoteMessage)
-        }
-        else {
-            //앱이 활성 상태 일때
-            sendNotification(remoteMessage)
-        }
+        pref.edit().putBoolean("store_check", false).commit()
+
+        sendNotification(remoteMessage)
+
     }
 
     // FCM 메시지를 보낸다
@@ -58,36 +42,16 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP )
         //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) // 액티비티 중복 생성 방지
 
-<<<<<<< HEAD
         var id = remoteMessage.data.getValue("id").toLong()
         var roomIdx = remoteMessage.data.getValue("roomIdx").toLong()
         var picture = remoteMessage.data.getValue("picture").toString()
         var nickname = remoteMessage.data.getValue("nickname").toString()
 
-        val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
-        pref.edit().putBoolean("store_check", false).commit()
+        val pref = getSharedPreferences("invite_pref", Context.MODE_PRIVATE)
         pref.edit().putLong("invite_id", id).commit()
         pref.edit().putLong("invite_roomIdx", roomIdx).commit()
         pref.edit().putString("invite_picture", picture).commit()
         pref.edit().putString("invite_nickname", nickname).commit()
-
-=======
-        println("=========$remoteMessage")
-        println("=========${remoteMessage.data}")
-        println("=========${remoteMessage.notification}")
-
-        println("=========${remoteMessage.data.getValue("id")}")
-        println("=========${remoteMessage.data.getValue("roomIdx")}")
-        println("=========${remoteMessage.data.getValue("picture")}")
-        println("=========${remoteMessage.data.getValue("nickname")}")
-
-
-
-        intent.putExtra("invite_id", remoteMessage.data.getValue("id").toLong())
-        intent.putExtra("invite_roomIdx", remoteMessage.data.getValue("roomIdx").toLong())
-        intent.putExtra("invite_picture", remoteMessage.data.getValue("picture").toString())
-        intent.putExtra("invite_nickname", remoteMessage.data.getValue("nickname").toString())
->>>>>>> d680d69c1da96a2032084832990a0ca015d5800d
 
         /*버전 31부터는 FLAG_IMMUTABLE으로 사용해야함*/
         val resultPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
