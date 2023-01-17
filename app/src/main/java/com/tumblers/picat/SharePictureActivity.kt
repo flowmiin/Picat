@@ -55,6 +55,8 @@ import io.socket.emitter.Emitter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -69,6 +71,7 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReferenceArray
 
 
 class SharePictureActivity: AppCompatActivity(){
@@ -101,12 +104,15 @@ class SharePictureActivity: AppCompatActivity(){
     private lateinit var exitDialog: AppCompatDialog
     private lateinit var inviteDialog: AppCompatDialog
 
+    // 임계구역에 있는 경우 동시성 발생 X
+    val mutex = Mutex()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
         // 스크롤뷰 배경 이벤트 설정
-        binding.pictureRecyclerview.isNestedScrollingEnabled = false
+//        binding.pictureRecyclerview.isNestedScrollingEnabled = false
         scrollEvent()
 
         // socket 통신 연결
@@ -638,62 +644,68 @@ class SharePictureActivity: AppCompatActivity(){
     // 이미지 url을 받았을 때
     var onImage = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-            for (i in 0..img_count - 1) {
-                val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                val imgData = ImageData(imageDataList.size, imgObj)
-                imageDataList.add(imgData)
+            mutex.withLock {
+                val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+                val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+                for (i in 0..img_count - 1) {
+                    val imgObj = JSONObject(img_list[i].toString()).getString("url")
+                    val imgData = ImageData(imageDataList.size, imgObj)
+                    imageDataList.add(imgData)
+                }
+                setRecyclerView()
             }
-            setRecyclerView()
         }
     }
 
     // 방에 입장했을 떄
     var onJoin = Emitter.Listener { args->
         CoroutineScope(Dispatchers.Main).launch {
-            val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-            val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-            for (i in 0 until img_count) {
-                val imgObj = JSONObject(img_list[i].toString()).getString("url")
-                val imgData = ImageData(imageDataList.size, imgObj)
-                imageDataList.add(imgData)
+            mutex.withLock {
+                val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
+                val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
+                for (i in 0 until img_count) {
+                    val imgObj = JSONObject(img_list[i].toString()).getString("url")
+                    val imgData = ImageData(imageDataList.size, imgObj)
+                    imageDataList.add(imgData)
+                }
+                setRecyclerView()
             }
-            setRecyclerView()
         }
     }
 
     // 방에 친구가 참여했을 때
     var onParticipate = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            joinFriendList?.clear()
-            var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
-            for (i in 0..friendList.length() - 1) {
-                val jsonObject = JSONObject(friendList[i].toString())
+            mutex.withLock {
+                joinFriendList?.clear()
+                var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
+                for (i in 0..friendList.length() - 1) {
+                    val jsonObject = JSONObject(friendList[i].toString())
 
-                val profile = jsonObject.getString("picture")
-                val id = jsonObject.getLong("id")
-                val nickName = jsonObject.getString("nickname")
+                    val profile = jsonObject.getString("picture")
+                    val id = jsonObject.getLong("id")
+                    val nickName = jsonObject.getString("nickname")
 
-                joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
+                    joinFriendList.add(FriendData(id, ImageData(joinFriendList.size, profile), nickName))
+                }
+                setProfileRecyclerview()
             }
-
-            setProfileRecyclerview()
         }
     }
 
-
     var onExit = Emitter.Listener { args ->
         CoroutineScope(Dispatchers.Main).launch {
-            val id = args[0].toString().toLong()
+            mutex.withLock {
+                val id = args[0].toString().toLong()
 
-            for ( friend in joinFriendList){
-                if (friend.id == id){
-                    joinFriendList.remove(friend)
-                    break
+                for ( friend in joinFriendList){
+                    if (friend.id == id){
+                        joinFriendList.remove(friend)
+                        break
+                    }
                 }
+                setProfileRecyclerview()
             }
-            setProfileRecyclerview()
         }
     }
 
