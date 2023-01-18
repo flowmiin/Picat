@@ -28,8 +28,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     // 메시지 수신
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // 앱이 비활성 상태일때
-        val pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
-        pref.edit().putBoolean("store_check", false).commit()
+        val switch_pref = getSharedPreferences("switch_pref", Context.MODE_PRIVATE)
+        switch_pref.edit().putBoolean("store_check", false).commit()
+
+        var id = remoteMessage.data.getValue("id").toLong()
+        var roomIdx = remoteMessage.data.getValue("roomIdx").toLong()
+        var picture = remoteMessage.data.getValue("picture").toString()
+        var nickname = remoteMessage.data.getValue("nickname").toString()
+
+        val invite_pref = getSharedPreferences("invite_pref", Context.MODE_PRIVATE)
+        invite_pref.edit().putLong("invite_id", id).commit()
+        invite_pref.edit().putLong("invite_roomIdx", roomIdx).commit()
+        invite_pref.edit().putString("invite_picture", picture).commit()
+        invite_pref.edit().putString("invite_nickname", nickname).commit()
 
         sendNotification(remoteMessage)
 
@@ -42,16 +53,16 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP )
         //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) // 액티비티 중복 생성 방지
 
-        var id = remoteMessage.data.getValue("id").toLong()
-        var roomIdx = remoteMessage.data.getValue("roomIdx").toLong()
-        var picture = remoteMessage.data.getValue("picture").toString()
-        var nickname = remoteMessage.data.getValue("nickname").toString()
-
-        val pref = getSharedPreferences("invite_pref", Context.MODE_PRIVATE)
-        pref.edit().putLong("invite_id", id).commit()
-        pref.edit().putLong("invite_roomIdx", roomIdx).commit()
-        pref.edit().putString("invite_picture", picture).commit()
-        pref.edit().putString("invite_nickname", nickname).commit()
+//        var id = remoteMessage.data.getValue("id").toLong()
+//        var roomIdx = remoteMessage.data.getValue("roomIdx").toLong()
+//        var picture = remoteMessage.data.getValue("picture").toString()
+//        var nickname = remoteMessage.data.getValue("nickname").toString()
+//
+//        val pref = getSharedPreferences("invite_pref", Context.MODE_PRIVATE)
+//        pref.edit().putLong("invite_id", id).commit()
+//        pref.edit().putLong("invite_roomIdx", roomIdx).commit()
+//        pref.edit().putString("invite_picture", picture).commit()
+//        pref.edit().putString("invite_nickname", nickname).commit()
 
         /*버전 31부터는 FLAG_IMMUTABLE으로 사용해야함*/
         val resultPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
