@@ -29,6 +29,8 @@ class PictureAdapter(private var imageDataList: ArrayList<ImageData>,
     override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
         Glide.with(mContext)
             .load(imageDataList[position].uri)
+            .override(500, 500)
+            .centerInside()
             .into(holder.imv)
         
         holder.itemView.setOnClickListener {

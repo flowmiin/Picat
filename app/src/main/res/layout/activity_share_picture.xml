@@ -14,8 +14,8 @@
         android:id="@+id/top_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:src="@drawable/main_background"
+        android:scaleType="fitStart"
+        android:src="@drawable/main_background_small"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         tools:layout_editor_absoluteX="0dp" />
 

@@ -36,14 +36,14 @@
         android:id="@+id/kakao_nick_name"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="test"
         android:layout_gravity="center"
-        android:textAlignment="center"
-        android:textSize="15dp"
+        android:layout_weight="1"
         android:fontFamily="@font/notosans_regular"
+        android:includeFontPadding="false"
+        android:text="test"
+        android:textAlignment="center"
         android:textColor="@color/picat_font_color"
-        android:includeFontPadding="false"/>
+        android:textSize="@dimen/picat_text_size_small" />
 
 
 </LinearLayout>

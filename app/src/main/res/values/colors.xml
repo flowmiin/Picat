@@ -24,9 +24,4 @@
     <color name="picat_boundary_line_color">#D9D9D9</color>
     <color name="picat_picture_recyclerview_background">#A9BDF1</color>
 
-<!--  ted 라이브러리  -->
-    <color name="ted_image_picker_selected_foreground">#57000000</color>
-    <color name="ted_image_picker_primary">#1976d2</color>
-    <color name="ted_image_picker_zoom_background">#defafafa</color>
-
 </resources>

@@ -404,7 +404,7 @@ class SharePictureActivity: AppCompatActivity(){
                     serviceIntent.putExtra("myKakaoId", myKakaoId)
                     switch_pref.edit().putBoolean("store_check", true).apply()
                     ContextCompat.startForegroundService(this, serviceIntent)
-                    Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
                 }
                 else {
                     // permission 허용 요청 실행
@@ -416,7 +416,7 @@ class SharePictureActivity: AppCompatActivity(){
                 val serviceIntent = Intent(this, ForegroundService::class.java)
                 stopService(serviceIntent)
                 switch_pref.edit().putBoolean("store_check", false).apply()
-                Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -922,6 +922,8 @@ class SharePictureActivity: AppCompatActivity(){
         inviteDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         Glide.with(this).load(picture).circleCrop().into(binding.friendPicture)
         binding.kakaoNickName.text = nickname
+        binding.inviteRoomTitle.text = "${nickname}님이 초대를 보냈어요"
+        binding.inviteRoomSubtitle.text = "${nickname}님의 방으로 입장할까요?"
         inviteDialog.setContentView(binding.root)
         inviteDialog.show()
         binding.inviteAcceptButton.setOnClickListener {
