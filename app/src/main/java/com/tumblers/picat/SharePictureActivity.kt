@@ -1,5 +1,6 @@
 package com.tumblers.picat
 
+import android.content.ActivityNotFoundException
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -36,11 +37,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.kakao.sdk.common.util.KakaoCustomTabsClient
 import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
 import com.kakao.sdk.friend.model.ViewAppearance
+import com.kakao.sdk.share.ShareClient
+import com.kakao.sdk.share.WebSharerClient
 import com.kakao.sdk.talk.TalkApiClient
+import com.kakao.sdk.template.model.Link
+import com.kakao.sdk.template.model.TextTemplate
 import com.kakao.sdk.user.UserApiClient
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
@@ -71,7 +77,6 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReferenceArray
 
 
 class SharePictureActivity: AppCompatActivity(){
@@ -79,12 +84,14 @@ class SharePictureActivity: AppCompatActivity(){
 
     lateinit var pictureAdapter: PictureAdapter
     lateinit var profilePictureAdapter: ProfilePictureAdapter
+    lateinit var blurPictureAdapter: BlurPictureAdapter
     
     var mSocket: Socket? = null
     lateinit var bottomSheetDialog: BottomSheetDialog
 
     var joinFriendList: ArrayList<FriendData> = ArrayList()
     var imageDataList: ArrayList<ImageData> = ArrayList()
+    var sharpImageDataList: ArrayList<ImageData> = ArrayList()
     var selectionIdList: HashSet<Int> = hashSetOf()
 
     // 유저 데이터
@@ -274,6 +281,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
+        blurPictureAdapter = BlurPictureAdapter(imageDataList, this, selectionIdList)
         profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
         profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
             override fun onItemClick(view: View?, position: Int) {
@@ -285,12 +293,24 @@ class SharePictureActivity: AppCompatActivity(){
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
 
         binding.pictureRecyclerview.adapter = pictureAdapter
+        binding.blurRecyclerview.adapter = blurPictureAdapter
 
         binding.pictureRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
+        binding.blurRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
 
-
+        binding.expandBlurButton.setOnClickListener {
+            if(binding.blurRecyclerview.visibility == View.VISIBLE) {
+                binding.blurRecyclerview.visibility = View.GONE
+                binding.expandBlurButton.setImageResource(R.drawable.unfold_icn)
+            }
+            else {
+                binding.blurRecyclerview.visibility = View.VISIBLE
+                binding.expandBlurButton.setImageResource(R.drawable.fold_icn)
+            }
+        }
 
 
         //바텀시트 초기화
@@ -314,6 +334,58 @@ class SharePictureActivity: AppCompatActivity(){
             }
             else {
                 println("denied")
+            }
+        }
+
+        binding.linkButton.setOnClickListener {
+            val url = "http://13.124.233.208:5000/"
+            val defaultText = TextTemplate(
+                text = """
+                    Picat을 통해 친구들과 사진을 편리하게 공유해보세요!
+                    """.trimIndent(),
+                link = Link(
+                    mobileWebUrl = "https://developers.kakao.com"
+                )
+            )
+
+            // 카카오톡 설치여부 확인
+            if (ShareClient.instance.isKakaoTalkSharingAvailable(this)) {
+                // 카카오톡으로 카카오톡 공유 가능
+                ShareClient.instance.shareScrap(this, url) { sharingResult, error ->
+                    if (error != null) {
+                        Log.e(TAG, "카카오톡 공유 실패", error)
+                    }
+                    else if (sharingResult != null) {
+                        Log.d(TAG, "카카오톡 공유 성공 ${sharingResult.intent}")
+                        startActivity(sharingResult.intent)
+
+                        // 카카오톡 공유에 성공했지만 아래 경고 메시지가 존재할 경우 일부 컨텐츠가 정상 동작하지 않을 수 있습니다.
+                        Log.w(TAG, "Warning Msg: ${sharingResult.warningMsg}")
+                        Log.w(TAG, "Argument Msg: ${sharingResult.argumentMsg}")
+                    }
+                }
+            } else {
+                // 카카오톡 미설치: 웹 공유 사용 권장
+                // 웹 공유 예시 코드
+                val sharerUrl = WebSharerClient.instance.makeScrapUrl(url)
+
+                // CustomTabs으로 웹 브라우저 열기
+
+                // 1. CustomTabsServiceConnection 지원 브라우저 열기
+                // ex) Chrome, 삼성 인터넷, FireFox, 웨일 등
+                try {
+                    KakaoCustomTabsClient.openWithDefault(this, sharerUrl)
+                } catch(e: UnsupportedOperationException) {
+                    // CustomTabsServiceConnection 지원 브라우저가 없을 때 예외처리
+                }
+
+                // 2. CustomTabsServiceConnection 미지원 브라우저 열기
+                // ex) 다음, 네이버 등
+                try {
+                    KakaoCustomTabsClient.open(this, sharerUrl)
+                } catch (e: ActivityNotFoundException) {
+                    // 디바이스에 설치된 인터넷 브라우저가 없을 때 예외처리
+                }
             }
         }
 
@@ -609,6 +681,11 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 
+    private fun setBlurRecyclerView() {
+        blurPictureAdapter = BlurPictureAdapter(sharpImageDataList, applicationContext, selectionIdList)
+        binding.blurRecyclerview.adapter = blurPictureAdapter
+    }
+
     // 툴바 메뉴 버튼 설정
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
@@ -644,20 +721,6 @@ class SharePictureActivity: AppCompatActivity(){
 
     // 이미지 url을 받았을 때
     var onImage = Emitter.Listener { args ->
-//        Thread {
-//            runOnUiThread(Runnable {
-//                kotlin.run {
-//                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-//                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-//                    for (i in 0 until img_count) {
-//                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
-//                        val imgData = ImageData(imageDataList.size, imgObj)
-//                        imageDataList.add(imgData)
-//                    }
-//                    setRecyclerView()
-//                }
-//            })
-//        }.start()
         CoroutineScope(Dispatchers.Main).launch {
             mutex.withLock {
                 val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
@@ -686,50 +749,10 @@ class SharePictureActivity: AppCompatActivity(){
                 setRecyclerView()
             }
         }
-//        Thread {
-//            runOnUiThread(Runnable {
-//                kotlin.run {
-//                    val img_count = JSONObject(args[0].toString()).getInt("img_cnt")
-//                    val img_list = JSONObject(args[0].toString()).getJSONArray("img_list")
-//                    for (i in 0 until img_count) {
-//                        val imgObj = JSONObject(img_list[i].toString()).getString("url")
-//                        val imgData = ImageData(imageDataList.size, imgObj)
-//                        imageDataList.add(imgData)
-//                    }
-//                    setRecyclerView()
-//                }
-//            })
-//        }.start()
     }
 
     // 방에 친구가 참여했을 때
     var onParticipate = Emitter.Listener { args ->
-
-//        Thread {
-//            runOnUiThread(Runnable {
-//                kotlin.run {
-//                    joinFriendList?.clear()
-//                    var friendList = JSONObject(args[0].toString()).getJSONArray("friends_list")
-//                    for (i in 0 until friendList.length()) {
-//                        val jsonObject = JSONObject(friendList[i].toString())
-//
-//                        val profile = jsonObject.getString("picture")
-//                        val id = jsonObject.getLong("id")
-//                        val nickName = jsonObject.getString("nickname")
-//
-//                        joinFriendList.add(
-//                            FriendData(
-//                                id,
-//                                ImageData(joinFriendList.size, profile),
-//                                nickName
-//                            )
-//                        )
-//                    }
-//
-//                    setProfileRecyclerview()
-//                }
-//            })
-//        }.start()
         CoroutineScope(Dispatchers.Main).launch {
             mutex.withLock {
                 joinFriendList?.clear()
@@ -749,24 +772,6 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     var onExit = Emitter.Listener { args ->
-
-//        Thread(object : Runnable{
-//            override fun run() {
-//                runOnUiThread(Runnable {
-//                    kotlin.run {
-//                        val id = args[0].toString().toLong()
-//
-//                        for ( friend in joinFriendList){
-//                            if (friend.id == id){
-//                                joinFriendList.remove(friend)
-//                                break
-//                            }
-//                        }
-//                        setProfileRecyclerview()
-//                    }
-//                })
-//            }
-//        }).start()
         CoroutineScope(Dispatchers.Main).launch {
             mutex.withLock {
                 val id = args[0].toString().toLong()
