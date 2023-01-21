@@ -1,7 +1,9 @@
 package com.tumblers.picat
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -9,6 +11,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.Preference
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tumblers.picat.adapter.InviteFriendPictureAdapter
@@ -16,6 +19,7 @@ import com.tumblers.picat.databinding.FriendInviteDialogBinding
 import com.tumblers.picat.dataclass.FriendData
 import com.tumblers.picat.dataclass.ImageData
 import kotlinx.coroutines.selects.select
+import java.util.prefs.Preferences
 
 class InviteDialog(private val context : AppCompatActivity) {
 
@@ -29,6 +33,7 @@ class InviteDialog(private val context : AppCompatActivity) {
     var selectionIdList: HashSet<Int> = hashSetOf()
 
 
+
     fun show(friendDataList : ArrayList<FriendData>) {
         binding = FriendInviteDialogBinding.inflate(context.layoutInflater)
 
@@ -37,7 +42,7 @@ class InviteDialog(private val context : AppCompatActivity) {
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 //        dialog.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.WRAP_CONTENT)
 //        dialog.setCanceledOnTouchOutside(false)
-        dialog.setCancelable(false) // 다이얼로그으 바깥 화면을 눌렀을 때 다이얼로그가 닫히지 않도록 함
+        dialog.setCancelable(false) // 다이얼로그의 바깥 화면을 눌렀을 때 다이얼로그가 닫히지 않도록 함
 
         binding.inviteCheckButton.setOnClickListener {
             listener.onClicked(inviteFriendPictureAdapter.mSelected)

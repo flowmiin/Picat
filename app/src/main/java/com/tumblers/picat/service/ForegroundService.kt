@@ -90,7 +90,7 @@ class ForegroundService : Service() {
         val channelId = "Picat_channel_1"
         val builder = NotificationCompat.Builder(this, channelId)
         builder.setSmallIcon(R.mipmap.picat_app_icn)
-        builder.setContentTitle("Picat Service")
+        builder.setContentTitle("피캣 자동 업로드")
         builder.setContentText("Picat이 최신 사진을 자동 업로드 합니다.")
         val notificationIntent = Intent(this, SharePictureActivity::class.java)
 

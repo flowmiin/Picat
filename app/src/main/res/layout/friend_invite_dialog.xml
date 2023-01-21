@@ -9,35 +9,36 @@
     android:paddingTop="@dimen/picat_layout_padding">
 
     <TextView
-        android:id="@+id/select_text"
+        android:id="@+id/invite_room_subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="초대할 친구들을 선택 해주세요"
-        android:textAlignment="center"
-        android:textSize="16dp"
+        android:layout_marginTop="10dp"
         android:fontFamily="@font/notosans_bold"
-        android:textColor="@color/picat_font_color"
         android:includeFontPadding="false"
-        android:layout_marginTop="20dp" />
+        android:text="함께한 친구들을 찾았어요"
+        android:textAlignment="center"
+        android:textColor="@color/picat_font_color"
+        android:textSize="16dp" />
 
     <TextView
         android:id="@+id/invite_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="자동으로 친구들이 공유방에 초대돼요"
+        android:text="공유방에 초대할 친구들을 선택해주세요"
         android:textAlignment="center"
         android:textSize="16dp"
         android:ems="15"
         android:fontFamily="@font/notosans_regular"
         android:textColor="@color/picat_font_color"
         android:includeFontPadding="false"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="30dp"/>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/invite_horizontal_scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp" >
+        android:scrollIndicators="none">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/friend_profile_recyclerview"
