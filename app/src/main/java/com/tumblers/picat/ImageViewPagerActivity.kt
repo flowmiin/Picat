@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.tumblers.picat.adapter.ViewPagerAdapter
 import com.tumblers.picat.databinding.ActivityImageViewPagerBinding
 import com.tumblers.picat.dataclass.ImageData
@@ -23,7 +24,7 @@ class ImageViewPagerActivity : AppCompatActivity() {
 
         // 밑의 두줄의 순서를 유지할 것.
         binding.viewPager.adapter = ViewPagerAdapter(this, imageList)
-        binding.viewPager.currentItem = current
+        binding.viewPager.setCurrentItem(current, false)
 
     }
 }
