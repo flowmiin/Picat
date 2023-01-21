@@ -91,7 +91,7 @@ class SharePictureActivity: AppCompatActivity(){
 
     var joinFriendList: ArrayList<FriendData> = ArrayList()
     var imageDataList: ArrayList<ImageData> = ArrayList()
-    var sharpImageDataList: ArrayList<ImageData> = ArrayList()
+    var blurImageDataList: ArrayList<ImageData> = ArrayList()
     var selectionIdList: HashSet<Int> = hashSetOf()
 
     // 유저 데이터
@@ -281,7 +281,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
-        blurPictureAdapter = BlurPictureAdapter(imageDataList, this, selectionIdList)
+        blurPictureAdapter = BlurPictureAdapter(blurImageDataList, this, selectionIdList)
         profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
         profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
             override fun onItemClick(view: View?, position: Int) {
@@ -645,10 +645,18 @@ class SharePictureActivity: AppCompatActivity(){
                         openInviteDialog(friendDataList)
                     }
 
+                    val blurArray = JSONArray()
+                    for (i in 0.. response.body()?.blurImages?.size!! - 1) {
+                        val jsonObject = JSONObject()
+                        jsonObject.put("blurimages", response.body()?.blurImages?.toList()?.get(i))
+                        blurArray.put(jsonObject)
+                    }
+
                     val jsonObject = JSONObject()
                     jsonObject.put("img_list", jsonArray)
                     jsonObject.put("img_cnt", response.body()?.img_cnt)
                     jsonObject.put("id", myKakaoId)
+                    jsonObject.put("blurImages", blurArray)
 
                     mSocket?.emit("image", jsonObject)
                 }
@@ -682,7 +690,7 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
     private fun setBlurRecyclerView() {
-        blurPictureAdapter = BlurPictureAdapter(sharpImageDataList, applicationContext, selectionIdList)
+        blurPictureAdapter = BlurPictureAdapter(blurImageDataList, applicationContext, selectionIdList)
         binding.blurRecyclerview.adapter = blurPictureAdapter
     }
 
@@ -731,6 +739,16 @@ class SharePictureActivity: AppCompatActivity(){
                     imageDataList.add(imgData)
                 }
                 setRecyclerView()
+
+                val blur_list = JSONObject(args[0].toString()).getJSONArray("blur_list")
+                if (blur_list.length() > 0) {
+                    for(i in 0..blur_list.length() - 1) {
+                        val blurObj = JSONObject(blur_list[i].toString()).getString("url")
+                        val imgData = ImageData(blurImageDataList.size, blurObj)
+                        blurImageDataList.add(imgData)
+                    }
+                    setBlurRecyclerView()
+                }
             }
         }
     }
@@ -747,6 +765,16 @@ class SharePictureActivity: AppCompatActivity(){
                     imageDataList.add(imgData)
                 }
                 setRecyclerView()
+
+                val blur_list = JSONObject(args[0].toString()).getJSONArray("blur_list")
+                if (blur_list.length() > 0) {
+                    for(i in 0..blur_list.length() - 1) {
+                        val blurObj = JSONObject(blur_list[i].toString()).getString("url")
+                        val imgData = ImageData(blurImageDataList.size, blurObj)
+                        blurImageDataList.add(imgData)
+                    }
+                    setBlurRecyclerView()
+                }
             }
         }
     }
