@@ -6,9 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".ImageViewPagerActivity">
 
+    <ImageView
+        android:id="@+id/tmp_cover_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
