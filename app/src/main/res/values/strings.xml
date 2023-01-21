@@ -16,12 +16,6 @@
     <string name="download_album_alert_subtitle">휴대폰 갤러리에 앨범이 저장돼요</string>
     <string name="yet_open_alert_title">아직 열려있는 공유방이 있어요</string>
     <string name="yet_open_alert_subtitle">해당 공유방으로 이동할까요?</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_main">MainActivity</string>
-
 
     <!--  피캣 클라이언트 서버  -->
     <!--    <string name="picat_server">http://54.180.36.192:5000/</string>-->

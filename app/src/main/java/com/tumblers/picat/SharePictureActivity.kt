@@ -120,7 +120,7 @@ class SharePictureActivity: AppCompatActivity(){
         setContentView(binding.root)
         // 스크롤뷰 배경 이벤트 설정
 //        binding.pictureRecyclerview.isNestedScrollingEnabled = false
-        scrollEvent()
+//        scrollEvent()
 
 
         // socket 통신 연결
@@ -293,24 +293,11 @@ class SharePictureActivity: AppCompatActivity(){
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
         binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
-        binding.blurRecyclerview.layoutManager = GridLayoutManager(this, 3)
 
         binding.pictureRecyclerview.adapter = pictureAdapter
-        binding.blurRecyclerview.adapter = blurPictureAdapter
 
         binding.pictureRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
-        binding.blurRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
 
-        binding.expandBlurButton.setOnClickListener {
-            if(binding.blurRecyclerview.visibility == View.VISIBLE) {
-                binding.blurRecyclerview.visibility = View.GONE
-                binding.expandBlurButton.setImageResource(R.drawable.unfold_icn)
-            }
-            else {
-                binding.blurRecyclerview.visibility = View.VISIBLE
-                binding.expandBlurButton.setImageResource(R.drawable.fold_icn)
-            }
-        }
 
 
         //바텀시트 초기화
@@ -337,57 +324,57 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
-        binding.linkButton.setOnClickListener {
-            val url = "http://13.124.233.208:5000/"
-            val defaultText = TextTemplate(
-                text = """
-                    Picat을 통해 친구들과 사진을 편리하게 공유해보세요!
-                    """.trimIndent(),
-                link = Link(
-                    mobileWebUrl = "https://developers.kakao.com"
-                )
-            )
-
-            // 카카오톡 설치여부 확인
-            if (ShareClient.instance.isKakaoTalkSharingAvailable(this)) {
-                // 카카오톡으로 카카오톡 공유 가능
-                ShareClient.instance.shareScrap(this, url) { sharingResult, error ->
-                    if (error != null) {
-                        Log.e(TAG, "카카오톡 공유 실패", error)
-                    }
-                    else if (sharingResult != null) {
-                        Log.d(TAG, "카카오톡 공유 성공 ${sharingResult.intent}")
-                        startActivity(sharingResult.intent)
-
-                        // 카카오톡 공유에 성공했지만 아래 경고 메시지가 존재할 경우 일부 컨텐츠가 정상 동작하지 않을 수 있습니다.
-                        Log.w(TAG, "Warning Msg: ${sharingResult.warningMsg}")
-                        Log.w(TAG, "Argument Msg: ${sharingResult.argumentMsg}")
-                    }
-                }
-            } else {
-                // 카카오톡 미설치: 웹 공유 사용 권장
-                // 웹 공유 예시 코드
-                val sharerUrl = WebSharerClient.instance.makeScrapUrl(url)
-
-                // CustomTabs으로 웹 브라우저 열기
-
-                // 1. CustomTabsServiceConnection 지원 브라우저 열기
-                // ex) Chrome, 삼성 인터넷, FireFox, 웨일 등
-                try {
-                    KakaoCustomTabsClient.openWithDefault(this, sharerUrl)
-                } catch(e: UnsupportedOperationException) {
-                    // CustomTabsServiceConnection 지원 브라우저가 없을 때 예외처리
-                }
-
-                // 2. CustomTabsServiceConnection 미지원 브라우저 열기
-                // ex) 다음, 네이버 등
-                try {
-                    KakaoCustomTabsClient.open(this, sharerUrl)
-                } catch (e: ActivityNotFoundException) {
-                    // 디바이스에 설치된 인터넷 브라우저가 없을 때 예외처리
-                }
-            }
-        }
+//        binding.linkButton.setOnClickListener {
+//            val url = "http://13.124.233.208:5000/"
+//            val defaultText = TextTemplate(
+//                text = """
+//                    Picat을 통해 친구들과 사진을 편리하게 공유해보세요!
+//                    """.trimIndent(),
+//                link = Link(
+//                    mobileWebUrl = "https://developers.kakao.com"
+//                )
+//            )
+//
+//            // 카카오톡 설치여부 확인
+//            if (ShareClient.instance.isKakaoTalkSharingAvailable(this)) {
+//                // 카카오톡으로 카카오톡 공유 가능
+//                ShareClient.instance.shareScrap(this, url) { sharingResult, error ->
+//                    if (error != null) {
+//                        Log.e(TAG, "카카오톡 공유 실패", error)
+//                    }
+//                    else if (sharingResult != null) {
+//                        Log.d(TAG, "카카오톡 공유 성공 ${sharingResult.intent}")
+//                        startActivity(sharingResult.intent)
+//
+//                        // 카카오톡 공유에 성공했지만 아래 경고 메시지가 존재할 경우 일부 컨텐츠가 정상 동작하지 않을 수 있습니다.
+//                        Log.w(TAG, "Warning Msg: ${sharingResult.warningMsg}")
+//                        Log.w(TAG, "Argument Msg: ${sharingResult.argumentMsg}")
+//                    }
+//                }
+//            } else {
+//                // 카카오톡 미설치: 웹 공유 사용 권장
+//                // 웹 공유 예시 코드
+//                val sharerUrl = WebSharerClient.instance.makeScrapUrl(url)
+//
+//                // CustomTabs으로 웹 브라우저 열기
+//
+//                // 1. CustomTabsServiceConnection 지원 브라우저 열기
+//                // ex) Chrome, 삼성 인터넷, FireFox, 웨일 등
+//                try {
+//                    KakaoCustomTabsClient.openWithDefault(this, sharerUrl)
+//                } catch(e: UnsupportedOperationException) {
+//                    // CustomTabsServiceConnection 지원 브라우저가 없을 때 예외처리
+//                }
+//
+//                // 2. CustomTabsServiceConnection 미지원 브라우저 열기
+//                // ex) 다음, 네이버 등
+//                try {
+//                    KakaoCustomTabsClient.open(this, sharerUrl)
+//                } catch (e: ActivityNotFoundException) {
+//                    // 디바이스에 설치된 인터넷 브라우저가 없을 때 예외처리
+//                }
+//            }
+//        }
 
         // 자동 업로드 스위치 버튼 저장값 불러오기
         if(switch_pref.getBoolean("store_check", false)) {
@@ -404,7 +391,7 @@ class SharePictureActivity: AppCompatActivity(){
                     serviceIntent.putExtra("myKakaoId", myKakaoId)
                     switch_pref.edit().putBoolean("store_check", true).apply()
                     ContextCompat.startForegroundService(this, serviceIntent)
-                    Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
                 }
                 else {
                     // permission 허용 요청 실행
@@ -416,7 +403,7 @@ class SharePictureActivity: AppCompatActivity(){
                 val serviceIntent = Intent(this, ForegroundService::class.java)
                 stopService(serviceIntent)
                 switch_pref.edit().putBoolean("store_check", false).apply()
-                Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -689,11 +676,6 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 
-    private fun setBlurRecyclerView() {
-        blurPictureAdapter = BlurPictureAdapter(blurImageDataList, applicationContext, selectionIdList)
-        binding.blurRecyclerview.adapter = blurPictureAdapter
-    }
-
     // 툴바 메뉴 버튼 설정
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
@@ -740,15 +722,6 @@ class SharePictureActivity: AppCompatActivity(){
                 }
                 setRecyclerView()
 
-                val blur_list = JSONObject(args[0].toString()).getJSONArray("blur_list")
-                if (blur_list.length() > 0) {
-                    for(i in 0..blur_list.length() - 1) {
-                        val blurObj = JSONObject(blur_list[i].toString()).getString("url")
-                        val imgData = ImageData(blurImageDataList.size, blurObj)
-                        blurImageDataList.add(imgData)
-                    }
-                    setBlurRecyclerView()
-                }
             }
         }
     }
@@ -765,16 +738,6 @@ class SharePictureActivity: AppCompatActivity(){
                     imageDataList.add(imgData)
                 }
                 setRecyclerView()
-
-                val blur_list = JSONObject(args[0].toString()).getJSONArray("blur_list")
-                if (blur_list.length() > 0) {
-                    for(i in 0..blur_list.length() - 1) {
-                        val blurObj = JSONObject(blur_list[i].toString()).getString("url")
-                        val imgData = ImageData(blurImageDataList.size, blurObj)
-                        blurImageDataList.add(imgData)
-                    }
-                    setBlurRecyclerView()
-                }
             }
         }
     }
@@ -889,33 +852,6 @@ class SharePictureActivity: AppCompatActivity(){
     }
 
 
-    private fun scrollEvent() {
-
-        binding.scrollView.overScrollMode = View.OVER_SCROLL_NEVER
-
-        // ScrollView에서 받는 이벤트 처리
-        // 1: 완전 불투명
-        // 스크롤 위치에 따라 alpha 값이 변경되므로, 방향은 상관이 없다.
-        binding.scrollView.setOnScrollListener(object : CustomScrollView.OnScrollListener {
-            override fun onScroll(direction: Int, scrollY: Float) {
-
-                // statusBar 높이 구하기
-                //var statusBarHeight = 0
-                //val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
-
-                // top_image 높이 구하기, 나는 끝까지 안올리고 100% 불투명도 만들기위해 statusbar 높이를 뺐다.
-                val backgroundImgHeight = binding.topImage.height - 800
-
-                val alpha = ((backgroundImgHeight - scrollY) / backgroundImgHeight)
-
-                binding.topImage.alpha = alpha
-
-
-            }
-
-        })
-    }
-
 
     // 나가기 다이얼로그 열기
     fun exitDialogOn() {
@@ -950,6 +886,8 @@ class SharePictureActivity: AppCompatActivity(){
         inviteDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         Glide.with(this).load(picture).circleCrop().into(binding.friendPicture)
         binding.kakaoNickName.text = nickname
+        binding.inviteRoomTitle.text = "${nickname}님이 초대를 보냈어요"
+        binding.inviteRoomSubtitle.text = "${nickname}님의 방으로 입장할까요?"
         inviteDialog.setContentView(binding.root)
         inviteDialog.show()
         binding.inviteAcceptButton.setOnClickListener {
