@@ -79,7 +79,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintLeft_toLeftOf="parent"></androidx.recyclerview.widget.RecyclerView>
+                            app:layout_constraintLeft_toLeftOf="parent">
+                        </androidx.recyclerview.widget.RecyclerView>
 
                         <ImageButton
                             android:id="@+id/profile_item_plus_button"
@@ -96,12 +97,16 @@
                             app:layout_constraintVertical_bias="0.4" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
                 </HorizontalScrollView>
-
-
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <Button
+                android:id="@+id/link_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="카카오 링크 보내기"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/blur_sort_tab"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -125,22 +130,69 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="10dp"
                 android:gravity="right|center"
-
                 android:textOff=""
                 android:textOn=""
                 android:textSize="@dimen/picat_text_size_medium"
                 android:thumb="@drawable/switch_thumb"
-
                 android:track="@drawable/switch_track_selector"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_tab"/>
+                app:layout_constraintTop_toBottomOf="@+id/profile_tab" />
+
+            <!-- 흐린 사진 탭  -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/blur_sort_tab"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginTop="20dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="?attr/actionBarSize"
+                app:layout_constraintTop_toBottomOf="@+id/auto_upload_switch" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="흐린 사진"
+                    android:textSize="@dimen/picat_text_size_small"
+                    android:layout_marginLeft="10dp"
+                    android:fontFamily="@font/notosans_bold"
+                    android:textColor="@color/picat_font_color"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <ImageButton
+                    android:id="@+id/expand_blur_button"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/unfold_icn"
+                    android:scaleType="fitCenter"
+                    android:padding="1dp"
+                    android:layout_marginRight="10dp"
+                    android:backgroundTint="@color/transparent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/blur_recyclerview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/blur_sort_tab" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/picture_recyclerview"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constrainedHeight="true"
-                app:layout_constraintTop_toBottomOf="@id/auto_upload_switch"
+                app:layout_constraintTop_toBottomOf="@id/blur_recyclerview"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
