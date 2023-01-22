@@ -533,7 +533,18 @@ class SharePictureActivity: AppCompatActivity(){
             val intent = Intent(this, SelectPictureActivity::class.java)
             intent.putExtra("selectonIdList", selectionIdList)
             intent.putExtra("myKakaoId", myKakaoId)
-            intent.putExtra("imageDataList", imageDataList)
+//            intent.putExtra("imageDataList", imageDataList)
+
+            if (binding.allFilterButton.isChecked == true) {
+                intent.putExtra("imageDataList", imageDataList)
+            }
+            else if (binding.exceptBlurFilterButton.isChecked == true) {
+                intent.putExtra("imageDataList", clearImageDataList)
+            }
+            else {
+                intent.putExtra("imageDataList", blurImageDataList)
+            }
+
             activityResult.launch(intent)
 
         }
@@ -640,6 +651,7 @@ class SharePictureActivity: AppCompatActivity(){
             //사진선택을 통해 이미지 선택해서 돌아온 경우
             if (it.data!!.hasExtra("selectonIdList")){
                 selectionIdList = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
+                binding.allFilterButton.isChecked = true
                 setRecyclerView()
             }
         }
