@@ -296,7 +296,8 @@ class SharePictureActivity: AppCompatActivity(){
 
         binding.pictureRecyclerview.adapter = pictureAdapter
 
-        binding.pictureRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
+//        binding.pictureRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
+        binding.pictureRecyclerview.addItemDecoration(SpaceItemDecorator(left = 10, top = 10, right = 10, bottom = 10))
 
 
 
@@ -821,6 +822,7 @@ class SharePictureActivity: AppCompatActivity(){
         intent.putExtra("friendId", joinFriendList[position].id)
         intent.putExtra("selectionIdList", selectionIdList)
         intent.putExtra("imageDataList", imageDataList)
+        intent.putExtra("selected_profile_image", joinFriendList[position].picture.uri)
         setResult(1)
         activityResult.launch(intent)
     }

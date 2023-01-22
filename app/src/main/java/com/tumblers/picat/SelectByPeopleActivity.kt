@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
+import com.bumptech.glide.Glide
 import com.michaelflisar.dragselectrecyclerview.DragSelectTouchListener
 import com.michaelflisar.dragselectrecyclerview.DragSelectionProcessor
 import com.tumblers.picat.adapter.SelectPictureAdapter
@@ -26,6 +27,7 @@ class SelectByPeopleActivity : AppCompatActivity() {
     var imageDataList: ArrayList<ImageData> = arrayListOf()
     var selectionIdList: HashSet<Int> = hashSetOf()
     var selectedFriendId: Long = 0
+    var selectedFriendPicture: String = ""
     var selectedFriendImageList: ArrayList<ImageData> = arrayListOf()
 
     private var mMode = DragSelectionProcessor.Mode.ToggleAndUndo
@@ -41,7 +43,13 @@ class SelectByPeopleActivity : AppCompatActivity() {
         binding = ActivityPictureSelectBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // TODO: 여기 데이터 타입 맞는지 잘 확인하기
+        actionbar = binding.toolbar
+        setSupportActionBar(actionbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.back_icn)
+
+
         if (intent.hasExtra("friendId")){
             selectedFriendId = intent.getLongExtra("friendId", 0)
         }
@@ -51,17 +59,24 @@ class SelectByPeopleActivity : AppCompatActivity() {
         if (intent.hasExtra("imageDataList")){
             imageDataList = intent.getParcelableArrayListExtra<Uri>("imageDataList") as ArrayList<ImageData>
         }
+        if (intent.hasExtra("selected_profile_image")){
+            selectedFriendPicture = intent.getStringExtra("selected_profile_image").toString()
+            println("selected_profile_image $selectedFriendPicture")
+            binding.toolbarInsideWrapperLayout.visibility = View.VISIBLE
+            Glide.with(this)
+                .load(selectedFriendPicture)
+                .circleCrop()
+                .into(binding.selectedProfileImageview)
+        }else{
+            binding.toolbarInsideWrapperLayout.visibility = View.GONE
+            actionbar.title = "사진 선택"
+        }
 
         // api 호출
         apiRequest(selectedFriendId)
 
-        actionbar = binding.toolbar
-        setSupportActionBar(actionbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.back_icn)
 
-        actionbar.title = "사진 선택"
+
 
         setRecyclerView()
     }
