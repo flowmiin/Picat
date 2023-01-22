@@ -152,53 +152,76 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/auto_upload_switch">
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/all_filter_button"
-                    android:clickable="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:background="@drawable/filter_button_selector"
-                    android:fontFamily="@font/notosans_regular"
-                    android:includeFontPadding="false"
-                    android:text="전체"
-                    android:textColor="@color/picat_font_color"
-                    android:textSize="@dimen/picat_text_size_small"
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/except_blur_filter_button"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/except_blur_filter_button"
-                    android:clickable="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:background="@drawable/filter_button_selector"
-                    android:fontFamily="@font/notosans_regular"
-                    android:includeFontPadding="false"
-                    android:text="    흐린 사진 제외    "
-                    android:textColor="@color/picat_font_color"
-                    android:textSize="@dimen/picat_text_size_small"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/only_blur_filter_button"
-                    app:layout_constraintStart_toEndOf="@+id/all_filter_button"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <RadioButton
+                        android:checked="true"
+                        android:id="@+id/all_filter_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/filter_button_selector"
+                        android:button="@null"
+                        android:fontFamily="@font/notosans_regular"
+                        android:includeFontPadding="false"
+                        android:text="전체"
+                        android:textAlignment="center"
+                        android:textColor="@color/picat_font_color"
+                        android:textSize="@dimen/picat_text_size_small"
+                        android:layout_marginHorizontal="4dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/except_blur_filter_button"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/only_blur_filter_button"
-                    android:clickable="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:background="@drawable/filter_button_selector"
-                    android:fontFamily="@font/notosans_regular"
-                    android:includeFontPadding="false"
-                    android:text="    흐린 사진만    "
-                    android:textColor="@color/picat_font_color"
-                    android:textSize="@dimen/picat_text_size_small"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/except_blur_filter_button"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <RadioButton
+                        android:id="@+id/except_blur_filter_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/filter_button_selector"
+                        android:button="@null"
+                        android:clickable="true"
+                        android:fontFamily="@font/notosans_regular"
+                        android:includeFontPadding="false"
+                        android:text="흐린 사진 제외"
+                        android:layout_marginHorizontal="4dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/picat_font_color"
+                        android:textSize="@dimen/picat_text_size_small"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/only_blur_filter_button"
+                        app:layout_constraintStart_toEndOf="@+id/all_filter_button"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <RadioButton
+                        android:id="@+id/only_blur_filter_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/filter_button_selector"
+                        android:button="@null"
+                        android:clickable="true"
+                        android:fontFamily="@font/notosans_regular"
+                        android:includeFontPadding="false"
+                        android:text="흐린 사진만"
+                        android:layout_marginHorizontal="4dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/picat_font_color"
+                        android:textSize="@dimen/picat_text_size_small"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/except_blur_filter_button"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </RadioGroup>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

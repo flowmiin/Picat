@@ -2,11 +2,19 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:state_selected="true"
-        android:drawable="@drawable/filter_button_selected" />
+        android:state_checked="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/picat_blue" />
+            <corners android:radius="30dp" />
+        </shape>
+    </item>
 
     <item
-        android:state_selected="false"
-        android:drawable="@drawable/filter_button_unselected" />
+        android:state_checked="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+            <corners android:radius="30dp" />
+        </shape>
+    </item>
 
 </selector>
