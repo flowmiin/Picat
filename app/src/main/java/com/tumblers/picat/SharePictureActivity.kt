@@ -409,7 +409,8 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         // 흐린 사진 제외 버튼
-        binding.exceptBlurFilterButton.setOnClickListener {
+        var exceptBlurButton = binding.exceptBlurFilterButton
+        exceptBlurButton.setOnClickListener {
 
             val retrofit: Retrofit = Retrofit.Builder()
                 .baseUrl(getString(R.string.picat_server))
@@ -439,7 +440,8 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         // 흐린 사진 필터 버튼
-        binding.onlyBlurFilterButton.setOnClickListener {
+        var onlyBlurButton = binding.onlyBlurFilterButton
+        onlyBlurButton.setOnClickListener {
             val retrofit: Retrofit = Retrofit.Builder()
                 .baseUrl(getString(R.string.picat_server))
                 .addConverterFactory(GsonConverterFactory.create())
