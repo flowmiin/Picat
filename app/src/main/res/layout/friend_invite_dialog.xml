@@ -27,12 +27,28 @@
         android:text="공유방에 초대할 친구들을 선택해주세요"
         android:textAlignment="center"
         android:textSize="16dp"
-        android:ems="15"
+        android:ems="16"
         android:fontFamily="@font/notosans_regular"
         android:textColor="@color/picat_font_color"
         android:includeFontPadding="false"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="30dp"/>
+        android:layout_marginBottom="30dp"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/invite_warning_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/notosans_regular"
+        android:includeFontPadding="false"
+        android:text="선택된 친구가 없어요\n초대할 친구를 선택하거나 취소를 눌러주세요"
+        android:ems="16"
+        android:textAlignment="center"
+        android:textColor="@color/picat_dark_blue"
+        android:textSize="16dp"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"/>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/invite_horizontal_scrollview"
