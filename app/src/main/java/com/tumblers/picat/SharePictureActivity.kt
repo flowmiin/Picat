@@ -651,8 +651,15 @@ class SharePictureActivity: AppCompatActivity(){
             //사진선택을 통해 이미지 선택해서 돌아온 경우
             if (it.data!!.hasExtra("selectonIdList")){
                 selectionIdList = it.data!!.getSerializableExtra("selectonIdList")!! as HashSet<Int>
-                binding.allFilterButton.isChecked = true
-                setRecyclerView()
+                if (binding.allFilterButton.isChecked == true) {
+                    setRecyclerView()
+                }
+                else if (binding.exceptBlurFilterButton.isChecked == true) {
+                    setClearRecyclerView()
+                }
+                else {
+                    setBlurRecyclerView()
+                }
             }
         }
     }
@@ -806,9 +813,9 @@ class SharePictureActivity: AppCompatActivity(){
                     val imgData = ImageData(imageDataList.size, imgObj)
                     imageDataList.add(imgData)
                 }
-                binding.allFilterButton.isChecked = true
-                setRecyclerView()
-
+                if (binding.allFilterButton.isChecked == true) {
+                    setRecyclerView()
+                }
             }
         }
     }
