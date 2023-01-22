@@ -19,14 +19,17 @@
 <!--        app:layout_constraintTop_toBottomOf="@+id/toolbar"-->
 <!--        tools:layout_editor_absoluteX="0dp" />-->
 
+
     <com.tumblers.picat.CustomScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="63dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="@+id/toolbar"
-        app:layout_constraintRight_toRightOf="@id/toolbar"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -153,6 +156,7 @@
                 app:layout_constraintTop_toBottomOf="@id/auto_upload_switch">
 
                 <RadioGroup
+                    android:id="@+id/filter_radio_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -162,20 +166,20 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <RadioButton
-                        android:checked="true"
                         android:id="@+id/all_filter_button"
                         android:layout_width="wrap_content"
                         android:layout_height="42dp"
+                        android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
                         android:background="@drawable/filter_button_selector"
                         android:button="@null"
+                        android:checked="true"
                         android:fontFamily="@font/notosans_regular"
                         android:includeFontPadding="false"
                         android:text="전체"
                         android:textAlignment="center"
                         android:textColor="@color/picat_font_color"
                         android:textSize="@dimen/picat_text_size_small"
-                        android:layout_marginHorizontal="4dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/except_blur_filter_button"
                         app:layout_constraintStart_toStartOf="parent"
@@ -185,6 +189,7 @@
                         android:id="@+id/except_blur_filter_button"
                         android:layout_width="wrap_content"
                         android:layout_height="42dp"
+                        android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
                         android:background="@drawable/filter_button_selector"
                         android:button="@null"
@@ -192,7 +197,6 @@
                         android:fontFamily="@font/notosans_regular"
                         android:includeFontPadding="false"
                         android:text="흐린 사진 제외"
-                        android:layout_marginHorizontal="4dp"
                         android:textAlignment="center"
                         android:textColor="@color/picat_font_color"
                         android:textSize="@dimen/picat_text_size_small"
@@ -205,6 +209,7 @@
                         android:id="@+id/only_blur_filter_button"
                         android:layout_width="wrap_content"
                         android:layout_height="42dp"
+                        android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
                         android:background="@drawable/filter_button_selector"
                         android:button="@null"
@@ -212,7 +217,6 @@
                         android:fontFamily="@font/notosans_regular"
                         android:includeFontPadding="false"
                         android:text="흐린 사진만"
-                        android:layout_marginHorizontal="4dp"
                         android:textAlignment="center"
                         android:textColor="@color/picat_font_color"
                         android:textSize="@dimen/picat_text_size_small"
@@ -229,12 +233,13 @@
                 android:id="@+id/picture_recyclerview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/picat_picture_recyclerview_background"
+                android:nestedScrollingEnabled="false"
                 app:layout_constrainedHeight="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/filter_layout"
-                android:background="@color/picat_picture_recyclerview_background"/>
+                app:layout_constraintTop_toBottomOf="@id/filter_layout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -277,7 +282,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
 

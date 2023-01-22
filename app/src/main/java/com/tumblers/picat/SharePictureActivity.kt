@@ -42,8 +42,6 @@ import com.kakao.sdk.friend.client.PickerClient
 import com.kakao.sdk.friend.model.OpenPickerFriendRequestParams
 import com.kakao.sdk.friend.model.PickerOrientation
 import com.kakao.sdk.friend.model.ViewAppearance
-import com.kakao.sdk.share.ShareClient
-import com.kakao.sdk.share.WebSharerClient
 import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.template.model.Link
 import com.kakao.sdk.template.model.TextTemplate
