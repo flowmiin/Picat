@@ -42,7 +42,7 @@ class PictureAdapter(private var imageDataList: ArrayList<ImageData>,
 
         // 화면 갱신 시 필요
         // 선택된 사진이면
-        if (mSelected.contains(position)){
+        if (mSelected.contains(imageDataList[position].idx)){
             holder.itemView.isSelected = true
             holder.isSelectedButton.setImageResource(R.drawable.selected_icn)
         }else{
