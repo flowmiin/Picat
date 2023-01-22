@@ -39,4 +39,14 @@ interface RequestInterface {
         @Field ("id") id: Long?,
         @Field ("roomIdx") roomIdx: Long?
     ) :Call<SimpleResponseData>
+
+    @GET("clear/")
+    fun getExceptBlur(
+        @Query ("id") id: Long?
+    ): Call<ImageResponseData>
+
+    @GET("blur/")
+    fun getBlur(
+        @Query ("id") id: Long?
+    ): Call<ImageResponseData>
 }

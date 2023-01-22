@@ -84,13 +84,13 @@ class SharePictureActivity: AppCompatActivity(){
 
     lateinit var pictureAdapter: PictureAdapter
     lateinit var profilePictureAdapter: ProfilePictureAdapter
-    lateinit var blurPictureAdapter: BlurPictureAdapter
     
     var mSocket: Socket? = null
     lateinit var bottomSheetDialog: BottomSheetDialog
 
     var joinFriendList: ArrayList<FriendData> = ArrayList()
     var imageDataList: ArrayList<ImageData> = ArrayList()
+    var clearImageDataList: ArrayList<ImageData> = ArrayList()
     var blurImageDataList: ArrayList<ImageData> = ArrayList()
     var selectionIdList: HashSet<Int> = hashSetOf()
 
@@ -281,7 +281,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         //Adapter 초기화
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
-        blurPictureAdapter = BlurPictureAdapter(blurImageDataList, this, selectionIdList)
+
         profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
         profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
             override fun onItemClick(view: View?, position: Int) {
@@ -405,6 +405,66 @@ class SharePictureActivity: AppCompatActivity(){
                 switch_pref.edit().putBoolean("store_check", false).apply()
 //                Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        // 흐린 사진 제외 버튼
+        binding.exceptBlurFilterButton.setOnClickListener {
+
+            val retrofit: Retrofit = Retrofit.Builder()
+                .baseUrl(getString(R.string.picat_server))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            // APIInterface 객체 생성
+            var server: RequestInterface = retrofit.create(RequestInterface::class.java)
+            server.getExceptBlur(myKakaoId).enqueue(object : Callback<ImageResponseData> {
+
+                override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
+                    if (response.isSuccessful) {
+                        for (imgData in imageDataList) {
+                            for (url in response.body()?.url!!) {
+                                if (imgData.uri.equals(url)) {
+                                    clearImageDataList.add(imgData)
+                                }
+                            }
+                        }
+                        setRecyclerView()
+                    }
+                }
+                override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
+                    println("이미지 업로드 실패")
+                }
+            })
+        }
+
+        // 흐린 사진 필터 버튼
+        binding.onlyBlurFilterButton.setOnClickListener {
+            val retrofit: Retrofit = Retrofit.Builder()
+                .baseUrl(getString(R.string.picat_server))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            // APIInterface 객체 생성
+            var server: RequestInterface = retrofit.create(RequestInterface::class.java)
+            server.getBlur(myKakaoId).enqueue(object : Callback<ImageResponseData> {
+
+                override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
+                    if (response.isSuccessful) {
+                        for (imgData in imageDataList) {
+                            for (url in response.body()?.url!!) {
+                                if (imgData.uri.equals(url)) {
+                                    blurImageDataList.add(imgData)
+                                }
+                            }
+                        }
+                        setRecyclerView()
+                    }
+                }
+
+                override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
+                    println("이미지 업로드 실패")
+                }
+            })
         }
 
 
@@ -632,18 +692,10 @@ class SharePictureActivity: AppCompatActivity(){
                         openInviteDialog(friendDataList)
                     }
 
-                    val blurArray = JSONArray()
-                    for (i in 0.. response.body()?.blurImages?.size!! - 1) {
-                        val jsonObject = JSONObject()
-                        jsonObject.put("blurimages", response.body()?.blurImages?.toList()?.get(i))
-                        blurArray.put(jsonObject)
-                    }
-
                     val jsonObject = JSONObject()
                     jsonObject.put("img_list", jsonArray)
                     jsonObject.put("img_cnt", response.body()?.img_cnt)
                     jsonObject.put("id", myKakaoId)
-                    jsonObject.put("blurImages", blurArray)
 
                     mSocket?.emit("image", jsonObject)
                 }
