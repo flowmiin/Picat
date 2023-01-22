@@ -874,6 +874,8 @@ class SharePictureActivity: AppCompatActivity(){
     fun openInviteDialog(friendDataList : ArrayList<FriendData>) {
         val dialog = InviteDialog(this)
         dialog.setOnOKClickedListener { content ->
+
+            //선택된 친구가 있을 때
             if(content != null) {
                 var sendFriendId = mutableSetOf<Long>()
                 for (i in content) {

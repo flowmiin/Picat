@@ -10,6 +10,7 @@ import android.net.Uri
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,10 +45,20 @@ class InviteDialog(private val context : AppCompatActivity) {
 //        dialog.setCanceledOnTouchOutside(false)
         dialog.setCancelable(false) // 다이얼로그의 바깥 화면을 눌렀을 때 다이얼로그가 닫히지 않도록 함
 
+        // 확인 버튼
         binding.inviteCheckButton.setOnClickListener {
-            listener.onClicked(inviteFriendPictureAdapter.mSelected)
-            dialog.dismiss()
+            // 선택한 친구들이 있을 때
+            if (inviteFriendPictureAdapter.mSelected.isNotEmpty()){
+                listener.onClicked(inviteFriendPictureAdapter.mSelected)
+                dialog.dismiss()
+            }else{
+                // 선택한 친구들이 없을 때
+                dialog.findViewById<TextView>(R.id.invite_warning_text).visibility = View.VISIBLE
+                dialog.findViewById<TextView>(R.id.invite_text).visibility = View.GONE
+            }
+
         }
+        // 취소 버튼
         binding.cancelCheckButton.setOnClickListener{
             dialog.dismiss()
         }
