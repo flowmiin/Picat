@@ -408,9 +408,16 @@ class SharePictureActivity: AppCompatActivity(){
             }
         }
 
+        // 전체 사진 버튼
+        var entireButton = binding.allFilterButton
+        entireButton.setOnClickListener {
+            setRecyclerView()
+        }
+
         // 흐린 사진 제외 버튼
         var exceptBlurButton = binding.exceptBlurFilterButton
         exceptBlurButton.setOnClickListener {
+            clearImageDataList.clear()
 
             val retrofit: Retrofit = Retrofit.Builder()
                 .baseUrl(getString(R.string.picat_server))
@@ -430,7 +437,7 @@ class SharePictureActivity: AppCompatActivity(){
                                 }
                             }
                         }
-                        setRecyclerView()
+                        setClearRecyclerView()
                     }
                 }
                 override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
@@ -442,6 +449,8 @@ class SharePictureActivity: AppCompatActivity(){
         // 흐린 사진 필터 버튼
         var onlyBlurButton = binding.onlyBlurFilterButton
         onlyBlurButton.setOnClickListener {
+            blurImageDataList.clear()
+
             val retrofit: Retrofit = Retrofit.Builder()
                 .baseUrl(getString(R.string.picat_server))
                 .addConverterFactory(GsonConverterFactory.create())
@@ -460,7 +469,7 @@ class SharePictureActivity: AppCompatActivity(){
                                 }
                             }
                         }
-                        setRecyclerView()
+                        setBlurRecyclerView()
                     }
                 }
 
@@ -731,6 +740,16 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 
+    private fun setBlurRecyclerView() {
+        pictureAdapter = PictureAdapter(blurImageDataList, this, selectionIdList)
+        binding.pictureRecyclerview.adapter = pictureAdapter
+    }
+
+    private fun setClearRecyclerView() {
+        pictureAdapter = PictureAdapter(clearImageDataList, this, selectionIdList)
+        binding.pictureRecyclerview.adapter = pictureAdapter
+    }
+
     // 툴바 메뉴 버튼 설정
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
@@ -775,6 +794,7 @@ class SharePictureActivity: AppCompatActivity(){
                     val imgData = ImageData(imageDataList.size, imgObj)
                     imageDataList.add(imgData)
                 }
+                binding.allFilterButton.isChecked = true
                 setRecyclerView()
 
             }
