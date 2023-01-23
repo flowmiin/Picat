@@ -116,10 +116,6 @@ class SharePictureActivity: AppCompatActivity(){
         super.onCreate(savedInstanceState)
         binding = ActivitySharePictureBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        // 스크롤뷰 배경 이벤트 설정
-//        binding.pictureRecyclerview.isNestedScrollingEnabled = false
-//        scrollEvent()
-
 
         // socket 통신 연결
         mSocket = SocketApplication.get()
@@ -244,10 +240,9 @@ class SharePictureActivity: AppCompatActivity(){
         supportActionBar?.setDisplayShowTitleEnabled(false) //액션바에 표시되는 제목의 표시유무를 설정합니다. false로 해야 custom한 툴바의 이름이 화면에 보이게 됩니다.
 
         // 프로필 사진 옆 플러스 버튼: 카카오 친구 피커 실행
-        // 수동으로 친구추가
         binding.profileItemPlusButton.setOnClickListener {
             val openPickerFriendRequestParams = OpenPickerFriendRequestParams(
-                title = "풀 스크린 멀티 친구 피커", //default "친구 선택"
+                title = "친구 초대하기", //default "친구 선택"
                 viewAppearance = ViewAppearance.AUTO, //default ViewAppearance.AUTO
                 orientation = PickerOrientation.AUTO, //default PickerOrientation.AUTO
                 enableSearch = true, //default true
@@ -278,23 +273,19 @@ class SharePictureActivity: AppCompatActivity(){
         }
 
         //Adapter 초기화
-        pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
-
+        binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         profilePictureAdapter = ProfilePictureAdapter(joinFriendList, this)
         profilePictureAdapter.setClickListener(object : ProfilePictureAdapter.ItemClickListener{
             override fun onItemClick(view: View?, position: Int) {
                 gotoFaceFilter(position)
             }
-
         })
+
 
         //recyclerview 레이아웃 설정
         binding.pictureRecyclerview.layoutManager = GridLayoutManager(this, 3)
-        binding.profileRecyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
-
+        pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
-
-//        binding.pictureRecyclerview.addItemDecoration(GridSpacingItemDecoration(3, 10, includeEdge = false))
         binding.pictureRecyclerview.addItemDecoration(SpaceItemDecorator(left = 10, top = 10, right = 10, bottom = 10))
 
 
@@ -390,7 +381,6 @@ class SharePictureActivity: AppCompatActivity(){
                     serviceIntent.putExtra("myKakaoId", myKakaoId)
                     switch_pref.edit().putBoolean("store_check", true).apply()
                     ContextCompat.startForegroundService(this, serviceIntent)
-//                    Toast.makeText(this, "Foreground Service start", Toast.LENGTH_SHORT).show()
                 }
                 else {
                     // permission 허용 요청 실행
@@ -402,7 +392,6 @@ class SharePictureActivity: AppCompatActivity(){
                 val serviceIntent = Intent(this, ForegroundService::class.java)
                 stopService(serviceIntent)
                 switch_pref.edit().putBoolean("store_check", false).apply()
-//                Toast.makeText(this, "Foreground Service stop", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -444,7 +433,7 @@ class SharePictureActivity: AppCompatActivity(){
             })
         }
 
-        // 흐린 사진 필터 버튼
+        // 흐린 사진만 보기 버튼
         var onlyBlurButton = binding.onlyBlurFilterButton
         onlyBlurButton.setOnClickListener {
             blurImageDataList.clear()
@@ -531,7 +520,6 @@ class SharePictureActivity: AppCompatActivity(){
             val intent = Intent(this, SelectPictureActivity::class.java)
             intent.putExtra("selectonIdList", selectionIdList)
             intent.putExtra("myKakaoId", myKakaoId)
-//            intent.putExtra("imageDataList", imageDataList)
 
             if (binding.allFilterButton.isChecked == true) {
                 intent.putExtra("imageDataList", imageDataList)
@@ -560,7 +548,7 @@ class SharePictureActivity: AppCompatActivity(){
             val bundle = Bundle()
             bundle.putInt("pictureCount", pictureAdapter.mSelected.size)
             bundle.putString("albumName", binding.roomNameEditText.text.toString())
-            bundle.putString("albumCover", imageDataList[pictureAdapter.mSelected.first()].uri.toString())
+            bundle.putString("albumCover", imageDataList[pictureAdapter.mSelected.first()].uri)
             val downloadAlbumFragment = DownloadCompleteFragment()
             downloadAlbumFragment.arguments = bundle
             val transaction = supportFragmentManager.beginTransaction().add(R.id.activity_share_picture_layout, downloadAlbumFragment)
@@ -694,11 +682,10 @@ class SharePictureActivity: AppCompatActivity(){
         server.postImg(myKakaoId!!, image_multipart!!, img_cnt, myKakaoId!!).enqueue(object : Callback<ImageResponseData> {
             override fun onResponse(call: Call<ImageResponseData>, response: Response<ImageResponseData>) {
                 progressOff()
-
                 if (response.isSuccessful){
                     val jsonArray = JSONArray()
 
-                    for (i in 0..response.body()?.img_cnt!! - 1) {
+                    for (i in 0 until response.body()?.img_cnt!!) {
                         val jsonObject = JSONObject()
                         jsonObject.put("url", response.body()?.url?.toList()?.get(i))
                         jsonArray.put(jsonObject)
@@ -708,7 +695,7 @@ class SharePictureActivity: AppCompatActivity(){
 
                     var friendDataList : ArrayList<FriendData> = ArrayList()
 
-                    for (i in 0..friendJSON.length() - 1) {
+                    for (i in 0 until friendJSON.length()) {
                         var nickName = (friendJSON.getJSONObject(i).getString("nickname"))
                         var id = (friendJSON.getJSONObject(i).getLong("id"))
                         var imgObj = (friendJSON.getJSONObject(i).getString("picture").toUri())
@@ -717,6 +704,7 @@ class SharePictureActivity: AppCompatActivity(){
                         friendDataList.add(friendData)
                         friendDataList.distinct()
                     }
+
                     if (friendJSON.length() > 0) {
                         openInviteDialog(friendDataList)
                     }
@@ -757,11 +745,13 @@ class SharePictureActivity: AppCompatActivity(){
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 
+    // 흐린 사진 recyclerview 초기화
     private fun setBlurRecyclerView() {
         pictureAdapter = PictureAdapter(blurImageDataList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 
+    // 흐린 사진 제외 recyclerview 초기화
     private fun setClearRecyclerView() {
         pictureAdapter = PictureAdapter(clearImageDataList, this, selectionIdList)
         binding.pictureRecyclerview.adapter = pictureAdapter
@@ -917,7 +907,7 @@ class SharePictureActivity: AppCompatActivity(){
         })
     }
 
-
+    //인물필터 화면으로 이동하기
     fun gotoFaceFilter(position: Int) {
         var intent = Intent(applicationContext, SelectByPeopleActivity::class.java)
         intent.putExtra("friendId", joinFriendList[position].id)
@@ -946,8 +936,6 @@ class SharePictureActivity: AppCompatActivity(){
         }
     }
 
-
-
     // 나가기 다이얼로그 열기
     fun exitDialogOn() {
         val binding = ExitDialogBinding.inflate(layoutInflater)
@@ -975,6 +963,7 @@ class SharePictureActivity: AppCompatActivity(){
         exitDialog.show()
     }
 
+    // 초대 알림 다이얼로그 열기
     fun inviteDialogOn(id: Long?, roomIdx: Long?, picture: String?, nickname: String?) {
         val binding = InviteCheckDialogBinding.inflate(layoutInflater)
         inviteDialog = AppCompatDialog(this)
