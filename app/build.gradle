@@ -6,6 +6,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\user\\AndroidStudioProjects\\PicatKey.jks')
+            storePassword 'tumblers0117'
+            keyAlias 'PicatKey'
+            keyPassword 'tumblers0117'
+        }
+    }
     namespace 'com.tumblers.picat'
     compileSdk 32
 
@@ -13,8 +21,8 @@ android {
         applicationId "com.tumblers.picat"
         minSdk 21
         targetSdk 32
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -23,6 +31,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -53,7 +62,8 @@ dependencies {
 
     implementation 'androidx.recyclerview:recyclerview:1.2.1' // 리사이클러 뷰 선언
     implementation 'com.github.bumptech.glide:glide:4.12.0' // Glide 사용하기
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0' // Glide 사용하기
+//    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0' // Glide 사용하기
+    kapt 'com.github.bumptech.glide:compiler:4.12.0'
 
     // socket.io
     implementation ('io.socket:socket.io-client:2.0.0') {

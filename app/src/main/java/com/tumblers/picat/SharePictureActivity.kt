@@ -497,7 +497,7 @@ class SharePictureActivity: AppCompatActivity(){
 
         //바텀시트 내 다운로드 버튼
         bottomSheetView.findViewById<ImageButton>(R.id.bottomsheet_download_button).setOnClickListener {
-            bottomSheetDialog.hide()
+            bottomSheetDialog.dismiss()
 
             requestPermissionLauncher.launch("android.permission.WRITE_EXTERNAL_STORAGE")
 
