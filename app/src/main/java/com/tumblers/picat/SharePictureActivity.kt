@@ -46,6 +46,7 @@ import com.kakao.sdk.talk.TalkApiClient
 import com.kakao.sdk.template.model.Link
 import com.kakao.sdk.template.model.TextTemplate
 import com.kakao.sdk.user.UserApiClient
+import com.kakao.usermgmt.StringSet.tag
 import com.tumblers.picat.adapter.*
 import com.tumblers.picat.databinding.ActivitySharePictureBinding
 import com.tumblers.picat.databinding.ExitDialogBinding
@@ -168,7 +169,7 @@ class SharePictureActivity: AppCompatActivity(){
 
                     inviteDialogOn(id, roomIdx, picture, nickname)
                 }
-
+                joinFriendList.add(FriendData(myKakaoId,ImageData(joinFriendList.size, myPicture!!), myNickname!!))
                 setProfileRecyclerview()
 
                 var requestData = JSONObject()
@@ -574,8 +575,8 @@ class SharePictureActivity: AppCompatActivity(){
 
         if (mSocket != null && !mSocket?.isActive!!) {
             mSocket?.connect()
-            mSocket?.emit("participate", myKakaoId)
-            mSocket?.on("participate", onParticipate)
+//            mSocket?.emit("participate", myKakaoId)
+//            mSocket?.on("participate", onParticipate)
         }
     }
 
@@ -962,14 +963,14 @@ class SharePictureActivity: AppCompatActivity(){
             bottomSheetDialog.dismiss()
             exitDialog.dismiss()
 
-//            UserApiClient.instance.unlink { error ->
-//                if (error != null) {
-//                    println("연결 끊기 실패.")
-//                }
-//                else {
-//                    println("연결 끊기 성공. SDK에서 토큰 삭제됨")
-//                }
-//            }
+            UserApiClient.instance.unlink { error ->
+                if (error != null) {
+                    println("연결 끊기 실패.")
+                }
+                else {
+                    println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+                }
+            }
             finish()
         }
         exitDialog.show()
@@ -1015,6 +1016,7 @@ class SharePictureActivity: AppCompatActivity(){
 
             override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
                 if (response.body()?.isSuccess!!) {
+                    mSocket?.emit("exit", myKakaoId)
                     finishAffinity()
                     val intent = Intent(applicationContext, SharePictureActivity::class.java)
                     startActivity(intent)
