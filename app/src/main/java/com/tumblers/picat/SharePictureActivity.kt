@@ -678,7 +678,7 @@ class SharePictureActivity: AppCompatActivity(){
     // 이미지 업로드 post 요청
     private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
         val okHttpClient = OkHttpClient.Builder()
-            .readTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
             .build()
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
@@ -732,6 +732,7 @@ class SharePictureActivity: AppCompatActivity(){
             }
 
             override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
+                progressOff()
                 println("이미지 업로드 실패")
             }
         })

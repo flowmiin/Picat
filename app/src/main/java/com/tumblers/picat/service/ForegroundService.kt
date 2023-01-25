@@ -145,18 +145,18 @@ class ForegroundService : Service() {
         }
 
         // 갤러리에 이미지가 없는 상태에서 새로운 이미지가 들어왔을떄
-        else if ((currentImageDate == null) && (newImageDate != null)) {
-            startImage = newImage!!
-            startImageDate = getImageDateTaken(startImage)
-            currentImageDate = startImageDate
-
-            var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
-            var file = File(getAbsolutePath(newImage, this))
-            var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
-            var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-            emitBody?.add(body)
-            apiRequest(emitBody, 1)
-        }
+//        else if ((currentImageDate == null) && (newImageDate != null)) {
+//            startImage = newImage!!
+//            startImageDate = getImageDateTaken(startImage)
+//            currentImageDate = startImageDate
+//
+//            var emitBody : MutableList<MultipartBody.Part>? = mutableListOf()
+//            var file = File(getAbsolutePath(newImage, this))
+//            var requestFile = RequestBody.create(MediaType.parse("image/*"), file)
+//            var body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+//            emitBody?.add(body)
+//            apiRequest(emitBody, 1)
+//        }
 
     }
 
