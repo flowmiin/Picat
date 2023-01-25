@@ -83,9 +83,9 @@ class LoginActivity : AppCompatActivity() {
 
                 push_data()
 
-                val intent = Intent(this, SharePictureActivity::class.java)
-                startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-                finish()
+//                val intent = Intent(this, SharePictureActivity::class.java)
+//                startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+//                finish()
             }
         }
 
@@ -188,6 +188,9 @@ class LoginActivity : AppCompatActivity() {
             override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
                 if (response.isSuccessful){
                     Toast.makeText(applicationContext, "${response.body()?.message}", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(applicationContext, SharePictureActivity::class.java)
+                    startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                    finish()
                 }
             }
 
