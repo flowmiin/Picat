@@ -666,7 +666,7 @@ class SharePictureActivity: AppCompatActivity(){
     // 이미지 업로드 post 요청
     private fun apiRequest(image_multipart: MutableList<MultipartBody.Part>?, img_cnt: Int) {
         val okHttpClient = OkHttpClient.Builder()
-            .readTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
             .build()
         // retrofit 객체 생성
         val retrofit: Retrofit = Retrofit.Builder()
@@ -720,6 +720,7 @@ class SharePictureActivity: AppCompatActivity(){
             }
 
             override fun onFailure(call: Call<ImageResponseData>, t: Throwable) {
+                progressOff()
                 println("이미지 업로드 실패")
             }
         })
@@ -951,14 +952,14 @@ class SharePictureActivity: AppCompatActivity(){
             bottomSheetDialog.dismiss()
             exitDialog.dismiss()
 
-            UserApiClient.instance.unlink { error ->
-                if (error != null) {
-                    println("연결 끊기 실패.")
-                }
-                else {
-                    println("연결 끊기 성공. SDK에서 토큰 삭제됨")
-                }
-            }
+//            UserApiClient.instance.unlink { error ->
+//                if (error != null) {
+//                    println("연결 끊기 실패.")
+//                }
+//                else {
+//                    println("연결 끊기 성공. SDK에서 토큰 삭제됨")
+//                }
+//            }
             finish()
         }
         exitDialog.show()
@@ -1005,7 +1006,6 @@ class SharePictureActivity: AppCompatActivity(){
 
             override fun onResponse(call: Call<SimpleResponseData>, response: Response<SimpleResponseData>) {
                 if (response.body()?.isSuccess!!) {
-                    mSocket?.emit("exit", myKakaoId)
                     finishAffinity()
                     val intent = Intent(applicationContext, SharePictureActivity::class.java)
                     startActivity(intent)
