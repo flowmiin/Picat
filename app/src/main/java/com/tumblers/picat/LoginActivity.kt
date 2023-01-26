@@ -83,9 +83,6 @@ class LoginActivity : AppCompatActivity() {
 
                 push_data()
 
-//                val intent = Intent(this, SharePictureActivity::class.java)
-//                startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-//                finish()
             }
         }
 
@@ -111,9 +108,6 @@ class LoginActivity : AppCompatActivity() {
 
                         push_data()
 
-                        val intent = Intent(this, SharePictureActivity::class.java)
-                        startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
-                        finish()
                     }
                 }
             } else {
