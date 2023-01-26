@@ -1,9 +1,9 @@
 package com.tumblers.picat
 
-import android.content.ActivityNotFoundException
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.database.Cursor
@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
@@ -76,6 +77,7 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import java.util.jar.Manifest
 
 
 class SharePictureActivity: AppCompatActivity(){
@@ -126,16 +128,39 @@ class SharePictureActivity: AppCompatActivity(){
         mSocket?.on("participate", onParticipate)
         mSocket?.on("exit", onExit)
 
-        
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                println("granted")
+            }
+            else {
+                println("denied")
+            }
+        }
+
+
         // 토큰 정보 확인 후
         // 실패 시 로그인 화면으로 이동
         UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
             if (error != null) {
                 val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
                 finish()
+                startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
             }
             else if (tokenInfo != null) {
+                //앱 진입 시 퍼미션 요청
+                val permissions: Array<String> = arrayOf(
+                    android.Manifest.permission.CAMERA,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                if (ContextCompat.checkSelfPermission(this, "android.permission.CAMERA") != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, "android.permission.READ_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, "android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
+
+                    ActivityCompat.requestPermissions(this, permissions, PackageManager.PERMISSION_GRANTED)
+                }
             }
         }
 
@@ -232,6 +257,8 @@ class SharePictureActivity: AppCompatActivity(){
                         apiRequest(emitBody, count)
                     }
                 }
+
+
             }
         }
 
@@ -300,20 +327,12 @@ class SharePictureActivity: AppCompatActivity(){
 
         // fab버튼 클릭 시 바텀시트 활성화
         binding.openBottomsheetFab.setOnClickListener {
+
+
             bottomSheetDialog.show()
         }
 
-        // permission 허용 요청
-        val requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            if (isGranted) {
-                println("granted")
-            }
-            else {
-                println("denied")
-            }
-        }
+
 
 //        binding.linkButton.setOnClickListener {
 //            val url = "http://13.124.233.208:5000/"
@@ -556,7 +575,6 @@ class SharePictureActivity: AppCompatActivity(){
             transaction.commit()
         }
     }
-    
 
     override fun onResume() {
         super.onResume()
@@ -744,18 +762,81 @@ class SharePictureActivity: AppCompatActivity(){
     private fun setRecyclerView(){
         // picture recyclerview 설정
         pictureAdapter = PictureAdapter(imageDataList, this, selectionIdList)
+        pictureAdapter.setClickListener(object : PictureAdapter.ItemClickListener{
+            override fun onItemLongClick(view: View?, position: Int): Boolean {
+                val intent = Intent(applicationContext, SelectPictureActivity::class.java)
+                intent.putExtra("selectonIdList", selectionIdList)
+                intent.putExtra("myKakaoId", myKakaoId)
+
+                if (binding.allFilterButton.isChecked == true) {
+                    intent.putExtra("imageDataList", imageDataList)
+                }
+                else if (binding.exceptBlurFilterButton.isChecked == true) {
+                    intent.putExtra("imageDataList", clearImageDataList)
+                }
+                else {
+                    intent.putExtra("imageDataList", blurImageDataList)
+                }
+
+                activityResult.launch(intent)
+                return true
+            }
+
+        })
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 
     // 흐린 사진 recyclerview 초기화
     private fun setBlurRecyclerView() {
         pictureAdapter = PictureAdapter(blurImageDataList, this, selectionIdList)
+        pictureAdapter.setClickListener(object : PictureAdapter.ItemClickListener{
+            override fun onItemLongClick(view: View?, position: Int): Boolean {
+                val intent = Intent(applicationContext, SelectPictureActivity::class.java)
+                intent.putExtra("selectonIdList", selectionIdList)
+                intent.putExtra("myKakaoId", myKakaoId)
+
+                if (binding.allFilterButton.isChecked == true) {
+                    intent.putExtra("imageDataList", imageDataList)
+                }
+                else if (binding.exceptBlurFilterButton.isChecked == true) {
+                    intent.putExtra("imageDataList", clearImageDataList)
+                }
+                else {
+                    intent.putExtra("imageDataList", blurImageDataList)
+                }
+
+                activityResult.launch(intent)
+                return true
+            }
+
+        })
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 
     // 흐린 사진 제외 recyclerview 초기화
     private fun setClearRecyclerView() {
         pictureAdapter = PictureAdapter(clearImageDataList, this, selectionIdList)
+        pictureAdapter.setClickListener(object : PictureAdapter.ItemClickListener{
+            override fun onItemLongClick(view: View?, position: Int): Boolean {
+                val intent = Intent(applicationContext, SelectPictureActivity::class.java)
+                intent.putExtra("selectonIdList", selectionIdList)
+                intent.putExtra("myKakaoId", myKakaoId)
+
+                if (binding.allFilterButton.isChecked == true) {
+                    intent.putExtra("imageDataList", imageDataList)
+                }
+                else if (binding.exceptBlurFilterButton.isChecked == true) {
+                    intent.putExtra("imageDataList", clearImageDataList)
+                }
+                else {
+                    intent.putExtra("imageDataList", blurImageDataList)
+                }
+
+                activityResult.launch(intent)
+                return true
+            }
+
+        })
         binding.pictureRecyclerview.adapter = pictureAdapter
     }
 

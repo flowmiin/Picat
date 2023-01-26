@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tumblers.picat.ImageViewPagerActivity
 import com.tumblers.picat.R
+import com.tumblers.picat.SelectPictureActivity
 import com.tumblers.picat.dataclass.ImageData
 
 class PictureAdapter(private var imageDataList: ArrayList<ImageData>,
@@ -130,7 +131,6 @@ class PictureAdapter(private var imageDataList: ArrayList<ImageData>,
     }
 
     interface ItemClickListener {
-        fun onItemClick(view: View?, position: Int)
         fun onItemLongClick(view: View?, position: Int): Boolean
     }
 
@@ -138,8 +138,7 @@ class PictureAdapter(private var imageDataList: ArrayList<ImageData>,
     // ViewHolder
     // ----------------------
     inner class PictureViewHolder(itemView: View)
-        : RecyclerView.ViewHolder(itemView),
-        View.OnClickListener, View.OnLongClickListener {
+        : RecyclerView.ViewHolder(itemView),View.OnLongClickListener {
         var imv: ImageView
         var isSelectedButton: ImageButton
         var zoomButton: ImageButton
@@ -148,12 +147,7 @@ class PictureAdapter(private var imageDataList: ArrayList<ImageData>,
             imv = itemView.findViewById(R.id.imv)
             isSelectedButton = itemView.findViewById(R.id.is_selected_imagebutton)
             zoomButton = itemView.findViewById(R.id.zoom_imagebutton)
-            itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
-        }
-
-        override fun onClick(view: View) {
-            if (mClickListener != null) mClickListener!!.onItemClick(view, bindingAdapterPosition)
         }
 
         override fun onLongClick(view: View): Boolean {
