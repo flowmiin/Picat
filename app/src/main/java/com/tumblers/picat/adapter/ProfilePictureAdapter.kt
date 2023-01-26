@@ -63,11 +63,13 @@ class ProfilePictureAdapter(var friendDataList : ArrayList<FriendData>,
         : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         val profilePicture: ImageView = view.findViewById(R.id.profile_picture)
+        val profilePictureCover: ImageView = view.findViewById(R.id.profile_picture_cover)
         val nickName : TextView = view.findViewById(R.id.kakao_nick_name)
 
         init {
             view.setOnClickListener(this)
-            profilePicture.setOnClickListener(this)
+//            profilePicture.setOnClickListener(this)
+            profilePictureCover.setOnClickListener(this)
         }
 
         override fun onClick(view: View) {
