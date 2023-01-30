@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/alert_background"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/picat_layout_padding">
+
+    <TextView
+        android:id="@+id/invite_room_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/notosans_bold"
+        android:includeFontPadding="false"
+        android:text="함께한 친구들을 찾았어요"
+        android:textAlignment="center"
+        android:textColor="@color/picat_font_color"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/invite_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="공유방에 초대할 친구들을 선택해주세요"
+        android:textAlignment="center"
+        android:textSize="16dp"
+        android:ems="16"
+        android:fontFamily="@font/notosans_regular"
+        android:textColor="@color/picat_font_color"
+        android:includeFontPadding="false"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="30dp"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/invite_warning_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/notosans_regular"
+        android:includeFontPadding="false"
+        android:text="선택된 친구가 없어요\n초대할 친구를 선택하거나 취소를 눌러주세요"
+        android:ems="16"
+        android:textAlignment="center"
+        android:textColor="@color/picat_dark_blue"
+        android:textSize="16dp"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/invite_horizontal_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollIndicators="none">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/friend_profile_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="136dp"
+            android:background="@color/picat_light_blue">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/invite_recyclerview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+            </androidx.recyclerview.widget.RecyclerView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/cancel_check_button"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:background="#00ff0000"
+            android:text="취소"
+            android:textSize="16dp"
+            android:fontFamily="@font/notosans_bold"
+            android:textColor="@color/picat_font_color"
+            android:includeFontPadding="false" />
+
+        <Button
+            android:id="@+id/invite_check_button"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:background="#00ff0000"
+            android:text="확인"
+            android:textSize="16dp"
+            android:fontFamily="@font/notosans_bold"
+            android:textColor="@color/picat_font_color"
+            android:includeFontPadding="false" />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

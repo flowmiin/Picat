@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FriendListActivity"
+    android:padding="@dimen/picat_layout_padding">
+
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/start_share_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:includeFontPadding="false"
+        android:text="  선택한 멤버들 추가하기  "
+        android:textColor="@color/white"
+        android:fontFamily="@font/notosans_bold"
+        android:layout_marginBottom="10dp"
+        android:textSize="@dimen/picat_text_size_small"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:backgroundTint="@color/picat_blue"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

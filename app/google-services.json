@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "443519337091",
+    "project_id": "picat-6285e",
+    "storage_bucket": "picat-6285e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:443519337091:android:e98695182727b141cb11b6",
+        "android_client_info": {
+          "package_name": "com.tumblers.picat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "443519337091-dgnaqt4hrhu6aeb60kbs42g3fq58fkb3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tumblers.picat",
+            "certificate_hash": "150bfae317cc6057c940d4fd11d9fdc1b885b9e2"
+          }
+        },
+        {
+          "client_id": "443519337091-s9dvp9s551nol6q14hji6oqpo75g12vg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6h5F-WZd9TqfiCZuqD5LiyhKPaFLA3k8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "443519337091-s9dvp9s551nol6q14hji6oqpo75g12vg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

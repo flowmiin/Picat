@@ -7,4 +7,22 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#76000000</color>
+
+<!--  picat 라이브러리  -->
+    <color name="picat_blue">#85A9FA</color>
+    <color name="picat_light_blue">#CFDEFF</color>
+    <color name="picat_dark_blue">#4563A5</color>
+    <color name="picat_orange">#EBB38D</color>
+    <color name="transparent">#00FFFFFF</color>
+    <color name="white_overlay">#76FFFFFF</color>
+    <color name="picat_font_color">#3C263B</color>
+    <color name="picat_boundary_line_color">#D9D9D9</color>
+    <color name="picat_switch_inactivate">#888888</color>
+    <color name="picat_picture_recyclerview_background">#A9BDF1</color>
+
 </resources>

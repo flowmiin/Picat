@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/complete_button"
+        android:icon="@drawable/complete_icn"
+        android:title="완료"
+        app:showAsAction="always" />
+
+</menu>

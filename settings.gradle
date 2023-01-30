@@ -10,6 +10,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // 카카오 SDK 추가
+        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
+        // JitPack 라이브러리
+        maven { url "https://jitpack.io" }
     }
 }
 rootProject.name = "picat"

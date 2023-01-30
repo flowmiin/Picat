@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomsheet_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bottomsheet_backgound"
+    android:paddingHorizontal="@dimen/picat_layout_padding"
+    android:paddingTop="20dp">
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="4dp"
+        android:background="@color/picat_boundary_line_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageButton
+        android:id="@+id/bottomsheet_upload_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="fitCenter"
+        android:padding="20dp"
+        android:background="@drawable/bottomsheet_button_selector"
+        android:src="@drawable/bottomsheet_upload_icn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/bottomsheet_select_button"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/bottomsheet_upload_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="업로드"
+        android:textColor="@color/picat_font_color"
+        android:textSize="@dimen/picat_text_size_small"
+        android:fontFamily="@font/notosans_regular"
+        app:layout_constraintTop_toBottomOf="@+id/bottomsheet_upload_button"
+        app:layout_constraintLeft_toLeftOf="@+id/bottomsheet_upload_button"
+        app:layout_constraintRight_toRightOf="@+id/bottomsheet_upload_button"
+        />
+
+    <ImageButton
+        android:id="@+id/bottomsheet_select_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="fitCenter"
+        android:padding="20dp"
+        android:background="@drawable/bottomsheet_button_selector"
+        android:src="@drawable/bottomsheet_select_icn"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/bottomsheet_select_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="사진 선택"
+        android:textColor="@color/picat_font_color"
+        android:textSize="@dimen/picat_text_size_small"
+        android:fontFamily="@font/notosans_regular"
+        app:layout_constraintTop_toBottomOf="@+id/bottomsheet_select_button"
+        app:layout_constraintLeft_toLeftOf="@+id/bottomsheet_select_button"
+        app:layout_constraintRight_toRightOf="@+id/bottomsheet_select_button"
+        />
+
+    <ImageButton
+        android:id="@+id/bottomsheet_download_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="fitCenter"
+        android:padding="20dp"
+        android:background="@drawable/bottomsheet_button_selector"
+        android:src="@drawable/bottomsheet_download_icn"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/bottomsheet_select_button"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/bottomsheet_download_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="다운로드"
+        android:textColor="@color/picat_font_color"
+        android:textSize="@dimen/picat_text_size_small"
+        android:fontFamily="@font/notosans_regular"
+        app:layout_constraintTop_toBottomOf="@+id/bottomsheet_download_button"
+        app:layout_constraintLeft_toLeftOf="@+id/bottomsheet_download_button"
+        app:layout_constraintRight_toRightOf="@+id/bottomsheet_download_button"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

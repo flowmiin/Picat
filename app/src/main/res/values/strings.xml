@@ -9,4 +9,16 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <!--  alert string  -->
+    <string name="create_album_alert_title">앨범의 이름을 입력해주세요</string>
+    <string name="download_album_alert_title">앨범을 다운로드할까요?</string>
+    <string name="download_album_alert_subtitle">휴대폰 갤러리에 앨범이 저장돼요</string>
+    <string name="yet_open_alert_title">아직 열려있는 공유방이 있어요</string>
+    <string name="yet_open_alert_subtitle">해당 공유방으로 이동할까요?</string>
+
+    <!--  피캣 클라이언트 서버  -->
+    <!--    <string name="picat_server">http://54.180.36.192:5000/</string>-->
+    <!--  피캣 본서버  -->
+    <string name="picat_server">http://43.200.93.112:5000/</string>
 </resources>

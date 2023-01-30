@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/invite_item_linearlayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:layout_margin="10dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/invite_item_constraintlayout"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:padding="5dp"
+        android:background="@drawable/not_check_profile_background">
+
+        <ImageView
+            android:id="@+id/invite_profile_picture"
+            android:scaleType="centerCrop"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:clipToOutline="true"
+            android:clickable="true"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/kakao_nick_name"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:fontFamily="@font/notosans_regular"
+        android:includeFontPadding="false"
+        android:text="test"
+        android:textAlignment="center"
+        android:textColor="@color/picat_font_color"
+        android:textSize="@dimen/picat_text_size_small" />
+
+
+</LinearLayout>
