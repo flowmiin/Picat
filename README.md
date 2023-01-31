@@ -11,7 +11,6 @@ https://youtu.be/M4QCKSfNTdQ
 
 ## 주요 기능
 ![image](https://user-images.githubusercontent.com/69448918/215395310-04198c84-3c24-4404-9e52-f6ad4a55708d.png)
-![image](https://user-images.githubusercontent.com/69448918/215395310-04198c84-3c24-4404-9e52-f6ad4a55708d.png)
 ![image](https://user-images.githubusercontent.com/69448918/215395336-8c59afda-5231-4484-8d3a-26a7c92517c0.png)
 ![image](https://user-images.githubusercontent.com/69448918/215395347-3559632a-b1e7-4b0e-b0fa-5297f0259581.png)
 ![image](https://user-images.githubusercontent.com/69448918/215395352-97862b49-6b2e-4088-97ce-41695f4c9e5f.png)
